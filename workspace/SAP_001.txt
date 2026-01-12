@@ -1,0 +1,127 @@
+📄 TLF Specification for Study WO41554 (INAVO120)
+
+Study Title:
+Phase III, Randomized, Double-Blind, Placebo-Controlled Study Evaluating the Efficacy and Safety of Inavolisib Plus Palbociclib and Fulvestrant in PIK3CA-Mutant, HR-Positive, HER2-Negative Breast Cancer
+
+Sponsor: F. Hoffmann-La Roche Ltd
+SAP Version: 2
+SAP Date: 18-Sep-2023
+
+⸻
+
+1. Tables
+
+1.1 Demographics and Baseline Characteristics
+	•	T001: Demographic summary (age, sex, race, ethnicity)
+	•	T002: Baseline disease characteristics (visceral disease, ECOG, hormone receptor status)
+	•	T003: Prior treatment history and endocrine resistance
+	•	T004: Stratification factors by treatment arm
+
+1.2 Study Conduct
+	•	T005: Patient disposition
+	•	T006: Reasons for study and treatment discontinuation
+	•	T007: Protocol deviations (major/minor)
+	•	T008: Study treatment exposure (cycles, duration, dose intensity)
+
+1.3 Efficacy — Primary Endpoint (PFS)
+	•	T101: PFS — HR, 95% CI, p-value (stratified and unstratified)
+	•	T102: Median PFS (months) with 95% CI by treatment arm
+	•	T103: Number of PFS events and censored observations
+	•	T104: Sensitivity analyses (BICR, stratified/unstratified, PIK3CA-confirmed subgroup)
+	•	T105: Supplementary analyses (hypothetical and composite ICE strategies)
+	•	T106: PFS subgroup analysis (HR and 95% CI per subgroup)
+
+1.4 Efficacy — Secondary Endpoints
+	•	T201: OS summary (stratified HR, median OS, events, CI)
+	•	T202: ORR summary (CR + PR) — response rate, 95% CI, difference
+	•	T203: BOR summary (CR + PR) — response rate, 95% CI, difference
+	•	T204: CBR summary (CR + PR + SD ≥24 weeks)
+	•	T205: Duration of Objective Response — HR, median DOR, 95% CI (descriptive only)
+
+1.5 Efficacy — PRO/TTCD Endpoints
+	•	T301: TTCD in pain (BPI-SF) — KM estimate, HR, median
+	•	T302: TTCD in physical function (QLQ-C30 items 1–5)
+	•	T303: TTCD in role function (QLQ-C30 items 6–7)
+	•	T304: TTCD in GHS/HRQoL (QLQ-C30 items 29–30)
+
+1.6 Exploratory Efficacy
+	•	T401: Time to end of next-line treatment (proxy PFS2)
+	•	T402: Time to first skeletal-related event (SRE)
+
+1.7 Patient-Reported Outcomes (PRO)
+	•	T501: Summary of BPI-SF and QLQ-C30/BR23 mean scores at each time point
+	•	T502: Mean change from baseline for all QLQ scales with 95% CI
+	•	T503: PRO compliance and completion rates by visit
+
+1.8 Safety
+	•	T601: Incidence of AEs, SAEs, AESIs (by system organ class and preferred term)
+	•	T602: AEs by severity (CTCAE v5.0 grade)
+	•	T603: AEs leading to dose reduction, interruption, or discontinuation
+	•	T604: Summary of vital signs changes
+	•	T605: Summary of ECG changes
+	•	T606: Summary of laboratory abnormalities (shift tables, worst grade)
+	•	T607: Hy's Law analysis
+
+1.9 Exploratory Safety (PRO-CTCAE)
+	•	T701: Frequency, severity, interference for each PRO-CTCAE symptom item
+	•	T702: "Bother from side effects" summary
+	•	T703: Summary of missing data in PRO-CTCAE
+
+1.10 PK / Biomarker / Utility / China Subpopulation
+	•	T801: PK summary statistics (Cmax, Tmax, AUC) by treatment arm
+	•	T802: Exploratory biomarker summaries (as applicable)
+	•	T803: EQ-5D-5L summary statistics
+	•	T804: China subpopulation efficacy and safety tables (replicates of main analyses)
+
+⸻
+
+2. Listings
+
+2.1 Patient Listings
+	•	L001: Patient disposition
+	•	L002: Inclusion/exclusion criteria violations
+	•	L003: Protocol deviations
+	•	L004: Randomization and stratification
+
+2.2 Efficacy Listings
+	•	L101: PFS, OS, ORR, BOR, CBR results by patient
+	•	L102: TTCD dates and scores by patient
+	•	L103: QLQ-C30 and QLQ-BR23 raw scores and transformation
+
+2.3 Safety Listings
+	•	L201: All AEs and SAEs
+	•	L202: AESIs
+	•	L203: AEs leading to study drug modification
+	•	L204: Laboratory results (including shifts)
+	•	L205: Vital signs and ECG values
+	•	L206: Deaths and cause of death
+
+2.4 PRO-CTCAE Listings
+	•	L301: Individual PRO-CTCAE items
+	•	L302: Maximum post-baseline score by patient
+
+2.5 Pharmacokinetics and Biomarkers
+	•	L401: Individual plasma concentrations for inavolisib, palbociclib, fulvestrant
+	•	L402: Intense PK data for Chinese patients
+	•	L403: Biomarker results by patient and specimen
+
+⸻
+
+3. Figures
+
+3.1 Efficacy Figures
+	•	F101: Kaplan-Meier plot of PFS by treatment arm
+	•	F102: KM plot for OS
+	•	F103: KM plots for TTCD endpoints (pain, PF, RF, GHS/HRQoL)
+	•	F104: Forest plot of PFS subgroup analysis
+	•	F105: KM plots for DOR and PFS2 (exploratory)
+
+3.2 Safety and PRO Figures
+	•	F201: AE summary bar chart (preferred term ≥10%)
+	•	F202: Laboratory shift plots for key parameters
+	•	F203: Line plots of mean PRO scores over time (QLQ-C30 and BR23)
+	•	F204: PRO-CTCAE bar/line plots (frequency/severity over time)
+
+3.3 PK Figures
+	•	F301: Concentration-time curves (mean + SD)
+	•	F302: Individual PK plots for intense sampling

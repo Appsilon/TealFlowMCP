@@ -1,0 +1,167 @@
+{
+  "teal.modules.general_by_analysis_type": {
+    "description": "General modules organized by type of analysis they support. Modules can appear in multiple analysis categories based on their functionality.",
+    "total_modules": 16,
+    "analysis_types": {
+      "data_exploration": {
+        "description": "Interactive data exploration and discovery tools",
+        "modules": [
+          "tm_data_table",
+          "tm_variable_browser",
+          "tm_missing_data",
+          "tm_outliers",
+          "tm_g_distribution",
+          "tm_g_scatterplot",
+          "tm_g_scatterplotmatrix"
+        ]
+      },
+      "statistical_analysis": {
+        "description": "Advanced statistical modeling and analysis techniques",
+        "modules": [
+          "tm_a_pca",
+          "tm_a_regression",
+          "tm_g_association"
+        ]
+      },
+      "visualization": {
+        "description": "Data visualization and graphical representation modules",
+        "modules": [
+          "tm_g_distribution",
+          "tm_g_scatterplot",
+          "tm_g_scatterplotmatrix",
+          "tm_g_bivariate",
+          "tm_g_response",
+          "tm_g_association"
+        ]
+      },
+      "data_quality": {
+        "description": "Data quality assessment and validation tools",
+        "modules": [
+          "tm_missing_data",
+          "tm_outliers",
+          "tm_data_table"
+        ]
+      },
+      "multivariate_analysis": {
+        "description": "Analysis involving multiple variables simultaneously",
+        "modules": [
+          "tm_a_pca",
+          "tm_g_scatterplotmatrix",
+          "tm_g_bivariate",
+          "tm_g_association",
+          "tm_a_regression"
+        ]
+      },
+      "descriptive_analysis": {
+        "description": "Summary statistics and descriptive data analysis",
+        "modules": [
+          "tm_g_distribution",
+          "tm_t_crosstable",
+          "tm_data_table",
+          "tm_variable_browser"
+        ]
+      },
+      "correlation_analysis": {
+        "description": "Analysis of relationships and associations between variables",
+        "modules": [
+          "tm_g_association",
+          "tm_g_scatterplot",
+          "tm_g_bivariate",
+          "tm_g_scatterplotmatrix"
+        ]
+      },
+      "data_presentation": {
+        "description": "Tools for presenting and documenting data and analysis",
+        "modules": [
+          "tm_front_page",
+          "tm_file_viewer",
+          "tm_data_table",
+          "tm_t_crosstable"
+        ]
+      },
+      "univariate_analysis": {
+        "description": "Single variable analysis and distribution assessment",
+        "modules": [
+          "tm_g_distribution",
+          "tm_g_response",
+          "tm_outliers",
+          "tm_missing_data"
+        ]
+      },
+      "bivariate_analysis": {
+        "description": "Two-variable relationship analysis",
+        "modules": [
+          "tm_g_bivariate",
+          "tm_g_scatterplot",
+          "tm_g_association",
+          "tm_t_crosstable"
+        ]
+      },
+      "dimensionality_reduction": {
+        "description": "Techniques for reducing data complexity while preserving information",
+        "modules": [
+          "tm_a_pca"
+        ]
+      },
+      "predictive_modeling": {
+        "description": "Statistical models for prediction and inference",
+        "modules": [
+          "tm_a_regression"
+        ]
+      },
+      "utility_tools": {
+        "description": "General utility and support tools for data analysis workflows",
+        "modules": [
+          "tm_file_viewer",
+          "tm_front_page",
+          "tm_variable_browser",
+          "tm_data_table"
+        ]
+      },
+      "interactive_visualization": {
+        "description": "Interactive plotting and dynamic visualization tools",
+        "modules": [
+          "tm_g_distribution",
+          "tm_g_scatterplot",
+          "tm_g_scatterplotmatrix",
+          "tm_g_bivariate",
+          "tm_g_response",
+          "tm_g_association"
+        ]
+      }
+    },
+    "analysis_overlap_summary": {
+      "most_versatile_modules": {
+        "tm_g_association": ["statistical_analysis", "visualization", "multivariate_analysis", "correlation_analysis", "bivariate_analysis", "interactive_visualization"],
+        "tm_g_scatterplot": ["data_exploration", "visualization", "correlation_analysis", "bivariate_analysis", "interactive_visualization"],
+        "tm_g_distribution": ["data_exploration", "visualization", "descriptive_analysis", "univariate_analysis", "interactive_visualization"],
+        "tm_data_table": ["data_exploration", "data_quality", "descriptive_analysis", "data_presentation", "utility_tools"],
+        "tm_g_bivariate": ["visualization", "multivariate_analysis", "correlation_analysis", "bivariate_analysis", "interactive_visualization"]
+      },
+      "analysis_type_counts": {
+        "data_exploration": 7,
+        "statistical_analysis": 3,
+        "visualization": 6,
+        "data_quality": 3,
+        "multivariate_analysis": 5,
+        "descriptive_analysis": 4,
+        "correlation_analysis": 4,
+        "data_presentation": 4,
+        "univariate_analysis": 4,
+        "bivariate_analysis": 4,
+        "dimensionality_reduction": 1,
+        "predictive_modeling": 1,
+        "utility_tools": 4,
+        "interactive_visualization": 6
+      }
+    },
+    "usage_recommendations": {
+      "exploratory_data_analysis": ["data_exploration", "descriptive_analysis", "data_quality"],
+      "statistical_modeling": ["statistical_analysis", "multivariate_analysis", "predictive_modeling"],
+      "data_visualization": ["visualization", "interactive_visualization", "correlation_analysis"],
+      "data_validation": ["data_quality", "univariate_analysis", "descriptive_analysis"],
+      "research_presentation": ["data_presentation", "visualization", "utility_tools"],
+      "hypothesis_testing": ["statistical_analysis", "bivariate_analysis", "correlation_analysis"]
+    }
+  }
+}

@@ -1,0 +1,179 @@
+{
+  "teal.modules.clinical_simple": {
+    "description": "Simple overview of teal.modules.clinical modules showing only module name, description and required datasets.",
+    "total_modules": 37,
+    "modules": {
+      "tm_g_ci": {
+        "description": "Confidence Interval Plot",
+        "required_datasets": ["ADSL", "ADLB"]
+      },
+      "tm_g_barchart_simple": {
+        "description": "Simple Bar Chart",
+        "required_datasets": ["ADSL", "ADAE"]
+      },
+      "tm_g_forest_rsp": {
+        "description": "Forest Plot for Response",
+        "required_datasets": ["ADSL", "ADRS"]
+      },
+      "tm_g_forest_tte": {
+        "description": "Forest Plot for Time-to-Event",
+        "required_datasets": ["ADSL", "ADTTE"]
+      },
+      "tm_g_ipp": {
+        "description": "Individual Patient Plot",
+        "required_datasets": ["ADSL", "ADLB"]
+      },
+      "tm_g_km": {
+        "description": "Kaplan-Meier Plot",
+        "required_datasets": ["ADSL", "ADTTE"]
+      },
+      "tm_g_lineplot": {
+        "description": "Line Plot",
+        "required_datasets": ["ADSL", "ADLB"]
+      },
+      "tm_g_pp_adverse_events": {
+        "description": "Patient Profile: Adverse Events",
+        "required_datasets": ["ADSL", "ADAE"]
+      },
+      "tm_g_pp_patient_timeline": {
+        "description": "Patient Profile: Patient Timeline",
+        "required_datasets": ["ADSL", "ADCM", "ADAE"]
+      },
+      "tm_g_pp_therapy": {
+        "description": "Patient Profile: Therapy",
+        "required_datasets": ["ADSL", "ADCM"]
+      },
+      "tm_g_pp_vitals": {
+        "description": "Patient Profile: Vitals",
+        "required_datasets": ["ADSL", "ADVS"]
+      },
+      "tm_t_abnormality": {
+        "description": "Laboratory Abnormality Table",
+        "required_datasets": ["ADSL", "ADLB"]
+      },
+      "tm_t_abnormality_by_worst_grade": {
+        "description": "Laboratory Abnormality by Worst Grade",
+        "required_datasets": ["ADSL", "ADLB"]
+      },
+      "tm_t_ancova": {
+        "description": "ANCOVA Table",
+        "required_datasets": ["ADSL", "ADQS"]
+      },
+      "tm_t_binary_outcome": {
+        "description": "Binary Outcome Table",
+        "required_datasets": ["ADSL", "ADRS"]
+      },
+      "tm_t_coxreg": {
+        "description": "Cox Regression Table",
+        "required_datasets": ["ADSL", "ADTTE"]
+      },
+      "tm_t_events": {
+        "description": "Adverse Events Table",
+        "required_datasets": ["ADSL", "ADAE"]
+      },
+      "tm_t_events_by_grade": {
+        "description": "Adverse Events by Grade Table",
+        "required_datasets": ["ADSL", "ADAE"]
+      },
+      "tm_t_events_patyear": {
+        "description": "Events per Patient Year",
+        "required_datasets": ["ADSL", "ADAETTE"]
+      },
+      "tm_t_events_summary": {
+        "description": "Events Summary Table",
+        "required_datasets": ["ADSL", "ADAE"]
+      },
+      "tm_t_exposure": {
+        "description": "Exposure Table",
+        "required_datasets": ["ADSL", "ADEX"]
+      },
+      "tm_t_logistic": {
+        "description": "Logistic Regression Table",
+        "required_datasets": ["ADSL", "ADRS"]
+      },
+      "tm_t_mult_events": {
+        "description": "Multiple Events Table",
+        "required_datasets": ["ADSL", "ADAE"]
+      },
+      "tm_t_pp_basic_info": {
+        "description": "Patient Profile: Basic Info",
+        "required_datasets": ["ADSL"]
+      },
+      "tm_t_pp_laboratory": {
+        "description": "Patient Profile: Laboratory",
+        "required_datasets": ["ADSL", "ADLB"]
+      },
+      "tm_t_pp_medical_history": {
+        "description": "Patient Profile: Medical History",
+        "required_datasets": ["ADSL", "ADMH"]
+      },
+      "tm_t_pp_prior_medication": {
+        "description": "Patient Profile: Prior Medication",
+        "required_datasets": ["ADSL", "ADCM"]
+      },
+      "tm_t_shift_by_arm": {
+        "description": "Shift Table by Arm",
+        "required_datasets": ["ADSL", "ADLB"]
+      },
+      "tm_t_shift_by_arm_by_worst": {
+        "description": "Shift Table by Arm by Worst",
+        "required_datasets": ["ADSL", "ADLB"]
+      },
+      "tm_t_shift_by_grade": {
+        "description": "Shift Table by Grade",
+        "required_datasets": ["ADSL", "ADLB"]
+      },
+      "tm_t_smq": {
+        "description": "Standardized MedDRA Query Table",
+        "required_datasets": ["ADSL", "ADAE"]
+      },
+      "tm_t_summary": {
+        "description": "Summary Table",
+        "required_datasets": ["ADSL", "ADLB"]
+      },
+      "tm_t_summary_by": {
+        "description": "Summary Table by Group",
+        "required_datasets": ["ADSL", "ADLB"]
+      },
+      "tm_t_tte": {
+        "description": "Time-to-Event Table",
+        "required_datasets": ["ADSL", "ADTTE"]
+      },
+      "tm_a_gee": {
+        "description": "Generalized Estimating Equations",
+        "required_datasets": ["ADSL", "ADQS"]
+      },
+      "tm_a_mmrm": {
+        "description": "Mixed Model for Repeated Measures",
+        "required_datasets": ["ADSL", "ADQS"]
+      }
+    },
+    "summary": {
+      "module_categories": {
+        "Graphics (tm_g_*)": 11,
+        "Tables (tm_t_*)": 24,
+        "Analysis (tm_a_*)": 2
+      },
+      "most_common_datasets": {
+        "ADSL": "Used in 37/37 modules (100%)",
+        "ADAE": "Used in 9 modules (24%)",
+        "ADLB": "Used in 10 modules (27%)",
+        "ADTTE": "Used in 4 modules (11%)",
+        "ADRS": "Used in 3 modules (8%)"
+      },
+      "dataset_usage": {
+        "ADSL": ["tm_g_ci", "tm_g_barchart_simple", "tm_g_forest_rsp", "tm_g_forest_tte", "tm_g_ipp", "tm_g_km", "tm_g_lineplot", "tm_g_pp_adverse_events", "tm_g_pp_patient_timeline", "tm_g_pp_therapy", "tm_g_pp_vitals", "tm_t_abnormality", "tm_t_abnormality_by_worst_grade", "tm_t_ancova", "tm_t_binary_outcome", "tm_t_coxreg", "tm_t_events", "tm_t_events_by_grade", "tm_t_events_patyear", "tm_t_events_summary", "tm_t_exposure", "tm_t_logistic", "tm_t_mult_events", "tm_t_pp_basic_info", "tm_t_pp_laboratory", "tm_t_pp_medical_history", "tm_t_pp_prior_medication", "tm_t_shift_by_arm", "tm_t_shift_by_arm_by_worst", "tm_t_shift_by_grade", "tm_t_smq", "tm_t_summary", "tm_t_summary_by", "tm_t_tte", "tm_a_gee", "tm_a_mmrm"],
+        "ADAE": ["tm_g_barchart_simple", "tm_g_pp_adverse_events", "tm_g_pp_patient_timeline", "tm_t_events", "tm_t_events_by_grade", "tm_t_events_summary", "tm_t_mult_events", "tm_t_smq"],
+        "ADLB": ["tm_g_ci", "tm_g_ipp", "tm_g_lineplot", "tm_t_abnormality", "tm_t_abnormality_by_worst_grade", "tm_t_pp_laboratory", "tm_t_shift_by_arm", "tm_t_shift_by_arm_by_worst", "tm_t_shift_by_grade", "tm_t_summary", "tm_t_summary_by"],
+        "ADTTE": ["tm_g_forest_tte", "tm_g_km", "tm_t_coxreg", "tm_t_tte"],
+        "ADRS": ["tm_g_forest_rsp", "tm_t_binary_outcome", "tm_t_logistic"],
+        "ADCM": ["tm_g_pp_patient_timeline", "tm_g_pp_therapy", "tm_t_pp_prior_medication"],
+        "ADQS": ["tm_t_ancova", "tm_a_gee", "tm_a_mmrm"],
+        "ADVS": ["tm_g_pp_vitals"],
+        "ADEX": ["tm_t_exposure"],
+        "ADMH": ["tm_t_pp_medical_history"],
+        "ADAETTE": ["tm_t_events_patyear"]
+      }
+    }
+  }
+}
