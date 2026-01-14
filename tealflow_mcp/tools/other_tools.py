@@ -19,37 +19,11 @@ from ..utils import _truncate_response, _validate_module_exists
 
 async def tealflow_search_modules_by_analysis(params: SearchModulesInput) -> str:
     """
-    Search for Teal modules that perform a specific type of analysis.
-
-    This tool helps find appropriate modules when you know what analysis you need
-    but don't know which module to use. It uses structured analysis type categories
-    combined with text search for comprehensive results.
-
-    Args:
-        params (SearchModulesInput): Validated input parameters containing:
-            - analysis_type (str): Type of analysis (e.g., 'survival', 'safety',
-                                   'efficacy', 'data exploration', 'visualization')
-            - response_format (ResponseFormat): 'markdown' or 'json' (default: 'markdown')
-
-    Returns:
-        str: List of matching modules organized by relevance
-
-        Includes:
-        - Analysis category matches (structured)
-        - Module names and descriptions
-        - Required datasets
-        - Category descriptions
-
-    Predefined Analysis Categories:
-        Clinical: survival_analysis, safety_analysis, efficacy_analysis,
-                 descriptive_analysis, laboratory_analysis, patient_profiles
-        General: data_exploration, statistical_analysis, visualization,
-                data_quality, multivariate_analysis
-
-    Examples:
-        - Find survival analysis modules: params with analysis_type="survival"
-        - Find safety modules: params with analysis_type="safety"
-        - Find visualization modules: params with analysis_type="visualization"
+    Search for modules by analysis type using structured categories and text matching.
+    
+    First attempts exact/partial category matches from predefined analysis types,
+    then falls back to text search across module descriptions. Scores and ranks
+    results by relevance.
     """
     try:
         search_term = params.analysis_type.lower()
@@ -267,32 +241,11 @@ async def tealflow_search_modules_by_analysis(params: SearchModulesInput) -> str
 
 async def tealflow_check_dataset_requirements(params: CheckDatasetRequirementsInput) -> str:
     """
-    Check if required datasets are available for a specific module.
-
-    This tool validates whether you have all necessary datasets before attempting
-    to use a module. It compares the module's dataset requirements against your
-    available datasets and provides clear feedback.
-
-    Args:
-        params (CheckDatasetRequirementsInput): Validated input parameters containing:
-            - module_name (str): Name of the module to check
-            - available_datasets (Optional[List[str]]): Your available datasets
-              (defaults to Flow's standard: ADSL, ADTTE, ADRS, ADQS, ADAE)
-            - response_format (ResponseFormat): 'markdown' or 'json' (default: 'markdown')
-
-    Returns:
-        str: Compatibility report with status and missing datasets
-
-        Includes:
-        - Compatibility status (compatible/incompatible)
-        - List of required datasets
-        - List of missing datasets (if any)
-        - Suggestions for alternatives
-
-    Examples:
-        - Check with defaults: params with module_name="tm_g_km"
-        - Check with custom datasets: params with module_name="tm_g_km",
-          available_datasets=["ADSL", "ADTTE", "ADLB"]
+    Validate dataset availability for a specific module.
+    
+    Compares module's required datasets against available datasets list
+    (defaults to Flow's standard datasets if not specified). Returns
+    compatibility status and lists any missing datasets.
     """
     try:
         # Validate module exists
@@ -379,28 +332,11 @@ async def tealflow_check_dataset_requirements(params: CheckDatasetRequirementsIn
 
 async def tealflow_list_datasets(params: ListDatasetsInput) -> str:
     """
-    List available clinical trial datasets in the Flow project.
-
-    This tool provides information about the standard ADaM datasets available
-    for use with Teal clinical modules. These datasets follow CDISC standards
-    for clinical trial data.
-
-    Args:
-        params (ListDatasetsInput): Validated input parameters containing:
-            - response_format (ResponseFormat): 'markdown' or 'json' (default: 'markdown')
-
-    Returns:
-        str: List of datasets with descriptions and relationships
-
-        Includes:
-        - Dataset names (e.g., ADSL, ADTTE)
-        - Descriptions
-        - Usage information
-        - Relationship to other datasets
-
-    Examples:
-        - List all datasets: params with no specific options
-        - Get JSON format: params with response_format="json"
+    List standard ADaM datasets available in the Flow project.
+    
+    Returns hardcoded information about the five standard CDISC ADaM datasets
+    (ADSL, ADTTE, ADRS, ADQS, ADAE) including descriptions, usage statistics,
+    and key modules that use each dataset.
     """
     try:
         # Dataset information
@@ -486,41 +422,10 @@ async def tealflow_list_datasets(params: ListDatasetsInput) -> str:
 
 async def tealflow_get_app_template(params: GetAppTemplateInput) -> str:
     """
-    Get the Teal application template as a starting point for building apps.
-
-    This tool returns the base R code template that should be used to start any Teal app.
-    The template includes data loading, configuration variables, and the basic structure
-    for adding Teal modules.
-
-    Args:
-        params (GetAppTemplateInput): Validated input parameters containing:
-            - response_format (ResponseFormat): 'markdown' or 'json' (default: 'markdown')
-
-    Returns:
-        str: Complete R code for the Teal app template
-
-        The template includes:
-        - Library imports (teal.modules.general, teal.modules.clinical)
-        - Data source loading (workspace/data.R)
-        - Dataset configuration (ADSL, ADTTE, ADRS, ADQS, ADAE)
-        - Configuration variables (arm_vars, strata_vars, facet_vars, etc.)
-        - Helper variables (cs_arm_var, cs_strata_var, etc.)
-        - App initialization with basic modules (tm_front_page, tm_data_table, tm_variable_browser)
-
-    Usage:
-        1. Get the template using this tool
-        2. Use tealflow_search_modules_by_analysis to find modules for your analysis
-        3. Use tealflow_generate_module_code to generate code for each module
-        4. Add generated modules to the modules() section (line 78)
-        5. Run the app
-
-    Examples:
-        - Get template in markdown: params with response_format="markdown"
-        - Get template as JSON: params with response_format="json"
-
-    Note:
-        The template uses Flow's standard ADaM datasets (ADSL, ADTTE, ADRS, ADQS, ADAE).
-        Modify the data source if using different datasets.
+    Return the base R code template for Teal applications.
+    
+    Reads app.template.R from workspace directory and formats as markdown
+    with usage instructions or as JSON with structured metadata.
     """
     try:
         template_path = WORKSPACE_DIR / "app.template.R"
