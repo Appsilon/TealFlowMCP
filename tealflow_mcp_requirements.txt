@@ -1,5 +1,0 @@
-# Requirements for Teal Flow MCP Server
-# Install with: pip install -r tealflow_mcp_requirements.txt
-
-pydantic>=2.0.0
-mcp>=1.0.0
