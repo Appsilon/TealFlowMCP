@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git:*)",
+      "Bash(timeout:*)",
+      "Bash(R:*)",
+      "Bash(./run_app.sh:*)",
+      "Write(*)",
+      "Read(*)"
+    ],
+    "deny": []
+  }
+}

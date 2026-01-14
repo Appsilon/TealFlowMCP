@@ -1,0 +1,251 @@
+{
+  "teal.modules.clinical_by_analysis_type": {
+    "description": "Clinical modules organized by type of analysis they support. Modules can appear in multiple analysis categories based on their functionality.",
+    "total_modules": 37,
+    "analysis_types": {
+      "safety_analysis": {
+        "description": "Analysis of adverse events, safety endpoints, and patient safety profiles",
+        "modules": [
+          "tm_g_pp_adverse_events",
+          "tm_t_events",
+          "tm_t_events_by_grade",
+          "tm_t_events_summary",
+          "tm_t_events_patyear",
+          "tm_t_mult_events",
+          "tm_t_smq",
+          "tm_t_abnormality",
+          "tm_t_abnormality_by_worst_grade",
+          "tm_t_shift_by_arm",
+          "tm_t_shift_by_arm_by_worst",
+          "tm_t_shift_by_grade"
+        ]
+      },
+      "efficacy_analysis": {
+        "description": "Analysis of treatment effectiveness, response rates, and clinical outcomes",
+        "modules": [
+          "tm_g_forest_rsp",
+          "tm_t_binary_outcome",
+          "tm_g_ci",
+          "tm_t_logistic",
+          "tm_t_ancova",
+          "tm_a_gee",
+          "tm_a_mmrm"
+        ]
+      },
+      "survival_analysis": {
+        "description": "Time-to-event analysis including Kaplan-Meier curves and Cox regression",
+        "modules": [
+          "tm_g_km",
+          "tm_g_forest_tte",
+          "tm_t_tte",
+          "tm_t_coxreg"
+        ]
+      },
+      "descriptive_analysis": {
+        "description": "Demographic and baseline characteristic summaries",
+        "modules": [
+          "tm_t_summary",
+          "tm_t_summary_by",
+          "tm_g_barchart_simple",
+          "tm_t_pp_basic_info"
+        ]
+      },
+      "laboratory_analysis": {
+        "description": "Analysis of laboratory values, shifts, and abnormalities",
+        "modules": [
+          "tm_g_lineplot",
+          "tm_g_ipp",
+          "tm_t_abnormality",
+          "tm_t_abnormality_by_worst_grade",
+          "tm_t_shift_by_arm",
+          "tm_t_shift_by_arm_by_worst",
+          "tm_t_shift_by_grade",
+          "tm_t_pp_laboratory",
+          "tm_g_ci"
+        ]
+      },
+      "exposure_analysis": {
+        "description": "Analysis of drug exposure, dosing, and treatment duration",
+        "modules": [
+          "tm_t_exposure",
+          "tm_g_pp_patient_timeline",
+          "tm_g_pp_therapy"
+        ]
+      },
+      "patient_profile_analysis": {
+        "description": "Individual patient data visualization and profiling",
+        "modules": [
+          "tm_g_pp_adverse_events",
+          "tm_g_pp_patient_timeline",
+          "tm_g_pp_therapy",
+          "tm_g_pp_vitals",
+          "tm_t_pp_basic_info",
+          "tm_t_pp_laboratory",
+          "tm_t_pp_medical_history",
+          "tm_t_pp_prior_medication",
+          "tm_g_ipp"
+        ]
+      },
+      "longitudinal_analysis": {
+        "description": "Analysis of data over time, including repeated measures",
+        "modules": [
+          "tm_g_lineplot",
+          "tm_g_ipp",
+          "tm_a_gee",
+          "tm_a_mmrm",
+          "tm_g_pp_vitals",
+          "tm_t_pp_laboratory",
+          "tm_t_shift_by_arm",
+          "tm_t_shift_by_grade"
+        ]
+      },
+      "comparative_analysis": {
+        "description": "Between-group comparisons and treatment arm analysis",
+        "modules": [
+          "tm_g_forest_rsp",
+          "tm_g_forest_tte",
+          "tm_g_km",
+          "tm_t_binary_outcome",
+          "tm_t_coxreg",
+          "tm_t_logistic",
+          "tm_t_ancova",
+          "tm_a_gee",
+          "tm_a_mmrm",
+          "tm_g_ci",
+          "tm_t_summary",
+          "tm_t_summary_by"
+        ]
+      },
+      "medical_history_analysis": {
+        "description": "Analysis of prior medical conditions and medication history",
+        "modules": [
+          "tm_t_pp_medical_history",
+          "tm_t_pp_prior_medication",
+          "tm_g_pp_therapy"
+        ]
+      },
+      "vital_signs_analysis": {
+        "description": "Analysis of vital signs measurements over time",
+        "modules": [
+          "tm_g_pp_vitals",
+          "tm_g_lineplot",
+          "tm_g_ipp"
+        ]
+      },
+      "subgroup_analysis": {
+        "description": "Analysis within specific patient subgroups or populations",
+        "modules": [
+          "tm_g_forest_rsp",
+          "tm_g_forest_tte",
+          "tm_t_summary_by",
+          "tm_t_binary_outcome",
+          "tm_t_coxreg"
+        ]
+      },
+      "regulatory_analysis": {
+        "description": "Analysis supporting regulatory submissions and compliance",
+        "modules": [
+          "tm_t_events_summary",
+          "tm_t_events_patyear",
+          "tm_t_smq",
+          "tm_t_abnormality",
+          "tm_t_exposure",
+          "tm_t_tte",
+          "tm_t_binary_outcome",
+          "tm_g_km",
+          "tm_t_coxreg"
+        ]
+      },
+      "visualization_focused": {
+        "description": "Primarily graphical modules for data visualization",
+        "modules": [
+          "tm_g_km",
+          "tm_g_forest_rsp",
+          "tm_g_forest_tte",
+          "tm_g_lineplot",
+          "tm_g_ipp",
+          "tm_g_ci",
+          "tm_g_barchart_simple",
+          "tm_g_pp_adverse_events",
+          "tm_g_pp_patient_timeline",
+          "tm_g_pp_therapy",
+          "tm_g_pp_vitals"
+        ]
+      },
+      "tabular_analysis": {
+        "description": "Table-based analysis and summary modules",
+        "modules": [
+          "tm_t_abnormality",
+          "tm_t_abnormality_by_worst_grade",
+          "tm_t_ancova",
+          "tm_t_binary_outcome",
+          "tm_t_coxreg",
+          "tm_t_events",
+          "tm_t_events_by_grade",
+          "tm_t_events_patyear",
+          "tm_t_events_summary",
+          "tm_t_exposure",
+          "tm_t_logistic",
+          "tm_t_mult_events",
+          "tm_t_shift_by_arm",
+          "tm_t_shift_by_arm_by_worst",
+          "tm_t_shift_by_grade",
+          "tm_t_smq",
+          "tm_t_summary",
+          "tm_t_summary_by",
+          "tm_t_tte",
+          "tm_t_pp_basic_info",
+          "tm_t_pp_laboratory",
+          "tm_t_pp_medical_history",
+          "tm_t_pp_prior_medication"
+        ]
+      },
+      "advanced_statistical_modeling": {
+        "description": "Complex statistical models and advanced analytics",
+        "modules": [
+          "tm_a_gee",
+          "tm_a_mmrm",
+          "tm_t_coxreg",
+          "tm_t_logistic",
+          "tm_t_ancova"
+        ]
+      }
+    },
+    "analysis_overlap_summary": {
+      "most_versatile_modules": {
+        "tm_g_forest_rsp": ["efficacy_analysis", "comparative_analysis", "subgroup_analysis", "regulatory_analysis", "visualization_focused"],
+        "tm_g_forest_tte": ["survival_analysis", "comparative_analysis", "subgroup_analysis", "visualization_focused"],
+        "tm_t_abnormality": ["safety_analysis", "laboratory_analysis", "regulatory_analysis", "tabular_analysis"],
+        "tm_g_lineplot": ["laboratory_analysis", "longitudinal_analysis", "vital_signs_analysis", "visualization_focused"],
+        "tm_a_gee": ["efficacy_analysis", "longitudinal_analysis", "comparative_analysis", "advanced_statistical_modeling"],
+        "tm_a_mmrm": ["efficacy_analysis", "longitudinal_analysis", "comparative_analysis", "advanced_statistical_modeling"]
+      },
+      "analysis_type_counts": {
+        "safety_analysis": 12,
+        "efficacy_analysis": 7,
+        "survival_analysis": 4,
+        "descriptive_analysis": 4,
+        "laboratory_analysis": 9,
+        "exposure_analysis": 3,
+        "patient_profile_analysis": 9,
+        "longitudinal_analysis": 8,
+        "comparative_analysis": 12,
+        "medical_history_analysis": 3,
+        "vital_signs_analysis": 3,
+        "subgroup_analysis": 5,
+        "regulatory_analysis": 9,
+        "visualization_focused": 11,
+        "tabular_analysis": 22,
+        "advanced_statistical_modeling": 5
+      }
+    },
+    "usage_recommendations": {
+      "clinical_study_reports": ["safety_analysis", "efficacy_analysis", "survival_analysis", "regulatory_analysis"],
+      "interim_analysis": ["descriptive_analysis", "safety_analysis", "efficacy_analysis"],
+      "exploratory_analysis": ["patient_profile_analysis", "longitudinal_analysis", "subgroup_analysis"],
+      "regulatory_submission": ["regulatory_analysis", "safety_analysis", "efficacy_analysis", "survival_analysis"],
+      "data_monitoring_committee": ["safety_analysis", "efficacy_analysis", "survival_analysis"],
+      "investigator_meetings": ["visualization_focused", "descriptive_analysis", "patient_profile_analysis"]
+    }
+  }
+}

@@ -1,0 +1,1134 @@
+{
+  "teal.modules.general_detailed": {
+    "description": "Comprehensive analysis of teal.modules.general modules with detailed function parameters, data requirements, and usage patterns. This analysis follows the same structure as the clinical modules analysis.",
+    "extraction_notes": {
+      "methodology": "Parameters extracted from teal.modules.general.pdf documentation, categorized by requirement status",
+      "required_vs_optional": "Required parameters have no default values, optional parameters have defaults specified",
+      "data_requirements": "Unlike clinical modules that use CDISC ADaM datasets, general modules work with standard data.frame objects",
+      "parameter_conventions": {
+        "data_extract_spec": "Standard teal parameter for specifying data selection and filtering",
+        "plot_dimensions": "Most modules support customizable plot height/width with three-element vectors [value, min, max]",
+        "themes": "ggplot2 theme selection with consistent default options",
+        "pre_post_output": "Modules support optional UI elements before and after main output",
+        "transformators_decorators": "Standard teal framework parameters for data transformation and output decoration"
+      }
+    },
+    "total_modules": 16,
+    "modules": {
+      "tm_a_pca": {
+        "description": "Principal Component Analysis",
+        "function_signature": "tm_a_pca(label, dat, plot_height, plot_width, ggtheme, ggplot2_args, rotate_xaxis_labels, font_size, alpha, size, pre_output, post_output, transformators, decorators)",
+        "required_parameters": {
+          "dat": {
+            "type": "data_extract_spec or list of multiple data_extract_spec",
+            "description": "specifying columns used to compute PCA"
+          }
+        },
+        "optional_parameters": {
+          "label": {
+            "type": "character(1)",
+            "default": "Principal Component Analysis",
+            "description": "Label shown in the navigation item"
+          },
+          "plot_height": {
+            "type": "numeric",
+            "default": "c(600, 200, 2000)",
+            "description": "plot height as three-element vector of value, min, and max"
+          },
+          "plot_width": {
+            "type": "numeric",
+            "default": "NULL",
+            "description": "plot width as three-element vector of value, min, and max"
+          },
+          "ggtheme": {
+            "type": "character",
+            "default": "c(\"gray\", \"bw\", \"linedraw\", \"light\", \"dark\", \"minimal\", \"classic\", \"void\")",
+            "description": "ggplot2 theme to be used by default"
+          },
+          "ggplot2_args": {
+            "type": "ggplot2_args",
+            "default": "teal.widgets::ggplot2_args()",
+            "description": "object with settings for plots, supports plot-specific settings for Elbow plot, Circle plot, Biplot, Eigenvector plot"
+          },
+          "rotate_xaxis_labels": {
+            "type": "logical",
+            "default": "FALSE",
+            "description": "whether to rotate plot X axis labels"
+          },
+          "font_size": {
+            "type": "numeric",
+            "default": "c(12, 8, 20)",
+            "description": "font size specification - fixed size if length 1, dynamic if length 3"
+          },
+          "alpha": {
+            "type": "integer(1) or integer(3)",
+            "default": "c(1, 0, 1)",
+            "description": "point opacity - fixed if length 1, dynamic if length 3"
+          },
+          "size": {
+            "type": "integer(1) or integer(3)",
+            "default": "c(2, 1, 8)",
+            "description": "point size - fixed if length 1, dynamic if length 3"
+          },
+          "pre_output": {
+            "type": "shiny.tag",
+            "default": "NULL",
+            "description": "UI element displayed before module output"
+          },
+          "post_output": {
+            "type": "shiny.tag",
+            "default": "NULL",
+            "description": "UI element displayed after module output"
+          },
+          "transformators": {
+            "type": "list",
+            "default": "list()",
+            "description": "list of teal_transform_module for data transformation"
+          },
+          "decorators": {
+            "type": "list",
+            "default": "list()",
+            "description": "named list of teal_transform_module for output decoration"
+          }
+        },
+        "data_requirements": ["data.frame"],
+        "output_objects": ["elbow_plot", "circle_plot", "biplot", "eigenvector_plot"],
+        "module_type": "analysis"
+      },
+      "tm_a_regression": {
+        "description": "Regression Analysis",
+        "function_signature": "tm_a_regression(label, regressor, response, plot_height, plot_width, alpha, size, ggtheme, ggplot2_args, pre_output, post_output, default_plot_type, default_outlier_label, label_segment_threshold, transformators, decorators)",
+        "required_parameters": {
+          "regressor": {
+            "type": "data_extract_spec or list of multiple data_extract_spec",
+            "description": "Regressor variables from dataset with filtering and selecting"
+          },
+          "response": {
+            "type": "data_extract_spec or list of multiple data_extract_spec",
+            "description": "Response variables from dataset with filtering and selecting"
+          }
+        },
+        "optional_parameters": {
+          "label": {
+            "type": "character(1)",
+            "default": "Regression Analysis",
+            "description": "Label shown in navigation item"
+          },
+          "plot_height": {
+            "type": "numeric",
+            "default": "c(600, 200, 2000)",
+            "description": "plot height specification"
+          },
+          "plot_width": {
+            "type": "numeric",
+            "default": "NULL",
+            "description": "plot width specification"
+          },
+          "alpha": {
+            "type": "integer(1) or integer(3)",
+            "default": "c(1, 0, 1)",
+            "description": "point opacity specification"
+          },
+          "size": {
+            "type": "integer(1) or integer(3)",
+            "default": "c(2, 1, 8)",
+            "description": "point size specification"
+          },
+          "ggtheme": {
+            "type": "character",
+            "default": "c(\"gray\", \"bw\", \"linedraw\", \"light\", \"dark\", \"minimal\", \"classic\", \"void\")",
+            "description": "ggplot2 theme selection"
+          },
+          "ggplot2_args": {
+            "type": "ggplot2_args",
+            "default": "teal.widgets::ggplot2_args()",
+            "description": "plot settings for multiple plot types including Response vs Regressor, Residuals vs Fitted, etc."
+          },
+          "pre_output": {
+            "type": "shiny.tag",
+            "default": "NULL",
+            "description": "UI element before output"
+          },
+          "post_output": {
+            "type": "shiny.tag",
+            "default": "NULL",
+            "description": "UI element after output"
+          },
+          "default_plot_type": {
+            "type": "numeric",
+            "default": "1",
+            "description": "default plot type: 1=Response vs Regressor, 2=Residuals vs Fitted, 3=Normal Q-Q, 4=Scale-Location, 5=Cook's distance, 6=Residuals vs Leverage, 7=Cook's dist vs Leverage"
+          },
+          "default_outlier_label": {
+            "type": "character",
+            "default": "\"USUBJID\"",
+            "description": "default column for labeling outliers"
+          },
+          "label_segment_threshold": {
+            "type": "numeric(1) or numeric(3)",
+            "default": "c(0.5, 0, 10)",
+            "description": "minimum distance between label and point for line segment creation"
+          },
+          "transformators": {
+            "type": "list",
+            "default": "list()",
+            "description": "data transformation modules"
+          },
+          "decorators": {
+            "type": "list",
+            "default": "list()",
+            "description": "output decoration modules"
+          }
+        },
+        "data_requirements": ["data.frame"],
+        "output_objects": ["plot"],
+        "module_type": "analysis"
+      },
+      "tm_data_table": {
+        "description": "Data Table Viewer",
+        "function_signature": "tm_data_table(label, variables_selected, datasets_selected, datanames, dt_args, dt_options, server_rendering, pre_output, post_output, transformators)",
+        "required_parameters": {},
+        "optional_parameters": {
+          "label": {
+            "type": "character(1)",
+            "default": "\"Data Table\"",
+            "description": "Label for navigation item"
+          },
+          "variables_selected": {
+            "type": "named list",
+            "default": "list()",
+            "description": "Character vectors of variables to show initially for each dataset"
+          },
+          "datasets_selected": {
+            "type": "character",
+            "default": "deprecated()",
+            "description": "[Deprecated] Use datanames instead"
+          },
+          "datanames": {
+            "type": "character",
+            "default": "if (missing(datasets_selected)) \"all\" else datasets_selected",
+            "description": "Dataset names - \"all\" for all datasets, NULL to hide sidebar"
+          },
+          "dt_args": {
+            "type": "named list",
+            "default": "list()",
+            "description": "Additional arguments for DT::datatable()"
+          },
+          "dt_options": {
+            "type": "named list",
+            "default": "list(searching = FALSE, pageLength = 30, lengthMenu = c(5, 15, 30, 100), scrollX = TRUE)",
+            "description": "Options for DT::datatable()"
+          },
+          "server_rendering": {
+            "type": "logical",
+            "default": "FALSE",
+            "description": "Whether to use server-side rendering for data table"
+          },
+          "pre_output": {
+            "type": "shiny.tag",
+            "default": "NULL",
+            "description": "UI element before output"
+          },
+          "post_output": {
+            "type": "shiny.tag",
+            "default": "NULL",
+            "description": "UI element after output"
+          },
+          "transformators": {
+            "type": "list",
+            "default": "list()",
+            "description": "Data transformation modules"
+          }
+        },
+        "data_requirements": ["data.frame"],
+        "output_objects": ["data_table"],
+        "module_type": "data_utility"
+      },
+      "tm_file_viewer": {
+        "description": "File Content Viewer",
+        "function_signature": "tm_file_viewer(label, input_path)",
+        "required_parameters": {},
+        "optional_parameters": {
+          "label": {
+            "type": "character(1)",
+            "default": "\"File Viewer Module\"",
+            "description": "Label shown in navigation item"
+          },
+          "input_path": {
+            "type": "list",
+            "default": "list(`Current Working Directory` = \".\")",
+            "description": "List of input paths - can be absolute or relative paths"
+          }
+        },
+        "data_requirements": ["file_path"],
+        "output_objects": ["file_content"],
+        "module_type": "utility"
+      },
+      "tm_front_page": {
+        "description": "Application Front Page",
+        "function_signature": "tm_front_page(label, header_text, tables, additional_tags, footnotes, show_metadata, datanames, transformators)",
+        "required_parameters": {},
+        "optional_parameters": {
+          "label": {
+            "type": "character(1)",
+            "default": "\"Front page\"",
+            "description": "Label for navigation item"
+          },
+          "header_text": {
+            "type": "character vector",
+            "default": "character(0)",
+            "description": "Text shown at top - if named, name shown as bold header"
+          },
+          "tables": {
+            "type": "named list of data.frames",
+            "default": "list()",
+            "description": "Tables to display in module"
+          },
+          "additional_tags": {
+            "type": "shiny.tag.list or html",
+            "default": "tagList()",
+            "description": "Additional shiny tags or HTML content"
+          },
+          "footnotes": {
+            "type": "character vector",
+            "default": "character(0)",
+            "description": "Text at bottom - if named, name shown in bold first"
+          },
+          "show_metadata": {
+            "type": "logical",
+            "default": "deprecated()",
+            "description": "[Deprecated] Use datanames instead"
+          },
+          "datanames": {
+            "type": "character",
+            "default": "if (missing(show_metadata)) NULL else \"all\"",
+            "description": "Dataset names for metadata display"
+          },
+          "transformators": {
+            "type": "list",
+            "default": "list()",
+            "description": "Data transformation modules"
+          }
+        },
+        "data_requirements": ["none"],
+        "output_objects": ["front_page_content"],
+        "module_type": "utility"
+      },
+      "tm_g_association": {
+        "description": "Association Plot",
+        "function_signature": "tm_g_association(label, ref, vars, show_association, plot_height, plot_width, distribution_theme, association_theme, pre_output, post_output, ggplot2_args, transformators, decorators)",
+        "required_parameters": {
+          "ref": {
+            "type": "data_extract_spec or list of multiple data_extract_spec",
+            "description": "Reference variable - must use select_spec(multiple = FALSE) for single selection"
+          },
+          "vars": {
+            "type": "data_extract_spec or list of multiple data_extract_spec",
+            "description": "Variables to be associated with reference variable"
+          }
+        },
+        "optional_parameters": {
+          "label": {
+            "type": "character(1)",
+            "default": "\"Association\"",
+            "description": "Navigation label"
+          },
+          "show_association": {
+            "type": "logical",
+            "default": "TRUE",
+            "description": "Whether to show association of vars with reference variable"
+          },
+          "plot_height": {
+            "type": "numeric",
+            "default": "c(600, 400, 5000)",
+            "description": "Plot height specification"
+          },
+          "plot_width": {
+            "type": "numeric",
+            "default": "NULL",
+            "description": "Plot width specification"
+          },
+          "distribution_theme": {
+            "type": "character",
+            "default": "c(\"gray\", \"bw\", \"linedraw\", \"light\", \"dark\", \"minimal\", \"classic\", \"void\")",
+            "description": "ggplot2 theme for distribution plots"
+          },
+          "association_theme": {
+            "type": "character",
+            "default": "c(\"gray\", \"bw\", \"linedraw\", \"light\", \"dark\", \"minimal\", \"classic\", \"void\")",
+            "description": "ggplot2 theme for association plots"
+          },
+          "pre_output": {
+            "type": "shiny.tag",
+            "default": "NULL",
+            "description": "UI element before output"
+          },
+          "post_output": {
+            "type": "shiny.tag",
+            "default": "NULL",
+            "description": "UI element after output"
+          },
+          "ggplot2_args": {
+            "type": "ggplot2_args",
+            "default": "teal.widgets::ggplot2_args()",
+            "description": "Plot settings - supports Bivariate1, Bivariate2 specific settings"
+          },
+          "transformators": {
+            "type": "list",
+            "default": "list()",
+            "description": "Data transformation modules"
+          },
+          "decorators": {
+            "type": "list",
+            "default": "list()",
+            "description": "Output decoration modules"
+          }
+        },
+        "data_requirements": ["data.frame"],
+        "output_objects": ["plot"],
+        "module_type": "graphics"
+      },
+      "tm_g_bivariate": {
+        "description": "Bivariate Plot",
+        "function_signature": "tm_g_bivariate(label, x, y, row_facet, col_facet, facet, color, fill, size, use_density, color_settings, free_x_scales, free_y_scales, plot_height, plot_width, rotate_xaxis_labels, swap_axes, ggtheme, ggplot2_args, pre_output, post_output, transformators, decorators)",
+        "required_parameters": {
+          "x": {
+            "type": "data_extract_spec or list of multiple data_extract_spec",
+            "description": "Variable names for x-axis - can be numeric, factor or character. No empty selections allowed"
+          },
+          "y": {
+            "type": "data_extract_spec or list of multiple data_extract_spec",
+            "description": "Variable names for y-axis - can be numeric, factor or character"
+          }
+        },
+        "optional_parameters": {
+          "label": {
+            "type": "character(1)",
+            "default": "\"Bivariate Plots\"",
+            "description": "Navigation label"
+          },
+          "row_facet": {
+            "type": "data_extract_spec or list of multiple data_extract_spec",
+            "default": "NULL",
+            "description": "Variables for faceting rows"
+          },
+          "col_facet": {
+            "type": "data_extract_spec or list of multiple data_extract_spec",
+            "default": "NULL",
+            "description": "Variables for faceting columns"
+          },
+          "facet": {
+            "type": "logical",
+            "default": "!is.null(row_facet) || !is.null(col_facet)",
+            "description": "Whether facet UI elements are shown by default"
+          },
+          "color": {
+            "type": "data_extract_spec or list of multiple data_extract_spec",
+            "default": "NULL",
+            "description": "Variables for outline color when color_settings=TRUE"
+          },
+          "fill": {
+            "type": "data_extract_spec or list of multiple data_extract_spec",
+            "default": "NULL",
+            "description": "Variables for fill color when color_settings=TRUE"
+          },
+          "size": {
+            "type": "data_extract_spec or list of multiple data_extract_spec",
+            "default": "NULL",
+            "description": "Variables for point size when color_settings=TRUE"
+          },
+          "use_density": {
+            "type": "logical",
+            "default": "FALSE",
+            "description": "Whether to plot density (TRUE) or frequency (FALSE)"
+          },
+          "color_settings": {
+            "type": "logical",
+            "default": "FALSE",
+            "description": "Whether coloring, filling and size UI tools are offered"
+          },
+          "free_x_scales": {
+            "type": "logical",
+            "default": "FALSE",
+            "description": "Whether X scaling can be changed"
+          },
+          "free_y_scales": {
+            "type": "logical",
+            "default": "FALSE",
+            "description": "Whether Y scaling can be changed"
+          },
+          "plot_height": {
+            "type": "numeric",
+            "default": "c(600, 200, 2000)",
+            "description": "Plot height specification"
+          },
+          "plot_width": {
+            "type": "numeric",
+            "default": "NULL",
+            "description": "Plot width specification"
+          },
+          "rotate_xaxis_labels": {
+            "type": "logical",
+            "default": "FALSE",
+            "description": "Whether to rotate X axis labels"
+          },
+          "swap_axes": {
+            "type": "logical",
+            "default": "FALSE",
+            "description": "Whether to swap X and Y axes"
+          },
+          "ggtheme": {
+            "type": "character",
+            "default": "c(\"gray\", \"bw\", \"linedraw\", \"light\", \"dark\", \"minimal\", \"classic\", \"void\")",
+            "description": "ggplot2 theme selection"
+          },
+          "ggplot2_args": {
+            "type": "ggplot2_args",
+            "default": "teal.widgets::ggplot2_args()",
+            "description": "Plot settings and theme arguments"
+          },
+          "pre_output": {
+            "type": "shiny.tag",
+            "default": "NULL",
+            "description": "UI element before output"
+          },
+          "post_output": {
+            "type": "shiny.tag",
+            "default": "NULL",
+            "description": "UI element after output"
+          },
+          "transformators": {
+            "type": "list",
+            "default": "list()",
+            "description": "Data transformation modules"
+          },
+          "decorators": {
+            "type": "list",
+            "default": "list()",
+            "description": "Output decoration modules"
+          }
+        },
+        "data_requirements": ["data.frame"],
+        "output_objects": ["plot"],
+        "module_type": "graphics"
+      },
+      "tm_g_distribution": {
+        "description": "Distribution Plot",
+        "function_signature": "tm_g_distribution(label, dist_var, strata_var, group_var, freq, ggtheme, ggplot2_args, bins, plot_height, plot_width, pre_output, post_output, transformators, decorators)",
+        "required_parameters": {
+          "dist_var": {
+            "type": "data_extract_spec or list of multiple data_extract_spec",
+            "description": "Variable(s) for which distribution will be analyzed"
+          }
+        },
+        "optional_parameters": {
+          "label": {
+            "type": "character(1)",
+            "default": "\"Distribution Module\"",
+            "description": "Navigation label"
+          },
+          "strata_var": {
+            "type": "data_extract_spec or list of multiple data_extract_spec",
+            "default": "NULL",
+            "description": "Categorical variable to split distribution analysis"
+          },
+          "group_var": {
+            "type": "data_extract_spec or list of multiple data_extract_spec",
+            "default": "NULL",
+            "description": "Variable for faceting plot into multiple panels"
+          },
+          "freq": {
+            "type": "logical",
+            "default": "FALSE",
+            "description": "Whether to display frequency (TRUE) or density (FALSE)"
+          },
+          "ggtheme": {
+            "type": "character",
+            "default": "c(\"gray\", \"bw\", \"linedraw\", \"light\", \"dark\", \"minimal\", \"classic\", \"void\")",
+            "description": "ggplot2 theme selection"
+          },
+          "ggplot2_args": {
+            "type": "ggplot2_args",
+            "default": "teal.widgets::ggplot2_args()",
+            "description": "Plot settings - supports Histogram, QQplot specific settings"
+          },
+          "bins": {
+            "type": "integer(1) or integer(3)",
+            "default": "c(30L, 1L, 100L)",
+            "description": "Number of histogram bins - fixed if length 1, dynamic if length 3"
+          },
+          "plot_height": {
+            "type": "numeric",
+            "default": "c(600, 200, 2000)",
+            "description": "Plot height specification"
+          },
+          "plot_width": {
+            "type": "numeric",
+            "default": "NULL",
+            "description": "Plot width specification"
+          },
+          "pre_output": {
+            "type": "shiny.tag",
+            "default": "NULL",
+            "description": "UI element before output"
+          },
+          "post_output": {
+            "type": "shiny.tag",
+            "default": "NULL",
+            "description": "UI element after output"
+          },
+          "transformators": {
+            "type": "list",
+            "default": "list()",
+            "description": "Data transformation modules"
+          },
+          "decorators": {
+            "type": "list",
+            "default": "list()",
+            "description": "Output decoration modules"
+          }
+        },
+        "data_requirements": ["data.frame"],
+        "output_objects": ["histogram_plot", "qq_plot", "summary_table", "test_table"],
+        "module_type": "graphics"
+      },
+      "tm_g_response": {
+        "description": "Response Plot",
+        "function_signature": "tm_g_response(label, response, x, row_facet, col_facet, coord_flip, count_labels, rotate_xaxis_labels, freq, plot_height, plot_width, ggtheme, ggplot2_args, pre_output, post_output, transformators, decorators)",
+        "required_parameters": {
+          "response": {
+            "type": "data_extract_spec or list of multiple data_extract_spec",
+            "description": "Response variable - can define one fixed column with fixed=TRUE, must not allow multiple selection"
+          },
+          "x": {
+            "type": "data_extract_spec or list of multiple data_extract_spec",
+            "description": "X-axis variable - must not allow multiple selection"
+          }
+        },
+        "optional_parameters": {
+          "label": {
+            "type": "character(1)",
+            "default": "\"Response Plot\"",
+            "description": "Navigation label"
+          },
+          "row_facet": {
+            "type": "data_extract_spec or list of multiple data_extract_spec",
+            "default": "NULL",
+            "description": "Variables for faceting rows"
+          },
+          "col_facet": {
+            "type": "data_extract_spec or list of multiple data_extract_spec",
+            "default": "NULL",
+            "description": "Variables for faceting columns"
+          },
+          "coord_flip": {
+            "type": "logical(1)",
+            "default": "FALSE",
+            "description": "Whether to flip coordinates between x and response"
+          },
+          "count_labels": {
+            "type": "logical(1)",
+            "default": "TRUE",
+            "description": "Whether to show count labels"
+          },
+          "rotate_xaxis_labels": {
+            "type": "logical",
+            "default": "FALSE",
+            "description": "Whether to rotate X axis labels"
+          },
+          "freq": {
+            "type": "logical(1)",
+            "default": "FALSE",
+            "description": "Whether to display frequency (TRUE) or density (FALSE)"
+          },
+          "plot_height": {
+            "type": "numeric",
+            "default": "c(600, 400, 5000)",
+            "description": "Plot height specification"
+          },
+          "plot_width": {
+            "type": "numeric",
+            "default": "NULL",
+            "description": "Plot width specification"
+          },
+          "ggtheme": {
+            "type": "character",
+            "default": "c(\"gray\", \"bw\", \"linedraw\", \"light\", \"dark\", \"minimal\", \"classic\", \"void\")",
+            "description": "ggplot2 theme selection"
+          },
+          "ggplot2_args": {
+            "type": "ggplot2_args",
+            "default": "teal.widgets::ggplot2_args()",
+            "description": "Plot settings and theme arguments"
+          },
+          "pre_output": {
+            "type": "shiny.tag",
+            "default": "NULL",
+            "description": "UI element before output"
+          },
+          "post_output": {
+            "type": "shiny.tag",
+            "default": "NULL",
+            "description": "UI element after output"
+          },
+          "transformators": {
+            "type": "list",
+            "default": "list()",
+            "description": "Data transformation modules"
+          },
+          "decorators": {
+            "type": "list",
+            "default": "list()",
+            "description": "Output decoration modules"
+          }
+        },
+        "data_requirements": ["data.frame"],
+        "output_objects": ["plot"],
+        "module_type": "graphics"
+      },
+      "tm_g_scatterplot": {
+        "description": "Scatter Plot",
+        "function_signature": "tm_g_scatterplot(label, x, y, color_by, size_by, row_facet, col_facet, plot_height, plot_width, alpha, shape, size, max_deg, rotate_xaxis_labels, ggtheme, pre_output, post_output, table_dec, ggplot2_args, transformators, decorators)",
+        "required_parameters": {
+          "x": {
+            "type": "data_extract_spec or list of multiple data_extract_spec",
+            "description": "Variable names for x-axis"
+          },
+          "y": {
+            "type": "data_extract_spec or list of multiple data_extract_spec",
+            "description": "Variable names for y-axis"
+          }
+        },
+        "optional_parameters": {
+          "label": {
+            "type": "character(1)",
+            "default": "\"Scatterplot\"",
+            "description": "Navigation label"
+          },
+          "color_by": {
+            "type": "data_extract_spec or list of multiple data_extract_spec",
+            "default": "NULL",
+            "description": "Color encoding - if NULL, no color encoding option displayed"
+          },
+          "size_by": {
+            "type": "data_extract_spec or list of multiple data_extract_spec",
+            "default": "NULL",
+            "description": "Point size encoding - if NULL, no size encoding option displayed"
+          },
+          "row_facet": {
+            "type": "data_extract_spec or list of multiple data_extract_spec",
+            "default": "NULL",
+            "description": "Variables for faceting rows"
+          },
+          "col_facet": {
+            "type": "data_extract_spec or list of multiple data_extract_spec",
+            "default": "NULL",
+            "description": "Variables for faceting columns"
+          },
+          "plot_height": {
+            "type": "numeric",
+            "default": "c(600, 200, 2000)",
+            "description": "Plot height specification"
+          },
+          "plot_width": {
+            "type": "numeric",
+            "default": "NULL",
+            "description": "Plot width specification"
+          },
+          "alpha": {
+            "type": "integer(1) or integer(3)",
+            "default": "c(1, 0, 1)",
+            "description": "Point opacity - fixed if length 1, dynamic if length 3"
+          },
+          "shape": {
+            "type": "character",
+            "default": "shape_names",
+            "description": "Shape names for points - complete list from ggplot2-specs vignette"
+          },
+          "size": {
+            "type": "integer(1) or integer(3)",
+            "default": "c(5, 1, 15)",
+            "description": "Point size - fixed if length 1, dynamic if length 3"
+          },
+          "max_deg": {
+            "type": "integer",
+            "default": "5L",
+            "description": "Maximum degree for polynomial trend line - must not be less than 1"
+          },
+          "rotate_xaxis_labels": {
+            "type": "logical",
+            "default": "FALSE",
+            "description": "Whether to rotate X axis labels"
+          },
+          "ggtheme": {
+            "type": "character",
+            "default": "c(\"gray\", \"bw\", \"linedraw\", \"light\", \"dark\", \"minimal\", \"classic\", \"void\")",
+            "description": "ggplot2 theme selection"
+          },
+          "pre_output": {
+            "type": "shiny.tag",
+            "default": "NULL",
+            "description": "UI element before output"
+          },
+          "post_output": {
+            "type": "shiny.tag",
+            "default": "NULL",
+            "description": "UI element after output"
+          },
+          "table_dec": {
+            "type": "integer",
+            "default": "4",
+            "description": "Number of decimal places for rounding numeric values in table"
+          },
+          "ggplot2_args": {
+            "type": "ggplot2_args",
+            "default": "teal.widgets::ggplot2_args()",
+            "description": "Plot settings and theme arguments"
+          },
+          "transformators": {
+            "type": "list",
+            "default": "list()",
+            "description": "Data transformation modules"
+          },
+          "decorators": {
+            "type": "list",
+            "default": "list()",
+            "description": "Output decoration modules"
+          }
+        },
+        "data_requirements": ["data.frame"],
+        "output_objects": ["plot"],
+        "module_type": "graphics"
+      },
+      "tm_g_scatterplotmatrix": {
+        "description": "Scatter Plot Matrix",
+        "function_signature": "tm_g_scatterplotmatrix(label, variables, plot_height, plot_width, pre_output, post_output, transformators, decorators)",
+        "required_parameters": {
+          "variables": {
+            "type": "data_extract_spec or list of multiple data_extract_spec",
+            "description": "Plotting variables with filtering and selecting - use select_spec(ordered=TRUE) for selection order"
+          }
+        },
+        "optional_parameters": {
+          "label": {
+            "type": "character(1)",
+            "default": "\"Scatterplot Matrix\"",
+            "description": "Navigation label"
+          },
+          "plot_height": {
+            "type": "numeric",
+            "default": "c(600, 200, 2000)",
+            "description": "Plot height specification"
+          },
+          "plot_width": {
+            "type": "numeric",
+            "default": "NULL",
+            "description": "Plot width specification"
+          },
+          "pre_output": {
+            "type": "shiny.tag",
+            "default": "NULL",
+            "description": "UI element before output"
+          },
+          "post_output": {
+            "type": "shiny.tag",
+            "default": "NULL",
+            "description": "UI element after output"
+          },
+          "transformators": {
+            "type": "list",
+            "default": "list()",
+            "description": "Data transformation modules"
+          },
+          "decorators": {
+            "type": "list",
+            "default": "list()",
+            "description": "Output decoration modules"
+          }
+        },
+        "data_requirements": ["data.frame"],
+        "output_objects": ["plot"],
+        "module_type": "graphics"
+      },
+      "tm_missing_data": {
+        "description": "Missing Data Pattern Analysis",
+        "function_signature": "tm_missing_data(label, plot_height, plot_width, datanames, parent_dataname, ggtheme, ggplot2_args, pre_output, post_output, transformators, decorators)",
+        "required_parameters": {},
+        "optional_parameters": {
+          "label": {
+            "type": "character(1)",
+            "default": "\"Missing data\"",
+            "description": "Navigation label"
+          },
+          "plot_height": {
+            "type": "numeric",
+            "default": "c(600, 400, 5000)",
+            "description": "Plot height specification"
+          },
+          "plot_width": {
+            "type": "numeric",
+            "default": "NULL",
+            "description": "Plot width specification"
+          },
+          "datanames": {
+            "type": "character",
+            "default": "\"all\"",
+            "description": "Dataset names - \"all\" for all datasets, NULL to hide sidebar"
+          },
+          "parent_dataname": {
+            "type": "character(1)",
+            "default": "\"ADSL\"",
+            "description": "Parent dataset name for \"by subject\" analysis - default ADSL for CDISC data"
+          },
+          "ggtheme": {
+            "type": "character",
+            "default": "c(\"classic\", \"gray\", \"bw\", \"linedraw\", \"light\", \"dark\", \"minimal\", \"void\")",
+            "description": "ggplot2 theme - defaults to classic"
+          },
+          "ggplot2_args": {
+            "type": "ggplot2_args or named list",
+            "default": "list(`Combinations Hist` = teal.widgets::ggplot2_args(labs = list(caption = NULL)), `Combinations Main` = teal.widgets::ggplot2_args(labs = list(title = NULL)))",
+            "description": "Plot settings - supports Summary Obs, Summary Patients, Combinations Main, Combinations Hist, By Subject"
+          },
+          "pre_output": {
+            "type": "shiny.tag",
+            "default": "NULL",
+            "description": "UI element before output"
+          },
+          "post_output": {
+            "type": "shiny.tag",
+            "default": "NULL",
+            "description": "UI element after output"
+          },
+          "transformators": {
+            "type": "list",
+            "default": "list()",
+            "description": "Data transformation modules"
+          },
+          "decorators": {
+            "type": "list",
+            "default": "list()",
+            "description": "Output decoration modules"
+          }
+        },
+        "data_requirements": ["data.frame"],
+        "output_objects": ["summary_plot", "combination_plot", "by_subject_plot", "table"],
+        "module_type": "data_quality"
+      },
+      "tm_outliers": {
+        "description": "Outlier Detection and Analysis",
+        "function_signature": "tm_outliers(label, outlier_var, categorical_var, ggtheme, ggplot2_args, plot_height, plot_width, pre_output, post_output, transformators, decorators)",
+        "required_parameters": {
+          "outlier_var": {
+            "type": "data_extract_spec or list of multiple data_extract_spec",
+            "description": "Variable(s) to be analyzed for outliers"
+          }
+        },
+        "optional_parameters": {
+          "label": {
+            "type": "character(1)",
+            "default": "\"Outliers Module\"",
+            "description": "Navigation label"
+          },
+          "categorical_var": {
+            "type": "data_extract_spec or list of multiple data_extract_spec",
+            "default": "NULL",
+            "description": "Categorical variable(s) to split selected outlier variables"
+          },
+          "ggtheme": {
+            "type": "character",
+            "default": "c(\"gray\", \"bw\", \"linedraw\", \"light\", \"dark\", \"minimal\", \"classic\", \"void\")",
+            "description": "ggplot2 theme selection"
+          },
+          "ggplot2_args": {
+            "type": "ggplot2_args",
+            "default": "teal.widgets::ggplot2_args()",
+            "description": "Plot settings - supports Boxplot, Density Plot, Cumulative Distribution Plot"
+          },
+          "plot_height": {
+            "type": "numeric",
+            "default": "c(600, 200, 2000)",
+            "description": "Plot height specification"
+          },
+          "plot_width": {
+            "type": "numeric",
+            "default": "NULL",
+            "description": "Plot width specification"
+          },
+          "pre_output": {
+            "type": "shiny.tag",
+            "default": "NULL",
+            "description": "UI element before output"
+          },
+          "post_output": {
+            "type": "shiny.tag",
+            "default": "NULL",
+            "description": "UI element after output"
+          },
+          "transformators": {
+            "type": "list",
+            "default": "list()",
+            "description": "Data transformation modules"
+          },
+          "decorators": {
+            "type": "list",
+            "default": "list()",
+            "description": "Output decoration modules"
+          }
+        },
+        "data_requirements": ["data.frame"],
+        "output_objects": ["box_plot", "density_plot", "cumulative_plot", "table"],
+        "module_type": "data_quality"
+      },
+      "tm_t_crosstable": {
+        "description": "Cross-tabulation Table",
+        "function_signature": "tm_t_crosstable(label, x, y, show_percentage, show_total, pre_output, post_output, basic_table_args, transformators, decorators)",
+        "required_parameters": {
+          "x": {
+            "type": "data_extract_spec or list of multiple data_extract_spec",
+            "description": "Variable X (row values) - use select_spec(ordered=TRUE) for selection order"
+          },
+          "y": {
+            "type": "data_extract_spec or list of multiple data_extract_spec",
+            "description": "Variable Y (column values) - must not allow multiple selection"
+          }
+        },
+        "optional_parameters": {
+          "label": {
+            "type": "character(1)",
+            "default": "\"Cross Table\"",
+            "description": "Navigation label"
+          },
+          "show_percentage": {
+            "type": "logical(1)",
+            "default": "TRUE",
+            "description": "Whether to show percentages (relevant only when x is factor)"
+          },
+          "show_total": {
+            "type": "logical(1)",
+            "default": "TRUE",
+            "description": "Whether to show total column"
+          },
+          "pre_output": {
+            "type": "shiny.tag",
+            "default": "NULL",
+            "description": "UI element before output"
+          },
+          "post_output": {
+            "type": "shiny.tag",
+            "default": "NULL",
+            "description": "UI element after output"
+          },
+          "basic_table_args": {
+            "type": "basic_table_args",
+            "default": "teal.widgets::basic_table_args()",
+            "description": "Table settings merged with teal.basic_table_args"
+          },
+          "transformators": {
+            "type": "list",
+            "default": "list()",
+            "description": "Data transformation modules"
+          },
+          "decorators": {
+            "type": "list",
+            "default": "list()",
+            "description": "Output decoration modules"
+          }
+        },
+        "data_requirements": ["data.frame"],
+        "output_objects": ["table"],
+        "module_type": "table"
+      },
+      "tm_variable_browser": {
+        "description": "Variable Browser and Explorer",
+        "function_signature": "tm_variable_browser(label, datasets_selected, datanames, parent_dataname, pre_output, post_output, ggplot2_args, transformators)",
+        "required_parameters": {},
+        "optional_parameters": {
+          "label": {
+            "type": "character(1)",
+            "default": "\"Variable Browser\"",
+            "description": "Navigation label"
+          },
+          "datasets_selected": {
+            "type": "character",
+            "default": "deprecated()",
+            "description": "[Deprecated] Use datanames instead"
+          },
+          "datanames": {
+            "type": "character",
+            "default": "if (missing(datasets_selected)) \"all\" else datasets_selected",
+            "description": "Dataset names - \"all\" for all datasets, NULL to hide sidebar"
+          },
+          "parent_dataname": {
+            "type": "character(1)",
+            "default": "\"ADSL\"",
+            "description": "Parent dataset - shows checkbox to hide variables in other datasets that exist in this dataset"
+          },
+          "pre_output": {
+            "type": "shiny.tag",
+            "default": "NULL",
+            "description": "UI element before output"
+          },
+          "post_output": {
+            "type": "shiny.tag",
+            "default": "NULL",
+            "description": "UI element after output"
+          },
+          "ggplot2_args": {
+            "type": "ggplot2_args",
+            "default": "teal.widgets::ggplot2_args()",
+            "description": "Plot settings and theme arguments"
+          },
+          "transformators": {
+            "type": "list",
+            "default": "list()",
+            "description": "Data transformation modules"
+          }
+        },
+        "data_requirements": ["data.frame"],
+        "output_objects": ["variable_summary", "plots"],
+        "module_type": "data_utility"
+      }
+    },
+    "summary_statistics": {
+      "total_modules": 16,
+      "modules_by_type": {
+        "graphics": 7,
+        "data_utility": 3,
+        "analysis": 2,
+        "data_quality": 2,
+        "table": 1,
+        "utility": 1
+      },
+      "parameter_analysis": {
+        "most_common_required_params": {
+          "data_extract_spec_variants": 14,
+          "specific_variable_selections": 10
+        },
+        "most_common_optional_params": {
+          "label": 16,
+          "plot_height": 11,
+          "plot_width": 11,
+          "pre_output": 16,
+          "post_output": 16,
+          "transformators": 16,
+          "decorators": 13,
+          "ggtheme": 9,
+          "ggplot2_args": 11
+        },
+        "parameter_patterns": {
+          "ui_customization": "All modules support pre_output and post_output for UI customization",
+          "plot_dimensions": "Most graphics modules support dynamic plot height/width with three-element vectors",
+          "theme_support": "Graphics modules consistently offer ggplot2 theme selection",
+          "data_transformation": "All modules support transformators for data input transformation",
+          "output_decoration": "Most modules support decorators for output modification"
+        }
+      },
+      "data_requirements_summary": {
+        "data.frame": 14,
+        "file_path": 1,
+        "none": 1
+      }
+    }
+  }
+}
