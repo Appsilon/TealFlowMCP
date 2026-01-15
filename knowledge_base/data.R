@@ -1,10 +1,10 @@
 library(teal)
 
-ADSL <- readRDS("workspace/ADSL.Rds")
-ADTTE <- readRDS("workspace/ADTTE.Rds")
-ADRS <- readRDS("workspace/ADRS.Rds")
-ADQS <- readRDS("workspace/ADQS.Rds")
-ADAE <- readRDS("workspace/ADAE.Rds")
+ADSL <- readRDS("knowledge_base/ADSL.Rds")
+ADTTE <- readRDS("knowledge_base/ADTTE.Rds")
+ADRS <- readRDS("knowledge_base/ADRS.Rds")
+ADQS <- readRDS("knowledge_base/ADQS.Rds")
+ADAE <- readRDS("knowledge_base/ADAE.Rds")
 
 ## Data reproducible code ----
 data <- teal_data(

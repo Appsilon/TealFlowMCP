@@ -23,6 +23,9 @@ from .models import (
     ListModulesInput,
     SearchModulesInput,
 )
+from .prompts import (
+    tealflow_get_agent_guidance,
+)
 from .tools import (
     tealflow_check_dataset_requirements,
     tealflow_generate_module_code,
@@ -45,6 +48,7 @@ __all__ = [
     "SearchModulesInput",
     "tealflow_check_dataset_requirements",
     "tealflow_generate_module_code",
+    "tealflow_get_agent_guidance",
     "tealflow_get_app_template",
     "tealflow_get_module_details",
     "tealflow_list_datasets",
