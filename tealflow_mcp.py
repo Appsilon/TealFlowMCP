@@ -61,14 +61,44 @@ async def list_modules_tool(
 ) -> str:
     """
     List all available Teal modules with their descriptions and dataset requirements.
-    
+
+    This tool helps discover what analysis modules are available in the Teal framework.
+    Modules can be filtered by package (clinical vs general) and optionally by category.
+
+    Clinical modules are designed for clinical trial reporting and work with ADaM datasets.
+    General modules are for general-purpose data exploration and work with any data.frame.
+
     Args:
         package (str, optional): Filter by package - 'clinical', 'general', or 'all'. Defaults to 'all'.
-        category (str, optional): Filter by category (e.g., 'graphics', 'tables', 'analysis'). Defaults to None.
+        category (str, optional): Filter by category like 'graphics', 'tables', 'analysis'. Defaults to None.
         response_format (str, optional): Output format - 'markdown' for human-readable or 'json' for machine-readable. Defaults to 'markdown'.
-    
+
     Returns:
-        str: List of modules in the specified format.
+        str: List of modules with names, descriptions, and required datasets
+
+        Markdown format:
+            # Teal Modules (Package Name)
+
+            ## module_name
+            **Description**: Module description
+            **Required Datasets**: ADSL, ADTTE (or "None")
+
+        JSON format:
+            {
+                "modules": [
+                    {
+                        "name": "tm_g_km",
+                        "description": "Kaplan-Meier Plot",
+                        "required_datasets": ["ADSL", "ADTTE"]
+                    }
+                ],
+                "count": 10
+            }
+
+    Examples:
+        - List all clinical modules: package="clinical"
+        - List graphics modules: category="graphics"
+        - Get machine-readable list: response_format="json"
     """
     params = ListModulesInput(
         package=PackageFilter(package),
@@ -94,13 +124,35 @@ async def get_module_details_tool(
 ) -> str:
     """
     Get comprehensive details about a specific Teal module including all parameters.
-    
+
+    This tool provides complete information about a module's required and optional
+    parameters, their types, default values, and descriptions. Use this after
+    discovering a module to understand how to configure it properly.
+
     Args:
         module_name (str, required): Name of the module (e.g., 'tm_g_km', 'tm_t_coxreg', 'tm_g_scatterplot').
         response_format (str, optional): Output format - 'markdown' for human-readable or 'json' for machine-readable. Defaults to 'markdown'.
-    
+
     Returns:
-        str: Detailed module information in the specified format.
+        str: Detailed module information including parameters, datasets, and usage
+
+        Includes:
+        - Module description
+        - Required datasets
+        - Required parameters (no defaults)
+        - Optional parameters (with defaults)
+        - Parameter types and constraints
+        - Usage examples
+
+    Error Handling:
+        - Returns error if module not found
+        - Suggests similar module names for typos
+        - Provides guidance on correct module names
+
+    Examples:
+        - Get details for KM plot: module_name="tm_g_km"
+        - Get Cox regression info: module_name="tm_t_coxreg"
+        - Get JSON format: response_format="json"
     """
     params = GetModuleDetailsInput(
         module_name=module_name,
@@ -125,13 +177,34 @@ async def search_modules_tool(
 ) -> str:
     """
     Search for Teal modules that perform a specific type of analysis.
-    
+
+    This tool helps find appropriate modules when you know what analysis you need
+    but don't know which module to use. It uses structured analysis type categories
+    combined with text search for comprehensive results.
+
     Args:
-        analysis_type (str, required): Type of analysis to search for (e.g., 'survival', 'kaplan-meier', 'forest plot', 'cox regression', 'scatter plot').
+        analysis_type (str, required): Type of analysis to search for (e.g., 'survival', 'safety', 'efficacy', 'data exploration', 'visualization', 'kaplan-meier', 'forest plot', 'cox regression', 'scatter plot').
         response_format (str, optional): Output format - 'markdown' for human-readable or 'json' for machine-readable. Defaults to 'markdown'.
-    
+
     Returns:
-        str: Matching modules in the specified format.
+        str: List of matching modules organized by relevance
+
+        Includes:
+        - Analysis category matches (structured)
+        - Module names and descriptions
+        - Required datasets
+        - Category descriptions
+
+    Predefined Analysis Categories:
+        Clinical: survival_analysis, safety_analysis, efficacy_analysis,
+                 descriptive_analysis, laboratory_analysis, patient_profiles
+        General: data_exploration, statistical_analysis, visualization,
+                data_quality, multivariate_analysis
+
+    Examples:
+        - Find survival analysis modules: analysis_type="survival"
+        - Find safety modules: analysis_type="safety"
+        - Find visualization modules: analysis_type="visualization"
     """
     params = SearchModulesInput(
         analysis_type=analysis_type,
@@ -157,14 +230,28 @@ async def check_dataset_requirements_tool(
 ) -> str:
     """
     Check if required datasets are available for a specific module.
-    
+
+    This tool validates whether you have all necessary datasets before attempting
+    to use a module. It compares the module's dataset requirements against your
+    available datasets and provides clear feedback.
+
     Args:
         module_name (str, required): Name of the module to check dataset requirements for.
         available_datasets (list[str], optional): List of available dataset names. Defaults to Flow's standard datasets: ['ADSL', 'ADTTE', 'ADRS', 'ADQS', 'ADAE'].
         response_format (str, optional): Output format - 'markdown' for human-readable or 'json' for machine-readable. Defaults to 'markdown'.
-    
+
     Returns:
-        str: Dataset compatibility information in the specified format.
+        str: Compatibility report with status and missing datasets
+
+        Includes:
+        - Compatibility status (compatible/incompatible)
+        - List of required datasets
+        - List of missing datasets (if any)
+        - Suggestions for alternatives
+
+    Examples:
+        - Check with defaults: module_name="tm_g_km"
+        - Check with custom datasets: module_name="tm_g_km", available_datasets=["ADSL", "ADTTE", "ADLB"]
     """
     params = CheckDatasetRequirementsInput(
         module_name=module_name,
@@ -189,12 +276,26 @@ async def list_datasets_tool(
 ) -> str:
     """
     List available clinical trial datasets in the Flow project.
-    
+
+    This tool provides information about the standard ADaM datasets available
+    for use with Teal clinical modules. These datasets follow CDISC standards
+    for clinical trial data.
+
     Args:
         response_format (str, optional): Output format - 'markdown' for human-readable or 'json' for machine-readable. Defaults to 'markdown'.
-    
+
     Returns:
-        str: List of available datasets in the specified format.
+        str: List of datasets with descriptions and relationships
+
+        Includes:
+        - Dataset names (e.g., ADSL, ADTTE)
+        - Descriptions
+        - Usage information
+        - Relationship to other datasets
+
+    Examples:
+        - List all datasets: (no parameters needed)
+        - Get JSON format: response_format="json"
     """
     params = ListDatasetsInput(
         response_format=ResponseFormat(response_format)
@@ -217,12 +318,39 @@ async def get_app_template_tool(
 ) -> str:
     """
     Get the Teal application template as a starting point for building apps.
-    
+
+    This tool returns the base R code template that should be used to start any Teal app.
+    The template includes data loading, configuration variables, and the basic structure
+    for adding Teal modules.
+
     Args:
         response_format (str, optional): Output format - 'markdown' for human-readable or 'json' for machine-readable. Defaults to 'markdown'.
-    
+
     Returns:
-        str: Teal application template in the specified format.
+        str: Complete R code for the Teal app template
+
+        The template includes:
+        - Library imports (teal.modules.general, teal.modules.clinical)
+        - Data source loading (workspace/data.R)
+        - Dataset configuration (ADSL, ADTTE, ADRS, ADQS, ADAE)
+        - Configuration variables (arm_vars, strata_vars, facet_vars, etc.)
+        - Helper variables (cs_arm_var, cs_strata_var, etc.)
+        - App initialization with basic modules (tm_front_page, tm_data_table, tm_variable_browser)
+
+    Usage:
+        1. Get the template using this tool
+        2. Use tealflow_search_modules_by_analysis to find modules for your analysis
+        3. Use tealflow_generate_module_code to generate code for each module
+        4. Add generated modules to the modules() section (line 78)
+        5. Run the app
+
+    Examples:
+        - Get template in markdown: response_format="markdown"
+        - Get template as JSON: response_format="json"
+
+    Note:
+        The template uses Flow's standard ADaM datasets (ADSL, ADTTE, ADRS, ADQS, ADAE).
+        Modify the data source if using different datasets.
     """
     params = GetAppTemplateInput(
         response_format=ResponseFormat(response_format)
@@ -247,14 +375,34 @@ async def generate_module_code_tool(
 ) -> str:
     """
     Generate R code for adding a module to a Teal application.
-    
+
+    This tool generates ready-to-use R code for adding a Teal module to your app.
+    It includes all required parameters with sensible defaults based on the module's
+    specifications and Flow's available datasets.
+
     Args:
-        module_name (str, required): Name of the module to generate code for.
-        parameters (dict[str, Any], optional): Optional parameter overrides as JSON object. Defaults to None.
+        module_name (str, required): Name of the module to generate code for (e.g., 'tm_g_km', 'tm_t_coxreg', 'tm_g_scatterplot').
+        parameters (dict[str, Any], optional): Optional parameter overrides as JSON object. Defaults to None. (Not yet implemented)
         include_comments (bool, optional): Whether to include explanatory comments in the generated code. Defaults to True.
-    
+
     Returns:
-        str: Generated R code for the specified module.
+        str: Complete R code snippet ready to paste into a Teal app
+
+        Includes:
+        - Module function call with proper syntax
+        - All required parameters
+        - Common optional parameters with defaults
+        - Explanatory comments (if requested)
+        - Usage instructions
+
+    Examples:
+        - Generate KM plot code: module_name="tm_g_km"
+        - Generate Cox regression code: module_name="tm_t_coxreg"
+        - Generate without comments: module_name="tm_g_km", include_comments=False
+
+    Note:
+        Generated code uses Flow's standard dataset configuration.
+        You may need to adjust parameters for your specific use case.
     """
     params = GenerateModuleCodeInput(
         module_name=module_name,

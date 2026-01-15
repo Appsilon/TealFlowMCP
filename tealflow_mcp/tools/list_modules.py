@@ -10,46 +10,10 @@ from ..utils import _format_module_list_json, _format_module_list_markdown, _tru
 
 async def tealflow_list_modules(params: ListModulesInput) -> str:
     """
-    List all available Teal modules with their descriptions and dataset requirements.
-
-    This tool helps discover what analysis modules are available in the Teal framework.
-    Modules can be filtered by package (clinical vs general) and optionally by category.
-
-    Clinical modules are designed for clinical trial reporting and work with ADaM datasets.
-    General modules are for general-purpose data exploration and work with any data.frame.
-
-    Args:
-        params (ListModulesInput): Validated input parameters containing:
-            - package (PackageFilter): 'clinical', 'general', or 'all' (default: 'all')
-            - category (Optional[str]): Filter by category like 'graphics', 'tables', 'analysis'
-            - response_format (ResponseFormat): 'markdown' or 'json' (default: 'markdown')
-
-    Returns:
-        str: List of modules with names, descriptions, and required datasets
-
-        Markdown format:
-            # Teal Modules (Package Name)
-
-            ## module_name
-            **Description**: Module description
-            **Required Datasets**: ADSL, ADTTE (or "None")
-
-        JSON format:
-            {
-                "modules": [
-                    {
-                        "name": "tm_g_km",
-                        "description": "Kaplan-Meier Plot",
-                        "required_datasets": ["ADSL", "ADTTE"]
-                    }
-                ],
-                "count": 10
-            }
-
-    Examples:
-        - List all clinical modules: params with package="clinical"
-        - List graphics modules: params with category="graphics"
-        - Get machine-readable list: params with response_format="json"
+    List available Teal modules with filtering by package and category.
+    
+    Loads module data from JSON files and applies user-specified filters.
+    Formats output as markdown or JSON based on response_format parameter.
     """
     try:
         modules_to_show = {}

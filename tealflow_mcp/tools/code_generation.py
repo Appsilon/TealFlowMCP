@@ -116,36 +116,11 @@ def _generate_general_module_code(params: GenerateModuleCodeInput, module_info: 
 
 async def tealflow_generate_module_code(params: GenerateModuleCodeInput) -> str:
     """
-    Generate R code for adding a module to a Teal application.
-
-    This tool generates ready-to-use R code for adding a Teal module to your app.
-    It includes all required parameters with sensible defaults based on the module's
-    specifications and Flow's available datasets.
-
-    Args:
-        params (GenerateModuleCodeInput): Validated input parameters containing:
-            - module_name (str): Name of the module to generate code for
-            - parameters (Optional[Dict]): Parameter overrides (not yet implemented)
-            - include_comments (bool): Include explanatory comments (default: True)
-
-    Returns:
-        str: Complete R code snippet ready to paste into a Teal app
-
-        Includes:
-        - Module function call with proper syntax
-        - All required parameters
-        - Common optional parameters with defaults
-        - Explanatory comments (if requested)
-        - Usage instructions
-
-    Examples:
-        - Generate KM plot code: params with module_name="tm_g_km"
-        - Generate Cox regression code: params with module_name="tm_t_coxreg"
-        - Generate without comments: params with include_comments=False
-
-    Note:
-        Generated code uses Flow's standard dataset configuration.
-        You may need to adjust parameters for your specific use case.
+    Generate R code for a Teal module with sensible parameter defaults.
+    
+    Handles both clinical and general modules with different generation strategies.
+    Clinical modules use direct dataset references, while general modules use
+    data_extract_spec patterns. Includes optional comments and parameter overrides.
     """
     try:
         # Validate module exists

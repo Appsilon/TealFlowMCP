@@ -12,37 +12,10 @@ from ..utils import _truncate_response, _validate_module_exists
 
 async def tealflow_get_module_details(params: GetModuleDetailsInput) -> str:
     """
-    Get comprehensive details about a specific Teal module including all parameters.
-
-    This tool provides complete information about a module's required and optional
-    parameters, their types, default values, and descriptions. Use this after
-    discovering a module to understand how to configure it properly.
-
-    Args:
-        params (GetModuleDetailsInput): Validated input parameters containing:
-            - module_name (str): Name of the module (e.g., 'tm_g_km', 'tm_t_coxreg')
-            - response_format (ResponseFormat): 'markdown' or 'json' (default: 'markdown')
-
-    Returns:
-        str: Detailed module information including parameters, datasets, and usage
-
-        Includes:
-        - Module description
-        - Required datasets
-        - Required parameters (no defaults)
-        - Optional parameters (with defaults)
-        - Parameter types and constraints
-        - Usage examples
-
-    Error Handling:
-        - Returns error if module not found
-        - Suggests similar module names for typos
-        - Provides guidance on correct module names
-
-    Examples:
-        - Get details for KM plot: params with module_name="tm_g_km"
-        - Get Cox regression info: params with module_name="tm_t_coxreg"
-        - Get JSON format: params with response_format="json"
+    Get detailed information about a specific Teal module.
+    
+    Validates module existence, retrieves module metadata and parameter information
+    from JSON files, and formats output. Includes fuzzy matching for typo suggestions.
     """
     try:
         # Validate module exists
