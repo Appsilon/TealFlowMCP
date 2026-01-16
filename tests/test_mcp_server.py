@@ -23,6 +23,7 @@ from tealflow_mcp import (
     SearchModulesInput,
     tealflow_check_dataset_requirements,
     tealflow_generate_module_code,
+    tealflow_get_agent_guidance,
     tealflow_get_app_template,
     tealflow_get_module_details,
     tealflow_list_datasets,
@@ -37,6 +38,18 @@ async def test_mcp_server():
     print("=" * 70)
     print("TESTING TEAL FLOW MCP SERVER")
     print("=" * 70)
+
+    # Test 0: Get agent guidance
+    print("\n✅ Test 0: Get agent guidance")
+    print("-" * 70)
+    result = await tealflow_get_agent_guidance()
+    if "TealFlow MCP Server - Agent Usage Guide" in result:
+        print("✓ Agent guidance loaded successfully!")
+        print(f"Guidance length: {len(result)} characters")
+        print("Preview:", result[:200] + "...")
+    else:
+        print("⚠️ Agent guidance may not have loaded correctly")
+        print("Preview:", result[:200] + "...")
 
     # Test 1: List clinical modules
     print("\n✅ Test 1: List clinical modules")

@@ -37,7 +37,16 @@ from tealflow_mcp import (
 from mcp.server.fastmcp import FastMCP
 
 # Initialize the MCP server
-mcp = FastMCP("tealflow_mcp")
+mcp = FastMCP(
+    "tealflow_mcp",
+    instructions=(
+        "⚠️ CRITICAL: Before assisting with ANY Teal-related task, you MUST call the "
+        "'tealflow_agent_guidance' tool to retrieve comprehensive guidance. "
+        "This includes: creating Teal apps, adding modules, implementing analyses, "
+        "working with SAPs, or any clinical trial data analysis task. "
+        "The guidance contains essential workflows, constraints, and best practices."
+    )
+)
 
 
 # ============================================================================
@@ -45,12 +54,21 @@ mcp = FastMCP("tealflow_mcp")
 # ============================================================================
 
 
-@mcp.prompt()
-async def tealflow_agent_guidance() -> str:
+@mcp.tool(
+    name="tealflow_agent_guidance",
+    annotations={
+        "title": "Get Agent Guidance",
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "idempotentHint": True,
+        "openWorldHint": False,
+    },
+)
+async def get_agent_guidance_tool() -> str:
     """
     Get comprehensive guidance for assisting users with Teal application development.
     
-    ⚠️ IMPORTANT: This prompt MUST be called FIRST whenever a user requests:
+    ⚠️ IMPORTANT: This tool MUST be called FIRST whenever a user requests:
     - Creating a Teal application or Teal app
     - Adding Teal modules to an app
     - Building clinical trial analysis applications
@@ -59,7 +77,7 @@ async def tealflow_agent_guidance() -> str:
     - Understanding Teal modules or datasets
     - Any other Teal-related task
     
-    This prompt provides the complete agent usage guide that includes:
+    This tool provides the complete agent usage guide that includes:
     - Your role and responsibilities as a Teal assistant
     - Available MCP tools and when to use them
     - Step-by-step workflow guidance for common scenarios
@@ -87,15 +105,15 @@ async def tealflow_agent_guidance() -> str:
     
     Examples:
         User: "I need to create a survival analysis app"
-        → First action: Call this prompt to get guidance
+        → First action: Call this tool to get guidance
         → Then follow the workflow in the guidance to assist the user
         
         User: "Add a Kaplan-Meier module to my app"
-        → First action: Call this prompt to get guidance
+        → First action: Call this tool to get guidance
         → Then use the appropriate MCP tools as directed in the guidance
         
         User: "Help me implement analyses from my SAP"
-        → First action: Call this prompt to get guidance
+        → First action: Call this tool to get guidance
         → Then follow the SAP workflow described in the guidance
     """
     return await tealflow_get_agent_guidance()
