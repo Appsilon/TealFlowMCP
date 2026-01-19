@@ -24,6 +24,7 @@ from tealflow_mcp import (
     PackageFilter,
     ResponseFormat,
     SearchModulesInput,
+    tealflow_get_agent_guidance,
     tealflow_check_dataset_requirements,
     tealflow_generate_module_code,
     tealflow_get_app_template,
@@ -36,7 +37,86 @@ from tealflow_mcp import (
 from mcp.server.fastmcp import FastMCP
 
 # Initialize the MCP server
-mcp = FastMCP("tealflow_mcp")
+mcp = FastMCP(
+    "tealflow_mcp",
+    instructions=(
+        "⚠️ CRITICAL: Before assisting with ANY Teal-related task, you MUST call the "
+        "'tealflow_agent_guidance' tool to retrieve comprehensive guidance. "
+        "This includes: creating Teal apps, adding modules, implementing analyses, "
+        "working with SAPs, or any clinical trial data analysis task. "
+        "The guidance contains essential workflows, constraints, and best practices."
+    )
+)
+
+
+# ============================================================================
+# Prompt Registration
+# ============================================================================
+
+
+@mcp.tool(
+    name="tealflow_agent_guidance",
+    annotations={
+        "title": "Get Agent Guidance",
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "idempotentHint": True,
+        "openWorldHint": False,
+    },
+)
+async def get_agent_guidance_tool() -> str:
+    """
+    Get comprehensive guidance for assisting users with Teal application development.
+    
+    ⚠️ IMPORTANT: This tool MUST be called FIRST whenever a user requests:
+    - Creating a Teal application or Teal app
+    - Adding Teal modules to an app
+    - Building clinical trial analysis applications
+    - Survival analysis, safety analysis, efficacy analysis, or any clinical data analysis
+    - Working with Statistical Analysis Plans (SAP)
+    - Understanding Teal modules or datasets
+    - Any other Teal-related task
+    
+    This tool provides the complete agent usage guide that includes:
+    - Your role and responsibilities as a Teal assistant
+    - Available MCP tools and when to use them
+    - Step-by-step workflow guidance for common scenarios
+    - Teal framework knowledge (modules, datasets, architecture)
+    - Important module constraints and special cases
+    - Development philosophy and R code style guidelines
+    - Best practices for agent behavior
+    - Example workflows for common tasks
+    
+    The guidance ensures you:
+    - Follow correct workflows for creating and modifying Teal apps
+    - Use the right MCP tools in the right sequence
+    - Verify dataset compatibility before suggesting modules
+    - Generate properly structured R code
+    - Provide complete, working solutions
+    - Handle multi-step tasks with proper planning
+    
+    Usage:
+        Always retrieve this guidance at the start of any Teal-related conversation
+        to ensure you have the latest best practices, workflows, and constraints.
+    
+    Returns:
+        str: Complete agent guidance document in markdown format with all necessary
+             context, workflows, and best practices for assisting with Teal development.
+    
+    Examples:
+        User: "I need to create a survival analysis app"
+        → First action: Call this tool to get guidance
+        → Then follow the workflow in the guidance to assist the user
+        
+        User: "Add a Kaplan-Meier module to my app"
+        → First action: Call this tool to get guidance
+        → Then use the appropriate MCP tools as directed in the guidance
+        
+        User: "Help me implement analyses from my SAP"
+        → First action: Call this tool to get guidance
+        → Then follow the SAP workflow described in the guidance
+    """
+    return await tealflow_get_agent_guidance()
 
 
 # ============================================================================
@@ -331,7 +411,7 @@ async def get_app_template_tool(
 
         The template includes:
         - Library imports (teal.modules.general, teal.modules.clinical)
-        - Data source loading (workspace/data.R)
+        - Data source loading (knowledge_base/data.R)
         - Dataset configuration (ADSL, ADTTE, ADRS, ADQS, ADAE)
         - Configuration variables (arm_vars, strata_vars, facet_vars, etc.)
         - Helper variables (cs_arm_var, cs_strata_var, etc.)

@@ -5,16 +5,16 @@ Data loading functions for Teal Flow MCP Server.
 import json
 from typing import Any
 
-from ..core.constants import WORKSPACE_DIR
+from ..core.constants import KNOWLEDGE_BASE_DIR
 
 # Global data cache
 _MODULE_DATA_CACHE: dict[str, Any] = {}
 
 
 def _load_json_file(filename: str) -> dict[str, Any]:
-    """Load and cache JSON data files from workspace."""
+    """Load and cache JSON data files from knowledge base."""
     if filename not in _MODULE_DATA_CACHE:
-        file_path = WORKSPACE_DIR / filename
+        file_path = KNOWLEDGE_BASE_DIR / filename
         if not file_path.exists():
             raise FileNotFoundError(f"Required data file not found: {filename}")
 

@@ -4,7 +4,7 @@ Additional tool implementations: search, check datasets, list datasets, app temp
 
 import json
 
-from ..core.constants import WORKSPACE_DIR
+from ..core.constants import KNOWLEDGE_BASE_DIR
 from ..core.enums import ResponseFormat
 from ..data import (
     _get_clinical_by_analysis_type,
@@ -424,14 +424,14 @@ async def tealflow_get_app_template(params: GetAppTemplateInput) -> str:
     """
     Return the base R code template for Teal applications.
     
-    Reads app.template.R from workspace directory and formats as markdown
+    Reads app.template.R from knowledge base directory and formats as markdown
     with usage instructions or as JSON with structured metadata.
     """
     try:
-        template_path = WORKSPACE_DIR / "app.template.R"
+        template_path = KNOWLEDGE_BASE_DIR / "app.template.R"
 
         if not template_path.exists():
-            return "Error: Template file not found at workspace/app.template.R"
+            return "Error: Template file not found at knowledge_base/app.template.R"
 
         with open(template_path) as f:
             template_content = f.read()
