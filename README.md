@@ -12,11 +12,12 @@ An MCP (Model Context Protocol) server that enables LLMs to discover, understand
 
 This server implements the **Model Context Protocol (MCP)** standard and works with any MCP-compatible LLM client, including:
 
-- **Claude Desktop** (Anthropic)
-- **Claude Code** (VS Code extension)
+- **Claude Code**
+- **GitHub Copilot**
+- **Cursor**
 - **Other MCP-compatible tools** that support the MCP stdio protocol
 
-The server is LLM-agnostic - it provides tools that any LLM can use to build Teal applications.
+The server is LLM-agnostic—it provides tools that any LLM can use to build Teal applications.
 
 ## Architecture
 
@@ -31,28 +32,12 @@ TealFlowMCP/
 │   ├── models/
 │   ├── tools/
 │   └── utils/
-├── workspace/                 # Metadata and dataset files
+├── knowledge_base/            # Metadata and dataset files
 ├── tests/                     # Automated tests
 ├── pyproject.toml             # Project metadata & dependencies
 ├── uv.lock                    # Lockfile for exact versions
 └── README.md
 ```
-
-The refactored structure provides:
-- **Separation of concerns** - Each module has a clear responsibility
-- **Easy testing** - Utilities and data loaders can be tested independently
-- **Maintainability** - Changes are localized to specific modules
-- **Extensibility** - New tools can be added without modifying existing code
-
-## Overview
-
-The Teal Flow MCP server provides tools to work with the Teal framework programmatically. It helps with:
-
-- **Discovering** available Teal modules (clinical and general)
-- **Understanding** module requirements and parameters
-- **Checking** dataset compatibility
-- **Searching** for modules by analysis type
-- **Generating** R code for Teal applications
 
 ## Installation
 
@@ -64,16 +49,33 @@ Install dependencies with uv:
 uv sync
 ```
 
-
 ### Verify Installation
 
 ```bash
 uv run python tests/test_mcp_server.py
 ```
 
+## Running the MCP
+
+The MCP can be run with a command:
+
+```bash
+uv --directory /absolute/path/to/TealFlowMCP/ run tealflow_mcp.pyuv run python tealflow_mcp.py
+```
+
+You can also test the MCP using the MCP inspector:
+
+```bash
+npx @modelcontextprotocol/inspector uv --directory /absolute/path/to/TealFlowMCP/ run tealflow_mcp.py
+```
+
 ## Available Tools
 
-### 1. `tealflow_list_modules`
+### 1. `tealflow_agent_guidance`
+
+Get comprehensive guidance for assisting users with Teal application development.
+
+### 2. `tealflow_list_modules`
 
 List all available Teal modules with descriptions and dataset requirements.
 
@@ -90,7 +92,7 @@ List all available Teal modules with descriptions and dataset requirements.
 }
 ```
 
-### 2. `tealflow_get_module_details`
+### 3. `tealflow_get_module_details`
 
 Get comprehensive details about a specific module including all parameters.
 
@@ -106,7 +108,7 @@ Get comprehensive details about a specific module including all parameters.
 }
 ```
 
-### 3. `tealflow_search_modules_by_analysis`
+### 4. `tealflow_search_modules_by_analysis`
 
 Search for modules that perform a specific type of analysis.
 
@@ -122,7 +124,7 @@ Search for modules that perform a specific type of analysis.
 }
 ```
 
-### 4. `tealflow_check_dataset_requirements`
+### 5. `tealflow_check_dataset_requirements`
 
 Check if required datasets are available for a module.
 
@@ -139,7 +141,7 @@ Check if required datasets are available for a module.
 }
 ```
 
-### 5. `tealflow_list_datasets`
+### 6. `tealflow_list_datasets`
 
 List available clinical trial datasets.
 
@@ -153,7 +155,21 @@ List available clinical trial datasets.
 }
 ```
 
-### 6. `tealflow_generate_module_code`
+### 7. `tealflow_get_app_template`
+
+Get the Teal application template as a starting point for building apps. The template includes data loading, configuration variables (arm_vars, strata_vars, etc.), and the basic structure for adding Teal modules.
+
+**Parameters:**
+- `response_format` (optional): "markdown" or "json" (default: "markdown")
+
+**Example:**
+```json
+{
+  "response_format": "markdown"
+}
+```
+
+### 8. `tealflow_generate_module_code`
 
 Generate R code for adding a module to a Teal app.
 
@@ -174,59 +190,33 @@ Generate R code for adding a module to a Teal app.
 
 This MCP server works with any MCP-compatible client (Claude Desktop, Claude Code, or other LLM tools that support the Model Context Protocol).
 
-### Example: Claude Desktop Configuration
-
-Below is an example using Claude Desktop. For other MCP clients, consult their documentation on adding custom MCP servers.
-
-Add the following to your Claude Desktop configuration file:
-
-**Configuration File Locations:**
-- **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
-- **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
-- **Linux**: `~/.config/Claude/claude_desktop_config.json`
-
-**Configuration Example (macOS/Linux):**
+**Configuration Example:**
 ```json
 {
-  "mcpServers": {
-    "tealflow": {
-      "command": "python",
-      "args": ["/path/to/TealFlowMCP/tealflow_mcp.py"]
-    }
-  }
+	"servers": {
+    "tealflow-mcp": {
+	    "command": "uv",
+			"args": [
+        "--directory",
+        "/absolute/path/to/TealFlowMCP",
+        "run",
+        "tealflow_mcp.py"
+      ]
+	  }
+	}
 }
 ```
-
-**Configuration Example (Windows):**
-```json
-{
-  "mcpServers": {
-    "tealflow": {
-      "command": "python",
-      "args": ["C:\\path\\to\\TealFlowMCP\\tealflow_mcp.py"]
-    }
-  }
-}
-```
-
-### Configuring Other MCP Clients
-
-For other MCP-compatible clients, the server should be configured to run:
-```bash
-python /path/to/TealFlowMCP/tealflow_mcp.py
-```
-
-The server communicates via stdio using the standard MCP protocol, making it compatible with any MCP client that supports stdio-based servers.
-
-**Key configuration details for any MCP client:**
-- **Command**: `python` (or `python3`)
-- **Arguments**: `["/absolute/path/to/TealFlowMCP/tealflow_mcp.py"]`
-- **Protocol**: stdio (standard MCP)
-- **Python Version**: 3.10 or higher required
 
 ## Getting Started
 
-Once configured with your MCP-compatible LLM client, you can request help building Teal apps using natural language. Here are common patterns:
+Once configured with your MCP-compatible LLM client, you can request help building Teal apps using natural language.
+
+__NOTE:__ Current version requires manual environment setup:
+
+1. Prepare your R environment - make sure that required R packages are installed. This includes `shiny`, `teal`, `teal.modules.general` and `teal.modules.clinical`. Using `renv` is strongly recommended.
+2. Add a data directory to your project. Sample data can be found in the `./sample_data` directory.
+
+Here are common patterns for prompts that can be used to build Teal applications:
 
 ### Build a Complete App
 
@@ -234,6 +224,8 @@ Once configured with your MCP-compatible LLM client, you can request help buildi
 > I have ADSL and ADTTE datasets. Build me a Teal app with Kaplan-Meier plots and Cox regression.
 
 **The LLM will:**
+- Run `tealflow_agent_guidance` to check the next steps.
+- Get the app template using `tealflow_get_app_template` (when starting from scratch).
 - Search for survival analysis modules using `tealflow_search_modules_by_analysis`
 - Validate dataset compatibility using `tealflow_check_dataset_requirements`
 - Generate complete app code with both modules using `tealflow_generate_module_code`
@@ -245,6 +237,7 @@ Once configured with your MCP-compatible LLM client, you can request help buildi
 > What modules can I use for adverse event analysis?
 
 **The LLM will:**
+- Run `tealflow_agent_guidance` to check the next steps.
 - Search for adverse event modules using `tealflow_search_modules_by_analysis`
 - List compatible options with descriptions
 - Suggest which datasets are needed
@@ -255,6 +248,7 @@ Once configured with your MCP-compatible LLM client, you can request help buildi
 > Show me the parameters for tm_g_km
 
 **The LLM will:**
+- Run `tealflow_agent_guidance` to check the next steps.
 - Fetch detailed parameter information using `tealflow_get_module_details`
 - Explain required vs optional parameters
 - Show parameter types and defaults
@@ -301,189 +295,17 @@ The LLM uses these MCP tools:
 3. tealflow_generate_module_code with module_name="tm_t_coxreg"
 ```
 
-## Data Sources
-
-The MCP server reads from workspace files in the Flow project root:
-- `workspace/teal_modules_clinical_dataset_requirements.json`
-- `workspace/teal_modules_clinical_modules_requirements.json`
-- `workspace/teal_modules_general_modules_requirements.json`
-- `workspace/teal.md`
-
-The server is located at `./tealflow_mcp.py` and references `./workspace/` for data files.
-
-## Architecture
-
-### Design Principles
-
-1. **Workflow-Oriented**: Tools enable complete workflows, not just data dumps
-2. **Context-Efficient**: Optimized responses for LLM context windows
-3. **Human-Readable**: Clear, actionable information with examples
-4. **Error-Guided**: Helpful error messages that guide toward solutions
-
-### Response Formats
-
-All tools support two output formats:
-
-- **Markdown** (default): Human-readable with formatting, headers, and structure
-- **JSON**: Machine-readable structured data for programmatic processing
-
-### Error Handling
-
-- Input validation via Pydantic models
-- Fuzzy matching for module name typos
-- Clear error messages with suggestions
-- Guidance on next steps
-
-## Development
-
-### Project Structure
-
-```
-mcp/
-├── server/
-│   ├── tealflow_mcp.py              # Main MCP server implementation
-│   └── tealflow_mcp_requirements.txt # Python dependencies
-├── docs/
-│   └── README.md                     # This documentation
-└── tests/
-    └── test_mcp_server.py           # Unit tests
-
-workspace/                            # Data files (at project root)
-```
-
-### Adding New Tools
-
-To add a new tool:
-
-1. Define a Pydantic input model
-2. Implement the tool function with `@mcp.tool()` decorator
-3. Add comprehensive docstring
-4. Include proper error handling
-5. Support both markdown and JSON output formats
-
-### Code Quality Checklist
-
-- [ ] All parameters use Pydantic validation
-- [ ] Comprehensive docstrings with examples
-- [ ] Error handling with helpful messages
-- [ ] Both markdown and JSON output formats
-- [ ] Type hints throughout
-- [ ] Character limit enforcement (25,000 chars)
-- [ ] Async/await for I/O operations
-
-## Testing
-
-### Manual Testing
-
-```bash
-# Start the server
-python mcp/server/tealflow_mcp.py
-
-# The server will run in stdio mode and wait for MCP protocol messages
-```
-
-### Integration Testing
-
-Test the server with any MCP-compatible client:
-
-1. Configure the server in your MCP client
-2. Ask your LLM to use the tealflow tools
-3. Verify responses are correct and helpful
-
-### Example Test Queries
-
-```
-"List all clinical modules for survival analysis"
-"What parameters does tm_g_km require?"
-"Generate code for a Kaplan-Meier plot"
-"Check if I can use tm_t_coxreg with my datasets"
-```
-
-## Limitations
-
-- Code generation currently only supports clinical modules (37 modules)
-- General modules (16 modules) can be discovered and documented, but code generation is not yet implemented
-- Some complex modules (e.g., patient profile with data_extract_spec) may need manual parameter adjustment
-- Requires workspace JSON files to be present
-- No caching of generated code
-
-## Future Enhancements
-
-- [ ] Full parameter customization in code generation
-- [ ] Support for general modules in code generation
-- [ ] Code validation and syntax checking
-- [ ] Template-based code generation with variants
-- [ ] Integration with Flow's app generation system
-- [ ] Caching and performance optimizations
-- [ ] Extended search with NLP/embeddings
-
 ## Frequently Asked Questions (FAQ)
 
 ### Does the Tealflow MCP need an API key or internet connection?
 
-**No!** The Tealflow MCP server is a **local data provider** that only reads JSON files from the workspace directory. It provides tools to LLMs but doesn't make API calls itself.
+**No!** The Tealflow MCP server is a **local data provider** that only reads JSON files. It provides tools to LLMs but doesn't make API calls itself.
 
 You still need an API key for your LLM client (e.g., Anthropic API for Claude, OpenAI API for GPT, etc.) to work, but the MCP server itself doesn't use or need any API keys or internet connection.
 
 ### How can multiple people on my team use this MCP?
 
-Each team member needs to set up their own instance:
-
-1. **Get the Flow project:**
-   ```bash
-   git clone <your-flow-repo-url>
-   cd flow
-   ```
-
-2. **Install dependencies:**
-   ```bash
-   pip install -r tealflow_mcp_requirements.txt
-   ```
-
-3. **Configure your MCP client:**
-   - Locate your MCP client's config file (see Configuration section above)
-   - Add the tealflow MCP server configuration with **your local path**
-   - Example: `"args": ["/Users/YOUR_USERNAME/projects/flow/mcp/server/tealflow_mcp.py"]`
-
-4. **Restart your MCP client**
-
-The MCP runs locally on each person's machine - no shared server needed. Each person maintains their own copy of the Flow project.
-
-**Team Sharing Options:**
-- **Individual copies** (recommended): Everyone clones the repo and maintains their own copy
-- **Shared network directory**: Put Flow on a shared drive and everyone points to the same location
-- **Custom distribution**: Package the MCP with data files and distribute as a standalone tool
-
-### Can I use this MCP in a different project?
-
-Yes, but the MCP requires the Flow project's workspace data files to function. You have two options:
-
-**Option A: Reference the Flow project** (recommended)
-- Keep the Flow project in a central location
-- Configure your MCP client to point to that location
-- No need to copy files
-
-**Option B: Copy to your project**
-1. Copy the MCP files to your project:
-   ```bash
-   cp -r mcp /path/to/your/project/
-   cp -r workspace /path/to/your/project/
-   ```
-
-2. Update your MCP client config to point to the new location
-
-3. Install dependencies in your project
-
-**Note:** The workspace directory contains all the Teal module metadata (37 clinical + 16 general modules). Without these JSON files, the MCP won't work.
-
-### What platforms are supported?
-
-The MCP works on **macOS, Windows, and Linux** as long as you have Python 3.10+ installed.
-
-Configuration file locations vary by platform:
-- **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
-- **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
-- **Linux**: `~/.config/Claude/claude_desktop_config.json`
+Each team member needs to set up their own instance. The MCP runs locally on each person's machine - no shared server needed. Each person maintains their own copy of the Flow project.
 
 ### How do I verify the MCP is working?
 
@@ -501,59 +323,8 @@ If you don't see the MCP tools being used, check:
 - Dependencies are installed
 - MCP client was fully restarted
 
-### Can I use this with Claude Code (VS Code extension)?
-
-Yes! If you're using this Flow project as your workspace in VS Code with Claude Code, the MCP server is already configured in `.claude/settings.local.json` with pre-approved permissions for all tealflow tools.
-
-You don't need to add anything to Claude Desktop config - just use Claude Code in this workspace.
-
-### What if I get "Required data file not found" errors?
-
-This means the MCP can't find the workspace JSON files. Ensure:
-
-1. The workspace directory exists at project root (`../../workspace/` relative to the MCP server)
-2. All required files are present:
-   - `teal_modules_clinical_dataset_requirements.json`
-   - `teal_modules_clinical_modules_requirements.json`
-   - `teal_modules_general_modules_requirements.json`
-3. The files are readable (check permissions)
-
-The MCP looks for these files in `Path(__file__).parent.parent.parent / "workspace"` (see mcp/server/tealflow_mcp.py:31).
-
 ### Is there a limit to how many times I can use the MCP tools?
 
 No! The MCP is a local service that reads static JSON files. There are no API rate limits, usage quotas, or costs associated with using the MCP tools themselves.
 
 However, using your LLM client (e.g., Claude Desktop, GPT-based tools, etc.) still consumes your API usage/subscription according to your provider's pricing.
-
-## Troubleshooting
-
-### "Module not found" error
-
-Make sure you're using the correct module name. Use `tealflow_list_modules` to see all available modules, or the search tool will suggest corrections for typos.
-
-### "Required data file not found"
-
-Ensure the workspace directory exists and contains the required JSON files:
-- `teal_modules_clinical_dataset_requirements.json`
-- `teal_modules_clinical_modules_requirements.json`
-- `teal_modules_general_modules_requirements.json`
-
-### Server won't start
-
-Check that dependencies are installed:
-```bash
-pip install -r tealflow_mcp_requirements.txt
-```
-
-## Support
-
-For issues or questions:
-- Check the workspace directory contains all required JSON files
-- Verify Python version is 3.10+
-- Ensure all dependencies are installed
-- Review error messages for specific guidance
-
-## License
-
-This MCP server is part of the Flow project by Appsilon.
