@@ -305,7 +305,7 @@ You still need an API key for your LLM client (e.g., Anthropic API for Claude, O
 
 ### How can multiple people on my team use this MCP?
 
-Each team member needs to set up their own instance. The MCP runs locally on each person's machine - no shared server needed. Each person maintains their own copy of the Flow project.
+Each team member needs to set up their own instance. The MCP runs locally on each person's machine - no shared server needed. Each person maintains their own copy of the MCP.
 
 ### How do I verify the MCP is working?
 
