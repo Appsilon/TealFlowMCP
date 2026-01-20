@@ -124,3 +124,27 @@ class GetAppTemplateInput(BaseModel):
         default=ResponseFormat.MARKDOWN,
         description="Output format: 'markdown' for human-readable or 'json' for machine-readable",
     )
+
+
+class CheckShinyStartupInput(BaseModel):
+    """Input model for checking Shiny app startup."""
+
+    model_config = ConfigDict(str_strip_whitespace=True, validate_assignment=True)
+
+    app_path: str = Field(
+        default=".",
+        description="Path to the Shiny app directory containing app.R",
+    )
+    timeout_seconds: int = Field(
+        default=15,
+        description="Maximum time in seconds to allow the app to start",
+        ge=1,
+        le=120,
+    )
+
+    @field_validator("app_path")
+    @classmethod
+    def validate_app_path(cls, v: str) -> str:
+        if not v.strip():
+            raise ValueError("App path cannot be empty")
+        return v.strip()

@@ -170,6 +170,71 @@ Generate R code for adding a module to a Teal app.
 }
 ```
 
+### 7. `tealflow_check_shiny_startup`
+
+Validate that a Shiny app starts without errors. Runs the app briefly with a timeout to detect startup issues without blocking indefinitely.
+
+**Parameters:**
+- `app_path` (optional): Path to the Shiny app directory containing app.R (default: ".")
+- `timeout_seconds` (optional): Maximum time in seconds to allow the app to start, range 1-120 (default: 15)
+
+**Example:**
+```json
+{
+  "app_path": ".",
+  "timeout_seconds": 15
+}
+```
+
+**Response Format:**
+Returns a JSON object with:
+- `status`: "ok" or "error"
+- `error_type`: Classification of error (if any)
+- `message`: Human-readable description
+- `logs_excerpt`: Relevant output from the app startup
+
+**Error Types:**
+- `missing_package`: Required R package not installed
+- `syntax_error`: R syntax error in app.R
+- `object_not_found`: Referenced object does not exist
+- `timeout`: App did not start within timeout period
+- `file_not_found`: app.R not found at specified path
+- `rscript_not_found`: R not installed or not in PATH
+- `connection_error`: Network or file connection issue
+- `execution_error`: Other R execution error
+
+**Example Success Response:**
+```json
+{
+  "status": "ok",
+  "error_type": null,
+  "message": "App started successfully",
+  "logs_excerpt": "=== STDOUT ===\nListening on http://127.0.0.1:3838"
+}
+```
+
+**Example Error Response:**
+```json
+{
+  "status": "error",
+  "error_type": "missing_package",
+  "message": "Missing R package: teal.modules.clinical",
+  "logs_excerpt": "=== STDERR ===\nError in library(teal.modules.clinical) : \n  there is no package called 'teal.modules.clinical'"
+}
+```
+
+**Common Use Cases:**
+- **After adding modules**: Validate the app starts correctly after code generation
+- **Debugging startup issues**: Get structured error information to diagnose problems
+- **CI/CD validation**: Automated testing of app startup in pipelines
+- **Pre-deployment checks**: Ensure app is ready before sharing with users
+
+**Best Practices:**
+- Use appropriate timeouts (simple apps: 5-10s, complex apps: 20-30s)
+- Check status after each module addition during development
+- Focus on fixing startup errors only (missing packages, syntax issues)
+- Don't retry indefinitely - report persistent errors after 2-3 attempts
+
 ## Configuration for MCP Clients
 
 This MCP server works with any MCP-compatible client (Claude Desktop, Claude Code, or other LLM tools that support the Model Context Protocol).

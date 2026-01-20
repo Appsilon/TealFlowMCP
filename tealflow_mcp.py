@@ -16,6 +16,7 @@ The server helps with:
 
 from tealflow_mcp import (
     CheckDatasetRequirementsInput,
+    CheckShinyStartupInput,
     GenerateModuleCodeInput,
     GetAppTemplateInput,
     GetModuleDetailsInput,
@@ -26,6 +27,7 @@ from tealflow_mcp import (
     SearchModulesInput,
     tealflow_get_agent_guidance,
     tealflow_check_dataset_requirements,
+    tealflow_check_shiny_startup,
     tealflow_generate_module_code,
     tealflow_get_app_template,
     tealflow_get_module_details,
@@ -490,6 +492,80 @@ async def generate_module_code_tool(
         include_comments=include_comments
     )
     return await tealflow_generate_module_code(params)
+
+
+@mcp.tool(
+    name="tealflow_check_shiny_startup",
+    annotations={
+        "title": "Check Shiny App Startup",
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "idempotentHint": True,
+        "openWorldHint": False,
+    },
+)
+async def check_shiny_startup_tool(
+    app_path: str = ".",
+    timeout_seconds: int = 15
+) -> str:
+    """
+    Check if a Shiny app starts without errors.
+
+    This tool runs the Shiny app.R file to detect startup errors without keeping
+    the app running or waiting for user interaction. It's useful for validating
+    that a Teal application has been correctly configured before attempting to
+    run it interactively.
+
+    Args:
+        app_path (str, optional): Path to the Shiny app directory containing app.R. Defaults to ".".
+        timeout_seconds (int, optional): Maximum time in seconds to allow the app to start (1-120). Defaults to 15.
+
+    Returns:
+        str: JSON object with startup validation results
+
+        Success response:
+            {
+                "status": "ok",
+                "error_type": null,
+                "message": "App started successfully",
+                "logs_excerpt": "... last 20 lines of output ..."
+            }
+
+        Error response:
+            {
+                "status": "error",
+                "error_type": "missing_package" | "syntax_error" | "object_not_found" | 
+                              "timeout" | "file_not_found" | "rscript_not_found" | 
+                              "connection_error" | "execution_error",
+                "message": "Detailed error description",
+                "logs_excerpt": "... last 30 lines of output ..."
+            }
+
+    Error Types:
+        - missing_package: Required R package is not installed
+        - syntax_error: R syntax error in app.R
+        - object_not_found: Referenced R object does not exist
+        - timeout: App did not start within the specified timeout
+        - file_not_found: app.R file not found at specified path
+        - rscript_not_found: Rscript command not available (R not installed)
+        - connection_error: Network or file connection error
+        - execution_error: Other R execution error
+
+    Examples:
+        - Check app in current directory: (no parameters needed)
+        - Check app in specific directory: app_path="/path/to/app"
+        - Use longer timeout: timeout_seconds=30
+
+    Note:
+        This tool does not launch an interactive Shiny session. It only validates
+        that the app can start without immediate errors. The process is terminated
+        once startup is confirmed or an error is detected.
+    """
+    params = CheckShinyStartupInput(
+        app_path=app_path,
+        timeout_seconds=timeout_seconds
+    )
+    return await tealflow_check_shiny_startup(params)
 
 
 # ============================================================================
