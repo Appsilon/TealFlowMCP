@@ -18,10 +18,12 @@ You are assisting users in building Teal R Shiny applications for clinical trial
 
 The TealFlow MCP server provides the following tools to help you assist users:
 
-### Discovery and Search Tools
+### Data Discovery Tools
+- **tealflow_discover_datasets**: Discover ADaM datasets in a directory (scan for .Rds and .csv files containing ADaM datasets)
+
+### Module Discovery and Search Tools
 - **tealflow_list_modules**: List all available modules, optionally filtered by package (clinical/general) or category
 - **tealflow_search_modules_by_analysis**: Find modules for a specific type of analysis (e.g., "survival", "safety", "efficacy")
-- **tealflow_list_datasets**: List standard ADaM datasets for clinical trial analysis
 
 ### Module Information Tools
 - **tealflow_get_module_details**: Get comprehensive details about a specific module including all parameters, types, and defaults
