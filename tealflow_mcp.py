@@ -16,6 +16,7 @@ The server helps with:
 
 from tealflow_mcp import (
     CheckDatasetRequirementsInput,
+    DiscoverDatasetsInput,
     GenerateModuleCodeInput,
     GetAppTemplateInput,
     GetModuleDetailsInput,
@@ -26,6 +27,7 @@ from tealflow_mcp import (
     SearchModulesInput,
     tealflow_get_agent_guidance,
     tealflow_check_dataset_requirements,
+    tealflow_discover_datasets,
     tealflow_generate_module_code,
     tealflow_get_app_template,
     tealflow_get_module_details,
@@ -381,6 +383,66 @@ async def list_datasets_tool(
         response_format=ResponseFormat(response_format)
     )
     return await tealflow_list_datasets(params)
+
+
+@mcp.tool(
+    name="tealflow_discover_datasets",
+    annotations={
+        "title": "Discover ADaM Datasets",
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "idempotentHint": True,
+        "openWorldHint": False,
+    },
+)
+async def discover_datasets_tool(
+    data_directory: str = "data/",
+    file_formats: list[str] | None = None,
+    pattern: str = "AD*",
+    response_format: str = "markdown"
+) -> str:
+    """
+    Discover ADaM datasets in a directory.
+
+    This tool scans a directory for ADaM dataset files, identifies the dataset
+    names, and collects metadata about each dataset. It handles complex filenames
+    with project names, dates, and drug names, and normalizes dataset names to
+    uppercase.
+
+    Args:
+        data_directory (str, optional): Path to the directory containing dataset files. Defaults to 'data/'.
+        file_formats (list[str], optional): List of file formats to include (e.g., ['Rds', 'csv']). If None, all supported formats are included. Defaults to None.
+        pattern (str, optional): File pattern to match (default: 'AD*' for ADaM datasets). Defaults to 'AD*'.
+        response_format (str, optional): Output format - 'markdown' for human-readable or 'json' for machine-readable. Defaults to 'markdown'.
+
+    Returns:
+        str: Discovery results with information about found datasets
+
+        Includes:
+        - List of discovered datasets with names, paths, and formats
+        - Dataset metadata (size, readability, standard vs custom)
+        - Summary statistics
+        - Warnings about any issues
+
+    Examples:
+        - Discover datasets in default location: (no parameters needed)
+        - Discover in custom directory: data_directory="/path/to/data"
+        - Filter by format: file_formats=["Rds"]
+        - Get JSON format: response_format="json"
+
+    Note:
+        This tool extracts ADaM dataset names from filenames, handling:
+        - Complex filenames (e.g., "project123_ADSL_2024-01-15.Rds" → "ADSL")
+        - Case variations (e.g., "adsl.Rds", "AdTtE.csv" → "ADSL", "ADTTE")
+        - Multiple formats (.Rds, .csv, case-insensitive extensions)
+    """
+    params = DiscoverDatasetsInput(
+        data_directory=data_directory,
+        file_formats=file_formats,
+        pattern=pattern,
+        response_format=ResponseFormat(response_format)
+    )
+    return await tealflow_discover_datasets(params)
 
 
 @mcp.tool(
