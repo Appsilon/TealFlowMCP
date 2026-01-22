@@ -52,4 +52,49 @@ def _format_discovery_markdown(result: dict) -> str:
     Returns:
         str: Formatted markdown string
     """
-    pass
+    lines = []
+
+    # Header
+    lines.append("# ADaM Dataset Discovery Results")
+    lines.append("")
+
+    # Summary
+    lines.append("## Summary")
+    lines.append(f"- **Directory:** `{result['data_directory']}`")
+    lines.append(f"- **Datasets Found:** {result['count']}")
+    lines.append(f"- **Supported Formats:** {', '.join(result['supported_formats'])}")
+    lines.append("")
+
+    # Datasets table
+    if result['count'] > 0:
+        lines.append("## Discovered Datasets")
+        lines.append("")
+        lines.append("| Dataset | Format | Standard | Size | Path |")
+        lines.append("|---------|--------|----------|------|------|")
+
+        for dataset in result['datasets_found']:
+            name = dataset['name']
+            fmt = dataset['format']
+            is_standard = "✓" if dataset['is_standard_adam'] else "Custom"
+            size_kb = dataset['size_bytes'] / 1024
+            size_str = f"{size_kb:.1f} KB" if size_kb > 0 else "0 B"
+            path = dataset['path']
+
+            lines.append(f"| {name} | {fmt} | {is_standard} | {size_str} | `{path}` |")
+
+        lines.append("")
+    else:
+        lines.append("## No Datasets Found")
+        lines.append("")
+        lines.append("No ADaM datasets were found in the specified directory.")
+        lines.append("")
+
+    # Warnings
+    if result['warnings']:
+        lines.append("## Warnings")
+        lines.append("")
+        for warning in result['warnings']:
+            lines.append(f"- ⚠️  {warning}")
+        lines.append("")
+
+    return "\n".join(lines)

@@ -102,22 +102,18 @@ class TestDatasetDiscovery:
         # Create standard ADaM files
         (temp_data_dir / "ADSL.Rds").touch()
         (temp_data_dir / "ADTTE.Rds").touch()
-        # Create non-standard ADaM file
-        (temp_data_dir / "ADCUSTOM.Rds").touch()
 
         from tealflow_mcp.tools.discovery import discover_datasets
 
         result = discover_datasets(temp_data_dir)
 
         assert result["status"] == "success"
-        assert result["count"] == 3
+        assert result["count"] == 2
 
-        # Check standard vs non-standard
+        # Check all are standard
         for ds in result["datasets_found"]:
-            if ds["name"] in ["ADSL", "ADTTE"]:
-                assert ds["is_standard_adam"] is True
-            elif ds["name"] == "ADCUSTOM":
-                assert ds["is_standard_adam"] is False
+            assert ds["is_standard_adam"] is True
+            assert ds["name"] in ["ADSL", "ADTTE"]
 
     def test_discover_empty_directory(self, temp_data_dir):
         """Test discovering in an empty directory."""

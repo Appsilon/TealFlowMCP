@@ -64,7 +64,75 @@ def discover_datasets(
     Raises:
         FileNotFoundError: If the data_directory does not exist
     """
-    pass
+    # Convert to Path object
+    data_dir = Path(data_directory)
+
+    # Check if directory exists
+    if not data_dir.exists():
+        raise FileNotFoundError(f"Data directory not found: {data_directory}")
+
+    if not data_dir.is_dir():
+        raise NotADirectoryError(f"Path is not a directory: {data_directory}")
+
+    # Initialize results
+    datasets_found = []
+    warnings = []
+    supported_formats = ["Rds", "csv"]
+
+    # Normalize file formats filter (case-insensitive)
+    if file_formats is not None:
+        file_formats_lower = [fmt.lower() for fmt in file_formats]
+    else:
+        file_formats_lower = None
+
+    # Scan directory for files
+    for file_path in data_dir.iterdir():
+        # Skip non-files
+        if not file_path.is_file():
+            continue
+
+        # Get file extension (case-insensitive)
+        file_ext = file_path.suffix.lower().lstrip('.')
+
+        # Check if file format is supported
+        if file_ext not in ["rds", "csv"]:
+            continue
+
+        # Filter by format if specified
+        if file_formats_lower is not None and file_ext not in file_formats_lower:
+            continue
+
+        # Extract ADaM dataset name
+        adam_name = _extract_adam_name(file_path.name)
+        if adam_name is None:
+            continue
+
+        # Determine the format (normalize to match expected output)
+        file_format = "Rds" if file_ext == "rds" else "csv"
+
+        # Collect metadata
+        dataset_info = {
+            "name": adam_name,
+            "path": str(file_path.absolute()),
+            "format": file_format,
+            "is_standard_adam": adam_name in STANDARD_ADAM_DATASETS,
+            "size_bytes": file_path.stat().st_size,
+            "readable": _check_readable(file_path)
+        }
+
+        datasets_found.append(dataset_info)
+
+    # Sort by dataset name (alphabetically)
+    datasets_found.sort(key=lambda x: x["name"])
+
+    return {
+        "status": "success",
+        "data_directory": str(data_dir.absolute()),
+        "datasets_found": datasets_found,
+        "count": len(datasets_found),
+        "supported_formats": supported_formats,
+        "warnings": warnings
+    }
 
 
 def _extract_adam_name(filename: str) -> str | None:
@@ -118,4 +186,8 @@ def _check_readable(path: Path) -> bool:
     Returns:
         bool: True if file is readable, False otherwise
     """
-    pass
+    try:
+        # Check if file exists and is readable
+        return path.exists() and path.is_file() and path.stat().st_size >= 0
+    except (OSError, PermissionError):
+        return False
