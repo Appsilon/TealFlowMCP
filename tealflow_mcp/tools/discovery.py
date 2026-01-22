@@ -5,6 +5,7 @@ This module provides functionality to discover ADaM datasets in a directory
 and extract metadata about them.
 """
 
+import re
 from pathlib import Path
 from typing import Any
 
@@ -85,7 +86,26 @@ def _extract_adam_name(filename: str) -> str | None:
     Returns:
         str | None: ADaM dataset name (uppercase) or None if not found
     """
-    pass
+    # Handle empty filename
+    if not filename:
+        return None
+
+    # Convert filename to uppercase for case-insensitive matching
+    filename_upper = filename.upper()
+
+    # Remove file extension
+    name_without_ext = filename_upper.rsplit('.', 1)[0] if '.' in filename_upper else filename_upper
+
+    # Try to match each standard ADaM dataset name
+    for adam_name in STANDARD_ADAM_DATASETS:
+        # Use word boundary pattern to avoid false positives
+        # Match ADaM name as a whole word (surrounded by non-letter or start/end)
+        # Numbers, underscores, hyphens, dots, etc. act as separators
+        pattern = rf'(?:^|[^A-Z]){adam_name}(?:[^A-Z]|$)'
+        if re.search(pattern, name_without_ext):
+            return adam_name
+
+    return None
 
 
 def _check_readable(path: Path) -> bool:
