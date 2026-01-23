@@ -55,6 +55,58 @@ uv sync
 uv run python tests/test_mcp_server.py
 ```
 
+## Testing
+
+### Run All Tests
+
+Run the complete test suite:
+
+```bash
+uv run python -m pytest tests/ -v
+```
+
+### Run Specific Test Files
+
+```bash
+# Test MCP server functionality
+uv run python -m pytest tests/test_mcp_server.py -v
+
+# Test dataset discovery
+uv run python -m pytest tests/test_discovery.py -v
+
+# Test ADaM name extraction
+uv run python -m pytest tests/test_extract_adam_name.py -v
+```
+
+### Run Single Test
+
+```bash
+uv run python -m pytest tests/test_discovery.py::TestDatasetDiscovery::test_discover_rds_files -v
+```
+
+### Run with Coverage
+
+```bash
+uv run python -m pytest tests/ --cov=tealflow_mcp --cov-report=term-missing -v
+```
+
+### Manual Testing
+
+For quick manual verification:
+
+```bash
+# Test MCP server manually
+uv run python tests/test_mcp_server.py
+
+# Test discovery tool with sample data
+uv run python -c "
+from tealflow_mcp.tools.discovery import discover_datasets
+import os
+result = discover_datasets(os.path.abspath('sample_data'))
+print(f'Found {result[\"count\"]} datasets')
+"
+```
+
 ## Running the MCP
 
 The MCP can be run with a command:
