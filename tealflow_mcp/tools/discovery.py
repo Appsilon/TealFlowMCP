@@ -62,14 +62,33 @@ def discover_datasets(
             }
 
     Raises:
+        ValueError: If a relative path is provided instead of an absolute path
         FileNotFoundError: If the data_directory does not exist
+        NotADirectoryError: If the path exists but is not a directory
     """
     # Convert to Path object
     data_dir = Path(data_directory)
 
+    # Validate absolute path
+    if not data_dir.is_absolute():
+        error_msg = f"Relative path provided: {data_directory}"
+        error_msg += "\n\nThis tool requires an absolute path to work correctly."
+        error_msg += "\nExample of absolute path: /home/user/project/workspace/"
+        error_msg += "\n\nYou provided a relative path. Please provide the full path starting from root."
+        raise ValueError(error_msg)
+
     # Check if directory exists
     if not data_dir.exists():
-        raise FileNotFoundError(f"Data directory not found: {data_directory}")
+        error_msg = f"Data directory not found: {data_directory}"
+        error_msg += "\n\nPlease provide the full absolute path to your dataset directory."
+        error_msg += "\nExample: /home/user/project/workspace/"
+        error_msg += "\n\nCommon locations to check:"
+        error_msg += "\n  - workspace/"
+        error_msg += "\n  - data/"
+        error_msg += "\n  - datasets/"
+        error_msg += "\n  - sample_data/"
+
+        raise FileNotFoundError(error_msg)
 
     if not data_dir.is_dir():
         raise NotADirectoryError(f"Path is not a directory: {data_directory}")

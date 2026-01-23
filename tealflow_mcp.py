@@ -409,11 +409,18 @@ async def discover_datasets_tool(
     with project names, dates, and drug names, and normalizes dataset names to
     uppercase.
 
+    **IMPORTANT**: This tool requires an **absolute path** to the dataset directory.
+    Relative paths will not work correctly due to MCP server/client working directory differences.
+
     Args:
-        data_directory (str, optional): Path to the directory containing dataset files. Defaults to 'data/'.
-        file_formats (list[str], optional): List of file formats to include (e.g., ['Rds', 'csv']). If None, all supported formats are included. Defaults to None.
+        data_directory (str, optional): **Absolute path** to the directory containing dataset files.
+                                       Example: '/home/user/project/data/' or 'C:\\Users\\user\\project\\data\\'.
+                                       Defaults to 'data/' (which will fail unless it's an absolute path).
+        file_formats (list[str], optional): List of file formats to include (e.g., ['Rds', 'csv']).
+                                           If None, all supported formats are included. Defaults to None.
         pattern (str, optional): File pattern to match (default: 'AD*' for ADaM datasets). Defaults to 'AD*'.
-        response_format (str, optional): Output format - 'markdown' for human-readable or 'json' for machine-readable. Defaults to 'markdown'.
+        response_format (str, optional): Output format - 'markdown' for human-readable or 'json' for machine-readable.
+                                        Defaults to 'markdown'.
 
     Returns:
         str: Discovery results with information about found datasets
@@ -425,16 +432,21 @@ async def discover_datasets_tool(
         - Warnings about any issues
 
     Examples:
-        - Discover datasets in default location: (no parameters needed)
-        - Discover in custom directory: data_directory="/path/to/data"
-        - Filter by format: file_formats=["Rds"]
-        - Get JSON format: response_format="json"
+        - Discover datasets with absolute path: data_directory="/home/user/project/workspace/"
+        - Discover with specific format: data_directory="/home/user/data/", file_formats=["Rds"]
+        - Get JSON format: data_directory="/home/user/data/", response_format="json"
+
+    Common Errors:
+        - FileNotFoundError: Directory not found. Ensure you provide the full absolute path.
+        - Relative paths like "data/" or "workspace/" will not work - use absolute paths.
 
     Note:
         This tool extracts ADaM dataset names from filenames, handling:
         - Complex filenames (e.g., "project123_ADSL_2024-01-15.Rds" → "ADSL")
         - Case variations (e.g., "adsl.Rds", "AdTtE.csv" → "ADSL", "ADTTE")
         - Multiple formats (.Rds, .csv, case-insensitive extensions)
+
+        For best results, always ask the user for the complete absolute path to their dataset directory.
     """
     params = DiscoverDatasetsInput(
         data_directory=data_directory,

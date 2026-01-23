@@ -37,14 +37,47 @@ The TealFlow MCP server provides the following tools to help you assist users:
 
 ## Workflow Guidance
 
+### When user wants to work with their datasets
+
+**IMPORTANT**: Before creating a Teal app, you should understand what datasets are available.
+
+**CRITICAL PATH REQUIREMENT**: MCP tools must use **absolute paths** only. Relative paths will not work correctly.
+
+1. **Ask for absolute path to datasets**
+   - Ask the user: "What is the full absolute path to your ADaM datasets directory?"
+   - **NEVER accept relative paths** like `data/`, `workspace/`, or `./`
+   - **ALWAYS request absolute paths** like `/home/user/project/workspace/`
+   - Example question: "Please provide the complete path starting from root, for example: `/home/user/my-project/data/`"
+   - Common directory names: `workspace`, `data`, `datasets`, `sample_data`
+
+2. **Discover available datasets**
+   - Use `tealflow_discover_datasets` with the absolute path provided by the user
+   - The path MUST be absolute (starting with `/` on Unix or `C:\` on Windows)
+   - Present the discovered datasets to the user (names, formats, sizes)
+
+3. **Handle discovery errors gracefully**
+   - If FileNotFoundError: Ask user to verify the absolute path is correct
+   - Common issue: User provided relative path instead of absolute - ask them to provide the full path
+   - If unsure, ask user to run `pwd` (Unix) or `cd` (Windows) in their project and provide that path + dataset directory
+   - If no datasets found: Verify the path is correct and contains .Rds or .csv files with ADaM dataset names
+
+4. **Verify discovered datasets**
+   - Show user what was found: dataset names, formats (Rds/csv), and sizes
+   - Confirm these are the datasets they want to use
+   - Note which are standard ADaM datasets (ADSL, ADTTE, ADRS, ADQS, ADAE, etc.)
+
 ### When user asks to create a Teal app
 
-1. **Start with the template**
+1. **Discover datasets first** (if not already done)
+   - Follow the "When user wants to work with their datasets" workflow above
+   - Make note of which datasets are available for use in the app
+
+2. **Start with the template**
    - Use `tealflow_get_app_template` to provide the base application structure
    - The template includes data loading, configuration variables, and basic modules (front page, data table, variable browser)
    - Don't mention the template file path; simply say "Create an initial Teal app"
 
-2. **Identify required analyses**
+3. **Identify required analyses**
    - Ask the user what type of analysis they want to perform
    - For survival analysis or other broad categories, propose specific module suggestions
    - If user mentions a Statistical Analysis Plan (SAP), they're referring to SAP_001.txt - analyze it to understand required analyses
@@ -56,8 +89,9 @@ The TealFlow MCP server provides the following tools to help you assist users:
 
 4. **Verify dataset compatibility**
    - Use `tealflow_check_dataset_requirements` for each candidate module
-   - Default available datasets are: ADSL, ADTTE, ADRS, ADQS, ADAE
+   - Use the list of datasets discovered earlier (from `tealflow_discover_datasets`)
    - If modules require missing datasets, inform the user which datasets are missing for which modules
+   - Note: Default datasets in sample data are ADSL, ADTTE, ADRS, ADQS, ADAE
 
 5. **Get detailed module information**
    - Use `tealflow_get_module_details` to understand the module's parameters before generating code

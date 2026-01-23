@@ -132,6 +132,18 @@ class TestDatasetDiscovery:
         with pytest.raises(FileNotFoundError):
             discover_datasets("/path/that/does/not/exist")
 
+    def test_discover_rejects_relative_path(self):
+        """Test that relative paths are rejected with ValueError."""
+        from tealflow_mcp.tools.discovery import discover_datasets
+
+        with pytest.raises(ValueError) as exc_info:
+            discover_datasets("workspace/")
+
+        # Verify error message mentions relative path and absolute requirement
+        error_msg = str(exc_info.value)
+        assert "relative path" in error_msg.lower()
+        assert "absolute path" in error_msg.lower()
+
     def test_discover_returns_metadata(self, temp_data_dir):
         """Test that discovery returns proper metadata for each dataset."""
         # Create test file
