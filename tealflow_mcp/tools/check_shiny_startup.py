@@ -93,11 +93,11 @@ async def tealflow_check_shiny_startup(params: CheckShinyStartupInput) -> str:
     """
     Check if a Shiny app starts without errors.
     
-    Runs Rscript app.R in the specified directory with a timeout,
+    Runs shiny::runApp() on the specified file in the directory with a timeout,
     captures output, and returns structured information about startup status.
     
     Args:
-        params: Input parameters (app_path, timeout_seconds)
+        params: Input parameters (app_path, app_filename, timeout_seconds)
     
     Returns:
         JSON string with status, error_type, message, and logs_excerpt
@@ -105,22 +105,24 @@ async def tealflow_check_shiny_startup(params: CheckShinyStartupInput) -> str:
     try:
         # Resolve app path
         app_path = Path(params.app_path).resolve()
-        app_file = app_path / "app.R"
+        app_file = app_path / params.app_filename
         
-        # Validate app.R exists
+        # Validate app file exists
         if not app_file.exists():
             result = {
                 "status": "error",
                 "error_type": "file_not_found",
-                "message": f"app.R not found at {app_file}",
+                "message": f"{params.app_filename} not found at {app_file}",
                 "logs_excerpt": f"Expected file: {app_file}\nDirectory contents: {list(app_path.glob('*')) if app_path.exists() else 'directory does not exist'}"
             }
             return json.dumps(result, indent=2)
         
-        # Run Rscript with timeout
+        # Run Rscript with shiny::runApp() and timeout
         try:
+            # Use shiny::runApp() to launch the app
+            r_command = f"shiny::runApp('{params.app_filename}')"
             process = subprocess.Popen(
-                ["Rscript", "app.R"],
+                ["Rscript", "-e", r_command],
                 cwd=str(app_path),
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,

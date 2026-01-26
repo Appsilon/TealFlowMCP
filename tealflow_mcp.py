@@ -506,18 +506,20 @@ async def generate_module_code_tool(
 )
 async def check_shiny_startup_tool(
     app_path: str = ".",
+    app_filename: str = "app.R",
     timeout_seconds: int = 15
 ) -> str:
     """
     Check if a Shiny app starts without errors.
 
-    This tool runs the Shiny app.R file to detect startup errors without keeping
-    the app running or waiting for user interaction. It's useful for validating
-    that a Teal application has been correctly configured before attempting to
-    run it interactively.
+    This tool runs the Shiny app file using shiny::runApp() to detect startup errors
+    without keeping the app running or waiting for user interaction. It's useful for
+    validating that a Teal application has been correctly configured before attempting
+    to run it interactively.
 
     Args:
-        app_path (str, optional): Path to the Shiny app directory containing app.R. Defaults to ".".
+        app_path (str, optional): Path to the Shiny app directory. Defaults to ".".
+        app_filename (str, optional): Name of the app file to run (e.g., 'app.R', 'server.R'). Defaults to "app.R".
         timeout_seconds (int, optional): Maximum time in seconds to allow the app to start (1-120). Defaults to 15.
 
     Returns:
@@ -554,6 +556,7 @@ async def check_shiny_startup_tool(
     Examples:
         - Check app in current directory: (no parameters needed)
         - Check app in specific directory: app_path="/path/to/app"
+        - Check specific app file: app_filename="server.R"
         - Use longer timeout: timeout_seconds=30
 
     Note:
@@ -563,6 +566,7 @@ async def check_shiny_startup_tool(
     """
     params = CheckShinyStartupInput(
         app_path=app_path,
+        app_filename=app_filename,
         timeout_seconds=timeout_seconds
     )
     return await tealflow_check_shiny_startup(params)

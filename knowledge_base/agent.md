@@ -68,8 +68,8 @@ The TealFlow MCP server provides the following tools to help you assist users:
 
 7. **Validate app startup**
 
-   - After all modules are added and the app is complete, use `tealflow_check_shiny_startup` to validate the app starts without errors
-   - This tool runs the app briefly with a timeout (default 15 seconds) and detects startup errors
+   - After all modules are added and the app is complete, use `tealflow_check_shiny_startup` with the `app_filename` parameter to validate the app starts without errors
+   - This tool runs the app file briefly with a timeout (default 15 seconds) and detects startup errors
    - The tool returns structured JSON with `status` ("ok" or "error"), `error_type` (e.g., "missing_package", "syntax_error", "object_not_found"), and a detailed `message`
    - If `status` is "ok", the app is ready to use - inform the user
    - If `status` is "error", analyze the `error_type` and `message` to fix the specific issue:

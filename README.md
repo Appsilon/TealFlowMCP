@@ -172,16 +172,18 @@ Generate R code for adding a module to a Teal app.
 
 ### 7. `tealflow_check_shiny_startup`
 
-Validate that a Shiny app starts without errors. Runs the app briefly with a timeout to detect startup issues without blocking indefinitely.
+Validate that a Shiny app starts without errors. Runs the app file using `shiny::runApp()` with a timeout to detect startup issues without blocking indefinitely.
 
 **Parameters:**
-- `app_path` (optional): Path to the Shiny app directory containing app.R (default: ".")
+- `app_path` (optional): Path to the Shiny app directory (default: ".")
+- `app_filename` (optional): Name of the app file to run, e.g., "app.R", "server.R" (default: "app.R")
 - `timeout_seconds` (optional): Maximum time in seconds to allow the app to start, range 1-120 (default: 15)
 
 **Example:**
 ```json
 {
   "app_path": ".",
+  "app_filename": "app.R",
   "timeout_seconds": 15
 }
 ```
@@ -195,10 +197,10 @@ Returns a JSON object with:
 
 **Error Types:**
 - `missing_package`: Required R package not installed
-- `syntax_error`: R syntax error in app.R
+- `syntax_error`: R syntax error in app file
 - `object_not_found`: Referenced object does not exist
 - `timeout`: App did not start within timeout period
-- `file_not_found`: app.R not found at specified path
+- `file_not_found`: App file not found at specified path
 - `rscript_not_found`: R not installed or not in PATH
 - `connection_error`: Network or file connection issue
 - `execution_error`: Other R execution error
@@ -228,12 +230,14 @@ Returns a JSON object with:
 - **Debugging startup issues**: Get structured error information to diagnose problems
 - **CI/CD validation**: Automated testing of app startup in pipelines
 - **Pre-deployment checks**: Ensure app is ready before sharing with users
+- **Multiple app files**: Validate different Shiny app structures (app.R, server.R, ui.R)
 
 **Best Practices:**
 - Use appropriate timeouts (simple apps: 5-10s, complex apps: 20-30s)
 - Check status after each module addition during development
 - Focus on fixing startup errors only (missing packages, syntax issues)
 - Don't retry indefinitely - report persistent errors after 2-3 attempts
+- Specify `app_filename` when working with non-standard app structures
 
 ## Configuration for MCP Clients
 
