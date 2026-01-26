@@ -17,6 +17,7 @@ The server helps with:
 from tealflow_mcp import (
     CheckDatasetRequirementsInput,
     DiscoverDatasetsInput,
+    CheckShinyStartupInput,
     GenerateModuleCodeInput,
     GetAppTemplateInput,
     GetModuleDetailsInput,
@@ -28,6 +29,7 @@ from tealflow_mcp import (
     tealflow_get_agent_guidance,
     tealflow_check_dataset_requirements,
     tealflow_discover_datasets,
+    tealflow_check_shiny_startup,
     tealflow_generate_module_code,
     tealflow_get_app_template,
     tealflow_get_module_details,
@@ -69,7 +71,7 @@ mcp = FastMCP(
 async def get_agent_guidance_tool() -> str:
     """
     Get comprehensive guidance for assisting users with Teal application development.
-    
+
     ⚠️ IMPORTANT: This tool MUST be called FIRST whenever a user requests:
     - Creating a Teal application or Teal app
     - Adding Teal modules to an app
@@ -78,7 +80,7 @@ async def get_agent_guidance_tool() -> str:
     - Working with Statistical Analysis Plans (SAP)
     - Understanding Teal modules or datasets
     - Any other Teal-related task
-    
+
     This tool provides the complete agent usage guide that includes:
     - Your role and responsibilities as a Teal assistant
     - Available MCP tools and when to use them
@@ -88,7 +90,7 @@ async def get_agent_guidance_tool() -> str:
     - Development philosophy and R code style guidelines
     - Best practices for agent behavior
     - Example workflows for common tasks
-    
+
     The guidance ensures you:
     - Follow correct workflows for creating and modifying Teal apps
     - Use the right MCP tools in the right sequence
@@ -96,24 +98,24 @@ async def get_agent_guidance_tool() -> str:
     - Generate properly structured R code
     - Provide complete, working solutions
     - Handle multi-step tasks with proper planning
-    
+
     Usage:
         Always retrieve this guidance at the start of any Teal-related conversation
         to ensure you have the latest best practices, workflows, and constraints.
-    
+
     Returns:
         str: Complete agent guidance document in markdown format with all necessary
              context, workflows, and best practices for assisting with Teal development.
-    
+
     Examples:
         User: "I need to create a survival analysis app"
         → First action: Call this tool to get guidance
         → Then follow the workflow in the guidance to assist the user
-        
+
         User: "Add a Kaplan-Meier module to my app"
         → First action: Call this tool to get guidance
         → Then use the appropriate MCP tools as directed in the guidance
-        
+
         User: "Help me implement analyses from my SAP"
         → First action: Call this tool to get guidance
         → Then follow the SAP workflow described in the guidance
@@ -564,6 +566,84 @@ async def generate_module_code_tool(
         include_comments=include_comments
     )
     return await tealflow_generate_module_code(params)
+
+
+@mcp.tool(
+    name="tealflow_check_shiny_startup",
+    annotations={
+        "title": "Check Shiny App Startup",
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "idempotentHint": True,
+        "openWorldHint": False,
+    },
+)
+async def check_shiny_startup_tool(
+    app_path: str = ".",
+    app_filename: str = "app.R",
+    timeout_seconds: int = 15
+) -> str:
+    """
+    Check if a Shiny app starts without errors.
+
+    This tool runs the Shiny app file using shiny::runApp() to detect startup errors
+    without keeping the app running or waiting for user interaction. It's useful for
+    validating that a Teal application has been correctly configured before attempting
+    to run it interactively.
+
+    Args:
+        app_path (str, optional): Path to the Shiny app directory. Defaults to ".".
+        app_filename (str, optional): Name of the app file to run (e.g., 'app.R', 'server.R'). Defaults to "app.R".
+        timeout_seconds (int, optional): Maximum time in seconds to allow the app to start (1-120). Defaults to 15.
+
+    Returns:
+        str: JSON object with startup validation results
+
+        Success response:
+            {
+                "status": "ok",
+                "error_type": null,
+                "message": "App started successfully",
+                "logs_excerpt": "... last 20 lines of output ..."
+            }
+
+        Error response:
+            {
+                "status": "error",
+                "error_type": "missing_package" | "syntax_error" | "object_not_found" |
+                              "timeout" | "file_not_found" | "rscript_not_found" |
+                              "connection_error" | "execution_error",
+                "message": "Detailed error description",
+                "logs_excerpt": "... last 30 lines of output ..."
+            }
+
+    Error Types:
+        - missing_package: Required R package is not installed
+        - syntax_error: R syntax error in app.R
+        - object_not_found: Referenced R object does not exist
+        - timeout: App did not start within the specified timeout
+        - file_not_found: app.R file not found at specified path
+        - rscript_not_found: Rscript command not available (R not installed)
+        - connection_error: Network or file connection error
+        - execution_error: Other R execution error
+
+    Examples:
+        - Check app in current directory: (no parameters needed)
+        - Check app in specific directory: app_path="/path/to/app"
+        - Check specific app file: app_filename="server.R"
+        - Use longer timeout: timeout_seconds=30
+
+    Note:
+        This tool does not launch an interactive Shiny session. It only validates
+        that the app can start without immediate errors. The process is terminated
+        once startup is confirmed or an error is detected.
+    """
+    params = CheckShinyStartupInput(
+        app_path=app_path,
+        app_filename=app_filename,
+        timeout_seconds=timeout_seconds
+    )
+    return await tealflow_check_shiny_startup(params)
 
 
 # ============================================================================

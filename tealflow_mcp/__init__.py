@@ -17,6 +17,7 @@ from .core import PackageFilter, ResponseFormat
 from .models import (
     CheckDatasetRequirementsInput,
     DiscoverDatasetsInput,
+    CheckShinyStartupInput,
     GenerateModuleCodeInput,
     GetAppTemplateInput,
     GetModuleDetailsInput,
@@ -28,6 +29,7 @@ from .models import (
 from .tools import (
     tealflow_check_dataset_requirements,
     tealflow_discover_datasets,
+    tealflow_check_shiny_startup,
     tealflow_generate_module_code,
     tealflow_get_agent_guidance,
     tealflow_get_app_template,
@@ -40,6 +42,7 @@ from .tools import (
 __all__ = [
     "CheckDatasetRequirementsInput",
     "DiscoverDatasetsInput",
+    "CheckShinyStartupInput",
     "GenerateModuleCodeInput",
     "GetAppTemplateInput",
     "GetModuleDetailsInput",
@@ -50,6 +53,7 @@ __all__ = [
     "SearchModulesInput",
     "tealflow_check_dataset_requirements",
     "tealflow_discover_datasets",
+    "tealflow_check_shiny_startup",
     "tealflow_generate_module_code",
     "tealflow_get_agent_guidance",
     "tealflow_get_app_template",

@@ -102,6 +102,22 @@ The TealFlow MCP server provides the following tools to help you assist users:
    - Generated code includes all required parameters with sensible defaults
    - Provide clear instructions on where to add the code
 
+7. **Validate app startup**
+
+   - After all modules are added and the app is complete, use `tealflow_check_shiny_startup` with the `app_filename` parameter to validate the app starts without errors
+   - This tool runs the app file briefly with a timeout (default 15 seconds) and detects startup errors
+   - The tool returns structured JSON with `status` ("ok" or "error"), `error_type` (e.g., "missing_package", "syntax_error", "object_not_found"), and a detailed `message`
+   - If `status` is "ok", the app is ready to use - inform the user
+   - If `status` is "error", analyze the `error_type` and `message` to fix the specific issue:
+     - **missing_package**: Suggest installing the missing R package
+     - **syntax_error**: Check recent edits for R syntax issues
+     - **object_not_found**: Verify data loading code and variable names
+     - **timeout**: Consider increasing timeout_seconds or check for infinite loops
+   - Make only the minimal change necessary to fix the specific error reported
+   - Retry validation at most 2 additional times after making fixes
+   - Do not refactor unrelated code or add new features during retries
+   - If errors persist after retries, report the last error to the user and stop
+
 ### When user asks which modules can be added
 
 1. Use `tealflow_list_modules` to show available modules (optionally filtered by package or category)

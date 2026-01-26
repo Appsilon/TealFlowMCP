@@ -5,6 +5,7 @@ Pydantic models for Teal Flow MCP Server.
 from .input_models import (
     CheckDatasetRequirementsInput,
     DiscoverDatasetsInput,
+    CheckShinyStartupInput,
     GenerateModuleCodeInput,
     GetAppTemplateInput,
     GetModuleDetailsInput,
@@ -16,6 +17,7 @@ from .input_models import (
 __all__ = [
     "CheckDatasetRequirementsInput",
     "DiscoverDatasetsInput",
+    "CheckShinyStartupInput",
     "GenerateModuleCodeInput",
     "GetAppTemplateInput",
     "GetModuleDetailsInput",
