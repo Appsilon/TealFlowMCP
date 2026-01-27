@@ -132,8 +132,7 @@ class DiscoverDatasetsInput(BaseModel):
     model_config = ConfigDict(str_strip_whitespace=True, validate_assignment=True)
 
     data_directory: str = Field(
-        default="data/",
-        description="Path to the directory containing dataset files",
+        description="Absolute path to the directory containing dataset files",
     )
     file_formats: list[str] | None = Field(
         default=None,

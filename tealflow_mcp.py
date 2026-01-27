@@ -398,7 +398,7 @@ async def list_datasets_tool(
     },
 )
 async def discover_datasets_tool(
-    data_directory: str = "data/",
+    data_directory: str,
     file_formats: list[str] | None = None,
     pattern: str = "AD*",
     response_format: str = "markdown"
@@ -415,9 +415,8 @@ async def discover_datasets_tool(
     Relative paths will not work correctly due to MCP server/client working directory differences.
 
     Args:
-        data_directory (str, optional): **Absolute path** to the directory containing dataset files.
-                                       Example: '/home/user/project/data/' or 'C:\\Users\\user\\project\\data\\'.
-                                       Defaults to 'data/' (which will fail unless it's an absolute path).
+        data_directory (str): **Absolute path** to the directory containing dataset files.
+                             Example: '/home/user/project/data/' or 'C:\\Users\\user\\project\\data\\'.
         file_formats (list[str], optional): List of file formats to include (e.g., ['Rds', 'csv']).
                                            If None, all supported formats are included. Defaults to None.
         pattern (str, optional): File pattern to match (default: 'AD*' for ADaM datasets). Defaults to 'AD*'.
