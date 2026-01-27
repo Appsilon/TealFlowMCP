@@ -6,6 +6,7 @@ Tests the generation of R code that loads ADaM datasets and creates teal_data ob
 
 import pytest
 import json
+from pytest import mark
 
 
 class TestDataLoadingCodeGeneration:
@@ -126,8 +127,8 @@ class TestDataLoadingCodeGeneration:
 
         result = generate_data_loading_code(datasets)
 
-        # Should use default join keys
-        assert 'join_keys = default_cdisc_join_keys[c("ADSL", "ADRS", "ADTTE")]' in result
+        # Should use default join keys (sorted alphabetically)
+        assert 'join_keys = default_cdisc_join_keys[c("ADRS", "ADSL", "ADTTE")]' in result
         assert "WARNING" not in result
 
     def test_generate_with_non_standard(self):
@@ -163,7 +164,7 @@ class TestDataLoadingCodeGeneration:
         datasets = []
 
         with pytest.raises(ValueError) as exc_info:
-            generate_data_loading_code(datasets, "/home/user/project/data")
+            generate_data_loading_code(datasets)
 
         assert "No datasets provided" in str(exc_info.value)
 
@@ -199,11 +200,11 @@ class TestDataLoadingCodeGeneration:
         adrs_pos = result.index("ADRS <- readRDS")
         adtte_pos = result.index("ADTTE <- readRDS")
 
-        # Should be in alphabetical order
-        assert adsl_pos < adrs_pos < adtte_pos
+        # Should be in alphabetical order (ADRS < ADSL < ADTTE)
+        assert adrs_pos < adsl_pos < adtte_pos
 
         # Check join_keys order (should also be sorted)
-        assert 'join_keys = default_cdisc_join_keys[c("ADSL", "ADRS", "ADTTE")]' in result
+        assert 'join_keys = default_cdisc_join_keys[c("ADRS", "ADSL", "ADTTE")]' in result
 
     def test_generate_absolute_paths(self):
         """Test that absolute paths are preserved correctly."""
@@ -285,7 +286,7 @@ class TestDataLoadingCodeGeneration:
             },
         ]
 
-        result = generate_data_loading_code(datasets, "/home/user/data")
+        result = generate_data_loading_code(datasets)
 
         # Full filename should be in path
         assert 'ADSL <- readRDS("/home/user/data/project123_ADSL_2024-01-15.Rds")' in result
@@ -342,6 +343,7 @@ class TestDataLoadingCodeGeneration:
 class TestDataLoadingToolWrapper:
     """Test the MCP tool wrapper for data loading generation."""
 
+    @mark.anyio
     async def test_tool_markdown_format(self):
         """Test tool wrapper with markdown output format."""
         from tealflow_mcp.tools.data_loading import tealflow_generate_data_loading
@@ -370,6 +372,7 @@ class TestDataLoadingToolWrapper:
         assert "```" in result
         assert "## Usage" in result
 
+    @mark.anyio
     async def test_tool_json_format(self):
         """Test tool wrapper with JSON output format."""
         from tealflow_mcp.tools.data_loading import tealflow_generate_data_loading
@@ -400,20 +403,22 @@ class TestDataLoadingToolWrapper:
         assert parsed["file_path"] == "data/data.R"
         assert "ADSL" in parsed["datasets"]
 
+    @mark.anyio
     async def test_tool_empty_datasets_error(self):
         """Test tool error handling for empty datasets."""
-        from tealflow_mcp.tools.data_loading import tealflow_generate_data_loading
         from tealflow_mcp.models.input_models import GenerateDataLoadingInput
+        from pydantic import ValidationError
 
-        params = GenerateDataLoadingInput(
-            datasets=[],
-        )
+        # Should fail during model validation
+        with pytest.raises(ValidationError) as exc_info:
+            GenerateDataLoadingInput(
+                datasets=[],
+            )
 
-        result = await tealflow_generate_data_loading(params)
+        # Check error message
+        assert "Datasets list cannot be empty" in str(exc_info.value)
 
-        # Should return error message
-        assert "Error" in result or "error" in result
-
+    @mark.anyio
     async def test_tool_with_discovery_output(self):
         """Test tool integration with actual discovery output format."""
         from tealflow_mcp.tools.data_loading import tealflow_generate_data_loading
