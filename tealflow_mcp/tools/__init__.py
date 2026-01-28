@@ -7,6 +7,7 @@ from .check_shiny_startup import tealflow_check_shiny_startup
 from .code_generation import tealflow_generate_module_code
 from .list_modules import tealflow_list_modules
 from .module_details import tealflow_get_module_details
+from .setup_renv import tealflow_setup_renv_environment
 from .other_tools import (
     tealflow_check_dataset_requirements,
     tealflow_get_app_template,
@@ -24,4 +25,5 @@ __all__ = [
     "tealflow_list_datasets",
     "tealflow_list_modules",
     "tealflow_search_modules_by_analysis",
+    "tealflow_setup_renv_environment",
 ]

@@ -161,3 +161,17 @@ class CheckShinyStartupInput(BaseModel):
         if not v.endswith(".R"):
             raise ValueError("App filename must end with .R")
         return v.strip()
+
+class SetupRenvEnvironmentInput(BaseModel):
+    """Input model for setting up renv environment."""
+
+    model_config = ConfigDict(str_strip_whitespace=True, validate_assignment=True)
+
+    project_path: str = Field(
+        default=".",
+        description="Path to the user's R project"
+    )
+    response_format: ResponseFormat = Field(
+        default=ResponseFormat.JSON,
+        description="Output format: 'json' or 'markdown'"
+    )

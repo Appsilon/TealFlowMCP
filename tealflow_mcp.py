@@ -25,6 +25,7 @@ from tealflow_mcp import (
     PackageFilter,
     ResponseFormat,
     SearchModulesInput,
+    SetupRenvEnvironmentInput,
     tealflow_get_agent_guidance,
     tealflow_check_dataset_requirements,
     tealflow_check_shiny_startup,
@@ -34,6 +35,7 @@ from tealflow_mcp import (
     tealflow_list_datasets,
     tealflow_list_modules,
     tealflow_search_modules_by_analysis,
+    tealflow_setup_renv_environment,
 )
 
 from mcp.server.fastmcp import FastMCP
@@ -570,6 +572,43 @@ async def check_shiny_startup_tool(
         timeout_seconds=timeout_seconds
     )
     return await tealflow_check_shiny_startup(params)
+
+
+@mcp.tool(
+    name="tealflow_setup_renv_environment",
+    annotations={
+        "title": "Setup Renv Environment",
+        "readOnlyHint": False,
+        "destructiveHint": False,
+        "idempotentHint": True,
+        "openWorldHint": False,
+    },
+)
+async def setup_renv_environment_tool(
+    project_path: str = ".",
+    response_format: str = "json"
+) -> str:
+    """
+    Prepare an R project directory so it is ready to run Teal Shiny applications.
+
+    The tool initializes an renv environment and installs required packages (shiny, teal, etc.).
+
+    Args:
+        project_path (str, optional): Path to the user's R project. Defaults to ".".
+        response_format (str, optional): Output format - 'json' or 'markdown'. Defaults to 'json'.
+
+    Returns:
+        str: Result with status, steps completed, and logs.
+
+    Examples:
+        - Setup current directory: (no parameters needed)
+        - Setup specific project: project_path="/path/to/project"
+    """
+    params = SetupRenvEnvironmentInput(
+        project_path=project_path,
+        response_format=ResponseFormat(response_format)
+    )
+    return await tealflow_setup_renv_environment(params)
 
 
 # ============================================================================

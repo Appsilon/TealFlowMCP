@@ -11,6 +11,7 @@ from .input_models import (
     ListDatasetsInput,
     ListModulesInput,
     SearchModulesInput,
+    SetupRenvEnvironmentInput,
 )
 
 __all__ = [
@@ -22,4 +23,5 @@ __all__ = [
     "ListDatasetsInput",
     "ListModulesInput",
     "SearchModulesInput",
+    "SetupRenvEnvironmentInput",
 ]
