@@ -5,6 +5,7 @@ Tool implementations for Teal Flow MCP Server.
 from .agent_guidance import tealflow_get_agent_guidance
 from .check_shiny_startup import tealflow_check_shiny_startup
 from .code_generation import tealflow_generate_module_code
+from .dataset_discovery import tealflow_discover_datasets
 from .list_modules import tealflow_list_modules
 from .module_details import tealflow_get_module_details
 from .other_tools import (
@@ -16,6 +17,7 @@ from .other_tools import (
 
 __all__ = [
     "tealflow_check_dataset_requirements",
+    "tealflow_discover_datasets",
     "tealflow_check_shiny_startup",
     "tealflow_generate_module_code",
     "tealflow_get_app_template",

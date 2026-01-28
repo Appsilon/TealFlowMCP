@@ -8,3 +8,8 @@ dependencies = [
     "mcp>=1.0.0",
     "pydantic>=2.0.0",
 ]
+
+[dependency-groups]
+dev = [
+    "pytest>=7.0.0",
+]
