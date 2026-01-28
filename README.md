@@ -2,6 +2,10 @@
 
 An MCP (Model Context Protocol) server that enables LLMs to discover, understand, and generate Teal R Shiny applications for clinical trial data analysis.
 
+## Quick Start
+
+**New to TealFlowMCP?** Check out the [Quickstart Guide](QUICKSTART.md) for step-by-step instructions to get up and running with VSCode and GitHub Copilot.
+
 ## Prerequisites
 
 * Python 3.10+
