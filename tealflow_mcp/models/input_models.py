@@ -126,6 +126,28 @@ class GetAppTemplateInput(BaseModel):
     )
 
 
+class DiscoverDatasetsInput(BaseModel):
+    """Input model for discovering datasets."""
+
+    model_config = ConfigDict(str_strip_whitespace=True, validate_assignment=True)
+
+    data_directory: str = Field(
+        description="Absolute path to the directory containing dataset files",
+    )
+    file_formats: list[str] | None = Field(
+        default=None,
+        description="List of file formats to include (e.g., ['Rds', 'csv']). If None, all supported formats are included.",
+    )
+    pattern: str = Field(
+        default="AD*",
+        description="File pattern to match (default: 'AD*' for ADaM datasets)",
+    )
+    response_format: ResponseFormat = Field(
+        default=ResponseFormat.MARKDOWN,
+        description="Output format: 'markdown' for human-readable or 'json' for machine-readable",
+    )
+
+
 class CheckShinyStartupInput(BaseModel):
     """Input model for checking Shiny app startup."""
 

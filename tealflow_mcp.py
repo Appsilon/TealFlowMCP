@@ -16,6 +16,7 @@ The server helps with:
 
 from tealflow_mcp import (
     CheckDatasetRequirementsInput,
+    DiscoverDatasetsInput,
     CheckShinyStartupInput,
     GenerateModuleCodeInput,
     GetAppTemplateInput,
@@ -28,6 +29,7 @@ from tealflow_mcp import (
     SetupRenvEnvironmentInput,
     tealflow_get_agent_guidance,
     tealflow_check_dataset_requirements,
+    tealflow_discover_datasets,
     tealflow_check_shiny_startup,
     tealflow_generate_module_code,
     tealflow_get_app_template,
@@ -71,7 +73,7 @@ mcp = FastMCP(
 async def get_agent_guidance_tool() -> str:
     """
     Get comprehensive guidance for assisting users with Teal application development.
-    
+
     ⚠️ IMPORTANT: This tool MUST be called FIRST whenever a user requests:
     - Creating a Teal application or Teal app
     - Adding Teal modules to an app
@@ -80,7 +82,7 @@ async def get_agent_guidance_tool() -> str:
     - Working with Statistical Analysis Plans (SAP)
     - Understanding Teal modules or datasets
     - Any other Teal-related task
-    
+
     This tool provides the complete agent usage guide that includes:
     - Your role and responsibilities as a Teal assistant
     - Available MCP tools and when to use them
@@ -90,7 +92,7 @@ async def get_agent_guidance_tool() -> str:
     - Development philosophy and R code style guidelines
     - Best practices for agent behavior
     - Example workflows for common tasks
-    
+
     The guidance ensures you:
     - Follow correct workflows for creating and modifying Teal apps
     - Use the right MCP tools in the right sequence
@@ -98,24 +100,24 @@ async def get_agent_guidance_tool() -> str:
     - Generate properly structured R code
     - Provide complete, working solutions
     - Handle multi-step tasks with proper planning
-    
+
     Usage:
         Always retrieve this guidance at the start of any Teal-related conversation
         to ensure you have the latest best practices, workflows, and constraints.
-    
+
     Returns:
         str: Complete agent guidance document in markdown format with all necessary
              context, workflows, and best practices for assisting with Teal development.
-    
+
     Examples:
         User: "I need to create a survival analysis app"
         → First action: Call this tool to get guidance
         → Then follow the workflow in the guidance to assist the user
-        
+
         User: "Add a Kaplan-Meier module to my app"
         → First action: Call this tool to get guidance
         → Then use the appropriate MCP tools as directed in the guidance
-        
+
         User: "Help me implement analyses from my SAP"
         → First action: Call this tool to get guidance
         → Then follow the SAP workflow described in the guidance
@@ -388,6 +390,77 @@ async def list_datasets_tool(
 
 
 @mcp.tool(
+    name="tealflow_discover_datasets",
+    annotations={
+        "title": "Discover ADaM Datasets",
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "idempotentHint": True,
+        "openWorldHint": False,
+    },
+)
+async def discover_datasets_tool(
+    data_directory: str,
+    file_formats: list[str] | None = None,
+    pattern: str = "AD*",
+    response_format: str = "markdown"
+) -> str:
+    """
+    Discover ADaM datasets in a directory.
+
+    This tool scans a directory for ADaM dataset files, identifies the dataset
+    names, and collects metadata about each dataset. It handles complex filenames
+    with project names, dates, and drug names, and normalizes dataset names to
+    uppercase.
+
+    **IMPORTANT**: This tool requires an **absolute path** to the dataset directory.
+    Relative paths will not work correctly due to MCP server/client working directory differences.
+
+    Args:
+        data_directory (str): **Absolute path** to the directory containing dataset files.
+                             Example: '/home/user/project/data/' or 'C:\\Users\\user\\project\\data\\'.
+        file_formats (list[str], optional): List of file formats to include (e.g., ['Rds', 'csv']).
+                                           If None, all supported formats are included. Defaults to None.
+        pattern (str, optional): File pattern to match (default: 'AD*' for ADaM datasets). Defaults to 'AD*'.
+        response_format (str, optional): Output format - 'markdown' for human-readable or 'json' for machine-readable.
+                                        Defaults to 'markdown'.
+
+    Returns:
+        str: Discovery results with information about found datasets
+
+        Includes:
+        - List of discovered datasets with names, paths, and formats
+        - Dataset metadata (size, readability, standard vs custom)
+        - Summary statistics
+        - Warnings about any issues
+
+    Examples:
+        - Discover datasets with absolute path: data_directory="/home/user/project/workspace/"
+        - Discover with specific format: data_directory="/home/user/data/", file_formats=["Rds"]
+        - Get JSON format: data_directory="/home/user/data/", response_format="json"
+
+    Common Errors:
+        - FileNotFoundError: Directory not found. Ensure you provide the full absolute path.
+        - Relative paths like "data/" or "workspace/" will not work - use absolute paths.
+
+    Note:
+        This tool extracts ADaM dataset names from filenames, handling:
+        - Complex filenames (e.g., "project123_ADSL_2024-01-15.Rds" → "ADSL")
+        - Case variations (e.g., "adsl.Rds", "AdTtE.csv" → "ADSL", "ADTTE")
+        - Multiple formats (.Rds, .csv, case-insensitive extensions)
+
+        For best results, always ask the user for the complete absolute path to their dataset directory.
+    """
+    params = DiscoverDatasetsInput(
+        data_directory=data_directory,
+        file_formats=file_formats,
+        pattern=pattern,
+        response_format=ResponseFormat(response_format)
+    )
+    return await tealflow_discover_datasets(params)
+
+
+@mcp.tool(
     name="tealflow_get_app_template",
     annotations={
         "title": "Get Teal App Template",
@@ -538,8 +611,8 @@ async def check_shiny_startup_tool(
         Error response:
             {
                 "status": "error",
-                "error_type": "missing_package" | "syntax_error" | "object_not_found" | 
-                              "timeout" | "file_not_found" | "rscript_not_found" | 
+                "error_type": "missing_package" | "syntax_error" | "object_not_found" |
+                              "timeout" | "file_not_found" | "rscript_not_found" |
                               "connection_error" | "execution_error",
                 "message": "Detailed error description",
                 "logs_excerpt": "... last 30 lines of output ..."
