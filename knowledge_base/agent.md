@@ -18,8 +18,9 @@ You are assisting users in building Teal R Shiny applications for clinical trial
 
 The TealFlow MCP server provides the following tools to help you assist users:
 
-### Data Discovery Tools
+### Data Discovery and Loading Tools
 - **tealflow_discover_datasets**: Discover ADaM datasets in a directory (scan for .Rds and .csv files containing ADaM datasets)
+- **tealflow_generate_data_loading**: Generate R code for loading discovered datasets and creating a teal_data object
 
 ### Module Discovery and Search Tools
 - **tealflow_list_modules**: List all available modules, optionally filtered by package (clinical/general) or category
@@ -32,6 +33,7 @@ The TealFlow MCP server provides the following tools to help you assist users:
 ### Code Generation Tools
 - **tealflow_get_app_template**: Get the base Teal app template with data loading and configuration
 - **tealflow_generate_module_code**: Generate ready-to-use R code for adding a specific module to the app
+- **tealflow_generate_data_loading**: Generate R code for loading datasets and creating teal_data objects (works seamlessly with tealflow_discover_datasets output)
 
 **Note**: All tools support both markdown (human-readable) and json (machine-readable) output formats. Default is markdown.
 
@@ -66,43 +68,60 @@ The TealFlow MCP server provides the following tools to help you assist users:
    - Confirm these are the datasets they want to use
    - Note which are standard ADaM datasets (ADSL, ADTTE, ADRS, ADQS, ADAE, etc.)
 
+5. **Generate data loading code**
+   - Use `tealflow_generate_data_loading` with the datasets from discovery
+   - This generates R code that:
+     - Loads each dataset file (readRDS for .Rds, read.csv for .csv)
+     - Creates a teal_data object with appropriate join keys
+     - Handles standard ADaM datasets automatically
+     - Warns about non-standard datasets that may need manual join_keys configuration
+   - Provide the generated code to save as `data/data.R`
+   - The code is ready to be sourced in the Teal app
+
 ### When user asks to create a Teal app
 
 1. **Discover datasets first** (if not already done)
    - Follow the "When user wants to work with their datasets" workflow above
    - Make note of which datasets are available for use in the app
 
-2. **Start with the template**
+2. **Generate data loading code**
+   - Use `tealflow_generate_data_loading` with the discovered datasets
+   - The output provides R code to save as `data/data.R`
+   - This code will be sourced by the app template
+   - For standard ADaM datasets, join keys are configured automatically
+   - For non-standard datasets, the code includes warnings and TODO comments for manual configuration
+
+3. **Start with the template**
    - Use `tealflow_get_app_template` to provide the base application structure
-   - The template includes data loading, configuration variables, and basic modules (front page, data table, variable browser)
+   - The template includes data loading (sources `data/data.R`), configuration variables, and basic modules (front page, data table, variable browser)
    - Don't mention the template file path; simply say "Create an initial Teal app"
 
-3. **Identify required analyses**
+4. **Identify required analyses**
    - Ask the user what type of analysis they want to perform
    - For survival analysis or other broad categories, propose specific module suggestions
    - If user mentions a Statistical Analysis Plan (SAP), they're referring to SAP_001.txt - analyze it to understand required analyses
 
-3. **Find appropriate modules**
+5. **Find appropriate modules**
    - Use `tealflow_search_modules_by_analysis` with the analysis type (e.g., "survival", "kaplan-meier", "cox regression")
    - This returns modules organized by relevance with their descriptions and dataset requirements
    - Present options to the user with clear descriptions
 
-4. **Verify dataset compatibility**
+6. **Verify dataset compatibility**
    - Use `tealflow_check_dataset_requirements` for each candidate module
    - Use the list of datasets discovered earlier (from `tealflow_discover_datasets`)
    - If modules require missing datasets, inform the user which datasets are missing for which modules
    - Note: Default datasets in sample data are ADSL, ADTTE, ADRS, ADQS, ADAE
 
-5. **Get detailed module information**
+7. **Get detailed module information**
    - Use `tealflow_get_module_details` to understand the module's parameters before generating code
    - This provides required vs optional parameters, types, and defaults
 
-6. **Generate module code**
+8. **Generate module code**
    - Use `tealflow_generate_module_code` to create ready-to-use R code
    - Generated code includes all required parameters with sensible defaults
    - Provide clear instructions on where to add the code
 
-7. **Validate app startup**
+9. **Validate app startup**
 
    - After all modules are added and the app is complete, use `tealflow_check_shiny_startup` with the `app_filename` parameter to validate the app starts without errors
    - This tool runs the app file briefly with a timeout (default 15 seconds) and detects startup errors
@@ -249,6 +268,37 @@ Use `tealflow_get_module_details` to get the complete parameter list for any mod
 - Most clinical modules require both an analysis dataset and ADSL
 - The `parentname` parameter typically refers to ADSL
 
+### Data Loading Code Generation
+
+The `tealflow_generate_data_loading` tool creates R code for loading datasets and creating teal_data objects:
+
+**Input**: List of dataset dictionaries from `tealflow_discover_datasets` containing:
+- `name`: Dataset name (e.g., "ADSL")
+- `path`: Absolute path to dataset file
+- `format`: File format ("Rds" or "csv")
+- `is_standard_adam`: Whether it's a standard ADaM dataset
+
+**Output**: Complete R code that:
+1. Loads the teal library
+2. Reads each dataset file using appropriate R functions:
+   - `readRDS()` for .Rds files
+   - `read.csv(..., stringsAsFactors = FALSE)` for .csv files
+3. Creates a `teal_data()` object with all datasets
+4. Configures join keys:
+   - For standard ADaM datasets: Uses `default_cdisc_join_keys`
+   - For non-standard datasets: Includes warning comments for manual configuration
+
+**Workflow Integration**:
+1. Discover datasets with `tealflow_discover_datasets`
+2. Pass the `datasets_found` array directly to `tealflow_generate_data_loading`
+3. Save the generated code as `data/data.R`
+4. The app template will source this file with `source("data/data.R")`
+
+**Format Support**:
+- Currently supports: Rds, csv
+- Extensible design allows easy addition of new formats (Parquet, SAS, etc.)
+- Alphabetically sorts datasets for consistent output
+
 ## Multi-Step Task Management
 
 When working on complex requests that involve multiple steps:
@@ -325,14 +375,20 @@ When providing R code or guidance to users:
 ### Example 1: Creating a Survival Analysis App
 
 1. User: "I need to create a survival analysis app"
-2. Agent: Use `tealflow_get_app_template` to get base app
-3. Agent: Use `tealflow_search_modules_by_analysis` with "survival" to find relevant modules
-4. Agent: Use `tealflow_check_dataset_requirements` for each survival module
-5. Agent: Present compatible options: tm_g_km, tm_t_tte, tm_t_coxreg, tm_g_forest_tte
-6. User: "Add Kaplan-Meier plot and Cox regression"
-7. Agent: Use `tealflow_generate_module_code` for tm_g_km
-8. Agent: Use `tealflow_generate_module_code` for tm_t_coxreg
-9. Agent: Provide both code snippets with clear instructions for adding to app.R
+2. Agent: Ask for absolute path to datasets directory
+3. User: Provides path "/home/user/project/data"
+4. Agent: Use `tealflow_discover_datasets` with the provided path
+5. Agent: Show discovered datasets (e.g., ADSL, ADTTE found)
+6. Agent: Use `tealflow_generate_data_loading` with discovered datasets
+7. Agent: Provide data loading code to save as `data/data.R`
+8. Agent: Use `tealflow_get_app_template` to get base app
+9. Agent: Use `tealflow_search_modules_by_analysis` with "survival" to find relevant modules
+10. Agent: Use `tealflow_check_dataset_requirements` for each survival module
+11. Agent: Present compatible options: tm_g_km, tm_t_tte, tm_t_coxreg, tm_g_forest_tte
+12. User: "Add Kaplan-Meier plot and Cox regression"
+13. Agent: Use `tealflow_generate_module_code` for tm_g_km
+14. Agent: Use `tealflow_generate_module_code` for tm_t_coxreg
+15. Agent: Provide both code snippets with clear instructions for adding to app.R
 
 ### Example 2: Understanding Module Options
 
@@ -344,16 +400,36 @@ When providing R code or guidance to users:
 6. Agent: Use `tealflow_get_module_details` with module_name="tm_g_scatterplot"
 7. Agent: Present comprehensive parameter information
 
-### Example 3: Working with SAP
+### Example 3: Generating Data Loading Code
+
+1. User: "I need to load my ADaM datasets for a Teal app"
+2. Agent: Ask for absolute path to datasets directory
+3. User: Provides "/home/user/study/data"
+4. Agent: Use `tealflow_discover_datasets` with path="/home/user/study/data"
+5. Agent: Show discovered datasets (e.g., ADSL.Rds, ADTTE.Rds, ADAE.csv)
+6. Agent: Use `tealflow_generate_data_loading` with the datasets_found array from discovery
+7. Agent: Present generated R code with instructions:
+   - Create `data/` directory if it doesn't exist
+   - Save code as `data/data.R`
+   - The app template will load this with `source("data/data.R")`
+8. Agent: Note that standard ADaM datasets have automatic join keys configured
+9. Agent: If non-standard datasets detected, explain that manual join_keys configuration may be needed
+
+### Example 4: Working with SAP
 
 1. User: "I have a Statistical Analysis Plan (SAP), help me implement it"
-2. Agent: Read SAP_001.txt content
-3. Agent: Analyze and explain what analyses are required
-4. Agent: For each required analysis type, use `tealflow_search_modules_by_analysis`
-5. Agent: Create todo list for implementing each analysis
-6. Agent: Verify dataset compatibility for all proposed modules
-7. Agent: Generate code for each module incrementally
-8. Agent: Guide user through adding each module to the app
+2. Agent: Ask for absolute path to datasets directory
+3. User: Provides path
+4. Agent: Use `tealflow_discover_datasets` to find available datasets
+5. Agent: Use `tealflow_generate_data_loading` to create data loading code
+6. Agent: Provide data loading code to save as `data/data.R`
+7. Agent: Read SAP_001.txt content
+8. Agent: Analyze and explain what analyses are required
+9. Agent: For each required analysis type, use `tealflow_search_modules_by_analysis`
+10. Agent: Create todo list for implementing each analysis
+11. Agent: Verify dataset compatibility for all proposed modules
+12. Agent: Generate code for each module incrementally
+13. Agent: Guide user through adding each module to the app
 
 ## References and Additional Information
 
