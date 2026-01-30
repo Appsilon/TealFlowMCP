@@ -121,9 +121,9 @@ async def tealflow_setup_renv_environment(params: SetupRenvEnvironmentInput) -> 
             }, indent=2)
 
         # STEP 4: Initialize renv in Project
-        # If lockfile exists, activate it. If not, initialize a bare environment
-        # (creates renv structure but doesn't install packages yet).
-        init_renv_cmd = 'if (!file.exists("renv.lock")) renv::init(bare = TRUE) else renv::activate()'
+        # If lockfile exists, restore packages (also activates renv).
+        # If not, initialize a bare environment.
+        init_renv_cmd = 'if (!file.exists("renv.lock")) renv::init(bare = TRUE) else renv::restore(prompt = FALSE)'
         
         try:
             rc, out, err = _run_r_command(init_renv_cmd, project_path)
@@ -147,9 +147,22 @@ async def tealflow_setup_renv_environment(params: SetupRenvEnvironmentInput) -> 
             }, indent=2)
 
         # STEP 5: Install Required Packages
-        # renv::install(c("shiny", "teal", "teal.modules.general", "teal.modules.clinical"))
-        # Using a timeout of 600s
-        install_pkgs_cmd = 'renv::install(c("shiny", "teal", "teal.modules.general", "teal.modules.clinical"), prompt = FALSE)'
+        # Only install packages that are missing from the lockfile.
+        # If no lockfile exists (fresh project), install all required packages.
+        install_pkgs_cmd = '''
+required_packages <- c("shiny", "teal", "teal.modules.general", "teal.modules.clinical")
+
+if (file.exists("renv.lock")) {
+  lockfile <- renv::lockfile_read("renv.lock")
+  locked_pkgs <- names(lockfile$Packages)
+  missing <- setdiff(required_packages, locked_pkgs)
+  if (length(missing) > 0) {
+    renv::install(missing, prompt = FALSE)
+  }
+} else {
+  renv::install(required_packages, prompt = FALSE)
+}
+'''
         try:
             rc, out, err = _run_r_command(install_pkgs_cmd, project_path, timeout=600)
             log_output(out, err)
@@ -179,7 +192,46 @@ async def tealflow_setup_renv_environment(params: SetupRenvEnvironmentInput) -> 
                 "logs_excerpt": "\n".join(logs)
             }, indent=2)
 
-        # STEP 6: Snapshot Environment
+        # STEP 6: Ensure global.R has library calls for required packages
+        # This ensures renv::snapshot() detects them as dependencies.
+        global_r_cmd = '''
+required_packages <- c("shiny", "teal", "teal.modules.general", "teal.modules.clinical")
+global_file <- "global.R"
+
+if (!file.exists(global_file)) {
+  writeLines(paste0("library(", required_packages, ")"), global_file)
+} else {
+  existing <- readLines(global_file)
+  for (pkg in required_packages) {
+    pattern <- paste0("library\\\\(", pkg, "\\\\)")
+    if (!any(grepl(pattern, existing))) {
+      write(paste0("library(", pkg, ")"), global_file, append = TRUE)
+    }
+  }
+}
+'''
+        try:
+            rc, out, err = _run_r_command(global_r_cmd, project_path)
+            log_output(out, err)
+            if rc != 0:
+                return json.dumps({
+                    "status": "error",
+                    "error_type": "global_r_failed",
+                    "steps_completed": steps_completed,
+                    "message": "Failed to create/update global.R.",
+                    "logs_excerpt": "\n".join(logs)
+                }, indent=2)
+            steps_completed.append("global_r_updated")
+        except Exception as e:
+            return json.dumps({
+                "status": "error",
+                "error_type": "global_r_failed",
+                "steps_completed": steps_completed,
+                "message": f"Exception updating global.R: {str(e)}",
+                "logs_excerpt": "\n".join(logs)
+            }, indent=2)
+
+        # STEP 7: Snapshot Environment
         snapshot_cmd = 'renv::snapshot(prompt = FALSE)'
         try:
             rc, out, err = _run_r_command(snapshot_cmd, project_path)
