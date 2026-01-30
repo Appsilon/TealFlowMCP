@@ -75,7 +75,7 @@ The TealFlow MCP server provides the following tools to help you assist users:
      - Creates a teal_data object with appropriate join keys
      - Handles standard ADaM datasets automatically
      - Warns about non-standard datasets that may need manual join_keys configuration
-   - Provide the generated code to save as `data/data.R`
+   - Provide the generated code to save as `data.R` in the project root
    - The code is ready to be sourced in the Teal app
 
 ### When user asks to create a Teal app
@@ -86,14 +86,14 @@ The TealFlow MCP server provides the following tools to help you assist users:
 
 2. **Generate data loading code**
    - Use `tealflow_generate_data_loading` with the discovered datasets
-   - The output provides R code to save as `data/data.R`
+   - The output provides R code to save as `data.R` in the project root
    - This code will be sourced by the app template
    - For standard ADaM datasets, join keys are configured automatically
    - For non-standard datasets, the code includes warnings and TODO comments for manual configuration
 
 3. **Start with the template**
    - Use `tealflow_get_app_template` to provide the base application structure
-   - The template includes data loading (sources `data/data.R`), configuration variables, and basic modules (front page, data table, variable browser)
+   - The template includes data loading (sources `data.R`), configuration variables, and basic modules (front page, data table, variable browser)
    - Don't mention the template file path; simply say "Create an initial Teal app"
 
 4. **Identify required analyses**
@@ -291,8 +291,8 @@ The `tealflow_generate_data_loading` tool creates R code for loading datasets an
 **Workflow Integration**:
 1. Discover datasets with `tealflow_discover_datasets`
 2. Pass the `datasets_found` array directly to `tealflow_generate_data_loading`
-3. Save the generated code as `data/data.R`
-4. The app template will source this file with `source("data/data.R")`
+3. Save the generated code as `data.R` in the project root
+4. The app template will source this file with `source("data.R")`
 
 **Format Support**:
 - Currently supports: Rds, csv
@@ -380,7 +380,7 @@ When providing R code or guidance to users:
 4. Agent: Use `tealflow_discover_datasets` with the provided path
 5. Agent: Show discovered datasets (e.g., ADSL, ADTTE found)
 6. Agent: Use `tealflow_generate_data_loading` with discovered datasets
-7. Agent: Provide data loading code to save as `data/data.R`
+7. Agent: Provide data loading code to save as `data.R` in project root
 8. Agent: Use `tealflow_get_app_template` to get base app
 9. Agent: Use `tealflow_search_modules_by_analysis` with "survival" to find relevant modules
 10. Agent: Use `tealflow_check_dataset_requirements` for each survival module
@@ -409,9 +409,8 @@ When providing R code or guidance to users:
 5. Agent: Show discovered datasets (e.g., ADSL.Rds, ADTTE.Rds, ADAE.csv)
 6. Agent: Use `tealflow_generate_data_loading` with the datasets_found array from discovery
 7. Agent: Present generated R code with instructions:
-   - Create `data/` directory if it doesn't exist
-   - Save code as `data/data.R`
-   - The app template will load this with `source("data/data.R")`
+   - Save code as `data.R` in the project root directory
+   - The app template will load this with `source("data.R")`
 8. Agent: Note that standard ADaM datasets have automatic join keys configured
 9. Agent: If non-standard datasets detected, explain that manual join_keys configuration may be needed
 
@@ -422,7 +421,7 @@ When providing R code or guidance to users:
 3. User: Provides path
 4. Agent: Use `tealflow_discover_datasets` to find available datasets
 5. Agent: Use `tealflow_generate_data_loading` to create data loading code
-6. Agent: Provide data loading code to save as `data/data.R`
+6. Agent: Provide data loading code to save as `data.R` in project root
 7. Agent: Read SAP_001.txt content
 8. Agent: Analyze and explain what analyses are required
 9. Agent: For each required analysis type, use `tealflow_search_modules_by_analysis`

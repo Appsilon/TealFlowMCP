@@ -202,11 +202,10 @@ async def tealflow_generate_data_loading(params: GenerateDataLoadingInput) -> st
                 {
                     "code": code,
                     "datasets": dataset_names,
-                    "file_path": "data/data.R",
+                    "file_path": "data.R",
                     "instructions": [
-                        "Create a 'data/' directory in your project if it doesn't exist",
-                        "Save the code as 'data/data.R'",
-                        "The app template will load this with source('data/data.R')",
+                        "Save the code as 'data.R' in your project root directory",
+                        "The app template will load this with source('data.R')",
                     ],
                 },
                 indent=2,
@@ -234,7 +233,7 @@ def _format_data_loading_markdown(code: str, datasets: list[dict[str, Any]]) -> 
 
     lines.append("# Data Loading Code")
     lines.append("")
-    lines.append("Save this code as `data/data.R` in your project:")
+    lines.append("Save this code as `data.R` in your project root:")
     lines.append("")
     lines.append("```r")
     lines.append(code)
@@ -243,9 +242,8 @@ def _format_data_loading_markdown(code: str, datasets: list[dict[str, Any]]) -> 
 
     lines.append("## Usage")
     lines.append("")
-    lines.append("1. Create a `data/` directory in your project if it doesn't exist")
-    lines.append("2. Save the code above as `data/data.R`")
-    lines.append("3. The app template will load this with `source(\"data/data.R\")`")
+    lines.append("1. Save the code above as `data.R` in your project root directory")
+    lines.append("2. The app template will load this with `source(\"data.R\")`")
     lines.append("")
 
     lines.append("## Datasets Included")

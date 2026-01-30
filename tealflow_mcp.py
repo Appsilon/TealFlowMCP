@@ -513,7 +513,7 @@ async def generate_data_loading_tool(
         JSON format includes:
         - code: The generated R code
         - datasets: List of dataset names
-        - file_path: Recommended file path (data/data.R)
+        - file_path: Recommended file path (data.R)
         - instructions: Step-by-step usage instructions
 
     Generated Code Structure:
@@ -527,7 +527,7 @@ async def generate_data_loading_tool(
     Workflow Integration:
         1. Use tealflow_discover_datasets to find datasets
         2. Pass the datasets_found array to this tool
-        3. Save the generated code as data/data.R
+        3. Save the generated code as data.R in the project root
         4. The app template will source this file
 
     Examples:

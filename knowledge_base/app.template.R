@@ -2,7 +2,7 @@ library(teal.modules.general)
 library(teal.modules.clinical)
 options(shiny.useragg = FALSE)
 
-source("data/data.R")
+source("data.R")
 
 # Configuration For Modules
 ADSL <- data[["ADSL"]]

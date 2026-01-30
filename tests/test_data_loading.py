@@ -400,7 +400,7 @@ class TestDataLoadingToolWrapper:
         assert "code" in parsed
         assert "datasets" in parsed
         assert "file_path" in parsed
-        assert parsed["file_path"] == "data/data.R"
+        assert parsed["file_path"] == "data.R"
         assert "ADSL" in parsed["datasets"]
 
     @mark.anyio
