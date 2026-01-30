@@ -6,13 +6,39 @@ and creates teal_data objects.
 """
 
 from typing import Any
+from pathlib import Path
 
 from ..models.input_models import GenerateDataLoadingInput
 from ..core.enums import ResponseFormat
 from .format_handlers import get_format_handler_by_name
 
 
-def generate_data_loading_code(datasets: list[dict[str, Any]]) -> str:
+def _convert_to_relative_path(absolute_path: str, project_dir: str) -> str | None:
+    """
+    Convert absolute path to relative path if it's within the project directory.
+
+    Args:
+        absolute_path: Absolute path to the file
+        project_dir: Absolute path to the project directory
+
+    Returns:
+        Relative path if file is within project, None otherwise
+    """
+    try:
+        abs_path = Path(absolute_path).resolve()
+        proj_path = Path(project_dir).resolve()
+
+        # Check if the file is within the project directory
+        if abs_path.is_relative_to(proj_path):
+            return str(abs_path.relative_to(proj_path))
+        return None
+    except (ValueError, RuntimeError):
+        return None
+
+
+def generate_data_loading_code(
+    datasets: list[dict[str, Any]], project_directory: str | None = None
+) -> str:
     """
     Generate R code for loading ADaM datasets and creating teal_data object.
 
@@ -20,6 +46,7 @@ def generate_data_loading_code(datasets: list[dict[str, Any]]) -> str:
     - Loads individual dataset files (.Rds or .csv)
     - Creates a teal_data object with proper join keys
     - Handles both standard and non-standard ADaM datasets
+    - Uses relative paths for datasets within project, absolute paths for external datasets
 
     Args:
         datasets: List of dataset dictionaries with keys:
@@ -27,6 +54,9 @@ def generate_data_loading_code(datasets: list[dict[str, Any]]) -> str:
             - path: Absolute path to dataset file
             - format: File format ("Rds" or "csv")
             - is_standard_adam: Whether it's a standard ADaM dataset
+        project_directory: Optional absolute path to the project directory.
+            If provided, dataset paths within this directory will be converted to relative paths.
+            If None, all paths will be absolute.
 
     Returns:
         str: Complete R code for data loading
@@ -35,19 +65,28 @@ def generate_data_loading_code(datasets: list[dict[str, Any]]) -> str:
         ValueError: If datasets list is empty
 
     Example:
+        >>> # With project directory - uses relative paths
         >>> datasets = [
         ...     {
         ...         "name": "ADSL",
-        ...         "path": "/data/ADSL.Rds",
+        ...         "path": "/home/user/myproject/data/ADSL.Rds",
         ...         "format": "Rds",
         ...         "is_standard_adam": True
         ...     }
         ... ]
+        >>> code = generate_data_loading_code(datasets, project_directory="/home/user/myproject")
+        >>> print(code)
+        library(teal)
+
+        ADSL <- readRDS("data/ADSL.Rds")
+        ...
+
+        >>> # Without project directory - uses absolute paths
         >>> code = generate_data_loading_code(datasets)
         >>> print(code)
         library(teal)
 
-        ADSL <- readRDS("/data/ADSL.Rds")
+        ADSL <- readRDS("/home/user/myproject/data/ADSL.Rds")
         ...
     """
     # Validate input
@@ -69,7 +108,7 @@ def generate_data_loading_code(datasets: list[dict[str, Any]]) -> str:
     # Generate loading code for each dataset
     for dataset in sorted_datasets:
         name = dataset["name"]
-        path = dataset["path"]
+        absolute_path = dataset["path"]
         format_type = dataset["format"]
         is_standard = dataset["is_standard_adam"]
 
@@ -78,15 +117,22 @@ def generate_data_loading_code(datasets: list[dict[str, Any]]) -> str:
         if not is_standard:
             has_non_standard = True
 
+        # Determine whether to use relative or absolute path
+        if project_directory:
+            relative_path = _convert_to_relative_path(absolute_path, project_directory)
+            path_to_use = relative_path if relative_path else absolute_path
+        else:
+            path_to_use = absolute_path
+
         # Get appropriate format handler and generate loading code
         handler = get_format_handler_by_name(format_type)
         if handler:
-            loading_code = handler.get_loading_code(name, path)
+            loading_code = handler.get_loading_code(name, path_to_use)
             lines.append(loading_code)
         else:
             # Fallback for unknown formats (shouldn't happen with validated input)
             lines.append(f'# WARNING: Unknown format "{format_type}" for {name}')
-            lines.append(f'# {name} <- load_data("{path}")  # Implement manually')
+            lines.append(f'# {name} <- load_data("{path_to_use}")  # Implement manually')
 
     lines.append("")
     lines.append("## Data reproducible code ----")
@@ -125,6 +171,7 @@ async def tealflow_generate_data_loading(params: GenerateDataLoadingInput) -> st
     Args:
         params: Input parameters including:
             - datasets: List of dataset dictionaries from discovery
+            - project_directory: Optional project directory for relative paths
             - response_format: Output format (markdown or json)
 
     Returns:
@@ -144,7 +191,7 @@ async def tealflow_generate_data_loading(params: GenerateDataLoadingInput) -> st
     """
     try:
         # Generate the R code
-        code = generate_data_loading_code(params.datasets)
+        code = generate_data_loading_code(params.datasets, params.project_directory)
 
         # Format response based on requested format
         if params.response_format == ResponseFormat.JSON:

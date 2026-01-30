@@ -157,6 +157,10 @@ class GenerateDataLoadingInput(BaseModel):
         ...,
         description="List of dataset dictionaries from discovery (with name, path, format, is_standard_adam)",
     )
+    project_directory: str | None = Field(
+        default=None,
+        description="Optional absolute path to the project directory. If provided, dataset paths within this directory will be converted to relative paths.",
+    )
     response_format: ResponseFormat = Field(
         default=ResponseFormat.MARKDOWN,
         description="Output format: 'markdown' for human-readable or 'json' for machine-readable",

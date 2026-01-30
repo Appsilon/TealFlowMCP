@@ -472,6 +472,7 @@ async def discover_datasets_tool(
 )
 async def generate_data_loading_tool(
     datasets: list[dict],
+    project_directory: str | None = None,
     response_format: str = "markdown"
 ) -> str:
     """
@@ -484,6 +485,9 @@ async def generate_data_loading_tool(
     **IMPORTANT**: This tool requires the datasets list from tealflow_discover_datasets.
     Pass the 'datasets_found' array directly to this tool.
 
+    **Path Handling**: If datasets are in the project directory, provide project_directory
+    to generate relative paths. Otherwise, absolute paths will be used.
+
     Args:
         datasets (list[dict[str, Any]]): List of dataset dictionaries from discovery.
                                          Each dictionary must contain:
@@ -491,6 +495,10 @@ async def generate_data_loading_tool(
                                          - path: Absolute path to dataset file
                                          - format: File format ("Rds" or "csv")
                                          - is_standard_adam: Whether it's a standard ADaM dataset
+        project_directory (str, optional): Absolute path to the project directory.
+                                          If provided, dataset paths within this directory will use relative paths.
+                                          If None or datasets are outside, absolute paths will be used.
+                                          Defaults to None.
         response_format (str, optional): Output format - 'markdown' for human-readable or 'json' for machine-readable.
                                         Defaults to 'markdown'.
 
@@ -534,6 +542,7 @@ async def generate_data_loading_tool(
     """
     params = GenerateDataLoadingInput(
         datasets=datasets,
+        project_directory=project_directory,
         response_format=ResponseFormat(response_format)
     )
     return await tealflow_generate_data_loading(params)
