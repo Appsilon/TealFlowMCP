@@ -664,14 +664,38 @@ async def setup_renv_environment_tool(
     """
     Prepare an R project directory so it is ready to run Teal Shiny applications.
 
-    The tool initializes an renv environment and installs required packages (shiny, teal, etc.).
+    This tool initializes an renv environment and installs required packages
+    (shiny, teal, teal.modules.general, teal.modules.clinical).
+
+    **Behavior:**
+    - If `renv.lock` exists: Restores packages at locked versions, then installs
+      only packages missing from the lockfile. User's pinned versions are respected.
+    - If no `renv.lock`: Initializes a new renv environment and installs all packages.
+    - Creates/updates `global.R` with library calls so renv tracks the packages.
+    - Snapshots the environment to persist changes to `renv.lock`.
+
+    **Steps performed:**
+    1. Validates project path and R installation
+    2. Installs renv package if missing
+    3. Initializes renv (or restores existing lockfile)
+    4. Installs required packages (only missing ones if lockfile exists)
+    5. Creates/updates global.R with library() calls
+    6. Snapshots environment to renv.lock
 
     Args:
-        project_path (str, optional): Path to the user's R project. Defaults to ".".
+        project_path (str, optional): Path to the R project directory. Defaults to ".".
         response_format (str, optional): Output format - 'json' or 'markdown'. Defaults to 'json'.
 
     Returns:
-        str: Result with status, steps completed, and logs.
+        str: JSON/markdown with status, steps_completed, message, and logs_excerpt.
+
+    Error Types:
+        - filesystem_error: Project path does not exist
+        - rscript_not_found: R is not installed or not in PATH
+        - renv_install_failed: Failed to install or initialize renv
+        - package_install_failed: Failed to install required packages
+        - global_r_failed: Failed to create/update global.R
+        - snapshot_failed: Failed to create renv snapshot
 
     Examples:
         - Setup current directory: (no parameters needed)

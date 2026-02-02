@@ -72,7 +72,12 @@ The TealFlow MCP server provides the following tools to help you assist users:
 ### When user asks to create a Teal app
 
 1. **Setup Environment**
-   - Start by calling `tealflow_setup_renv_environment` Use this tool to initialize the project environment and install required packages.
+   - Start by calling `tealflow_setup_renv_environment` to initialize the project environment
+   - This tool:
+     - Restores existing `renv.lock` if present (respects user's pinned package versions)
+     - Installs only missing required packages (shiny, teal, teal.modules.general, teal.modules.clinical)
+     - Creates `global.R` with library calls so packages are tracked by renv
+     - Snapshots the environment for reproducibility
    - This ensures the user has a reproducible environment with all necessary dependencies installed before they begin coding.
 2. **Discover datasets first** (if not already done)
    - Follow the "When user wants to work with their datasets" workflow above

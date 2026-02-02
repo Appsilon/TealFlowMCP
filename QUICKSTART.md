@@ -112,8 +112,6 @@ The sample data includes:
 
 Ensure R is installed on your system. You don't need to manually install packages - TealFlowMCP includes a tool to set up the environment for you. 
 
-Take into account that this process can take up to several minutes the first time the tool is called, as it needs to download and install several packages.
-
 ## Verify Everything Works
 
 ### Test the MCP Connection
@@ -136,6 +134,8 @@ Copilot will:
 3. Search for relevant modules
 4. Check dataset compatibility
 5. Generate complete working code in `app.R`
+
+**Important!** Take into account that this process can take up to several minutes the first time the tool is called, as it needs to download and install several packages. Once the environment is properly set up and packages are installed, things should go faster.
 
 ### Run the App
 
