@@ -197,3 +197,17 @@ class SetupRenvEnvironmentInput(BaseModel):
         default=ResponseFormat.JSON,
         description="Output format: 'json' or 'markdown'"
     )
+
+class SnapshotRenvEnvironmentInput(BaseModel):
+    """Input model for snapshotting renv environment."""
+
+    model_config = ConfigDict(str_strip_whitespace=True, validate_assignment=True)
+
+    project_path: str = Field(
+        default=".",
+        description="Path to the R project directory"
+    )
+    response_format: ResponseFormat = Field(
+        default=ResponseFormat.JSON,
+        description="Output format: 'json' or 'markdown'"
+    )

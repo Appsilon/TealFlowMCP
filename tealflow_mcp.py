@@ -27,6 +27,7 @@ from tealflow_mcp import (
     ResponseFormat,
     SearchModulesInput,
     SetupRenvEnvironmentInput,
+    SnapshotRenvEnvironmentInput,
     tealflow_get_agent_guidance,
     tealflow_check_dataset_requirements,
     tealflow_discover_datasets,
@@ -38,6 +39,7 @@ from tealflow_mcp import (
     tealflow_list_modules,
     tealflow_search_modules_by_analysis,
     tealflow_setup_renv_environment,
+    tealflow_snapshot_renv_environment,
 )
 
 from mcp.server.fastmcp import FastMCP
@@ -671,16 +673,12 @@ async def setup_renv_environment_tool(
     - If `renv.lock` exists: Restores packages at locked versions, then installs
       only packages missing from the lockfile. User's pinned versions are respected.
     - If no `renv.lock`: Initializes a new renv environment and installs all packages.
-    - Creates/updates `global.R` with library calls so renv tracks the packages.
-    - Snapshots the environment to persist changes to `renv.lock`.
 
     **Steps performed:**
     1. Validates project path and R installation
     2. Installs renv package if missing
     3. Initializes renv (or restores existing lockfile)
     4. Installs required packages (only missing ones if lockfile exists)
-    5. Creates/updates global.R with library() calls
-    6. Snapshots environment to renv.lock
 
     Args:
         project_path (str, optional): Path to the R project directory. Defaults to ".".
@@ -694,8 +692,6 @@ async def setup_renv_environment_tool(
         - rscript_not_found: R is not installed or not in PATH
         - renv_install_failed: Failed to install or initialize renv
         - package_install_failed: Failed to install required packages
-        - global_r_failed: Failed to create/update global.R
-        - snapshot_failed: Failed to create renv snapshot
 
     Examples:
         - Setup current directory: (no parameters needed)
@@ -706,6 +702,68 @@ async def setup_renv_environment_tool(
         response_format=ResponseFormat(response_format)
     )
     return await tealflow_setup_renv_environment(params)
+
+
+@mcp.tool(
+    name="tealflow_snapshot_renv_environment",
+    annotations={
+        "title": "Snapshot Renv Environment",
+        "readOnlyHint": False,
+        "destructiveHint": False,
+        "idempotentHint": True,
+        "openWorldHint": False,
+    },
+)
+async def snapshot_renv_environment_tool(
+    project_path: str = ".",
+    response_format: str = "json"
+) -> str:
+    """
+    Create an renv snapshot of the current R project environment.
+
+    This tool captures the current state of installed R packages and records them
+    in renv.lock. This creates a reproducible record of your project's dependencies
+    that can be restored later or shared with others.
+
+    **When to use this tool:**
+    - After installing new packages
+    - After updating existing packages
+    - Before sharing your project with others
+    - To create a reproducible checkpoint of your environment
+
+    **Requirements:**
+    - renv must already be initialized (use tealflow_setup_renv_environment first)
+    - Project must have an active renv environment
+
+    Args:
+        project_path (str, optional): Path to the R project directory. Defaults to ".".
+        response_format (str, optional): Output format - 'json' or 'markdown'. Defaults to 'json'.
+
+    Returns:
+        str: JSON/markdown with status, message, and logs_excerpt.
+
+    Error Types:
+        - filesystem_error: Project path does not exist
+        - rscript_not_found: R is not installed or not in PATH
+        - renv_not_initialized: renv has not been initialized in this project
+        - snapshot_failed: Failed to create renv snapshot
+        - execution_error: Unexpected error during snapshot
+
+    Examples:
+        - Snapshot current directory: (no parameters needed)
+        - Snapshot specific project: project_path="/path/to/project"
+        - Get markdown output: response_format="markdown"
+
+    Note:
+        This tool only snapshots packages that are used in your project code.
+        Make sure you have library() calls in global.R or your R scripts for
+        packages you want to include in the snapshot.
+    """
+    params = SnapshotRenvEnvironmentInput(
+        project_path=project_path,
+        response_format=ResponseFormat(response_format)
+    )
+    return await tealflow_snapshot_renv_environment(params)
 
 
 # ============================================================================

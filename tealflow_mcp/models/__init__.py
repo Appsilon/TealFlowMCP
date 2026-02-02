@@ -13,6 +13,7 @@ from .input_models import (
     ListModulesInput,
     SearchModulesInput,
     SetupRenvEnvironmentInput,
+    SnapshotRenvEnvironmentInput,
 )
 
 __all__ = [
@@ -26,4 +27,5 @@ __all__ = [
     "ListModulesInput",
     "SearchModulesInput",
     "SetupRenvEnvironmentInput",
+    "SnapshotRenvEnvironmentInput",
 ]

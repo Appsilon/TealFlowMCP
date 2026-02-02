@@ -192,68 +192,6 @@ if (file.exists("renv.lock")) {
                 "logs_excerpt": "\n".join(logs)
             }, indent=2)
 
-        # STEP 6: Ensure global.R has library calls for required packages
-        # This ensures renv::snapshot() detects them as dependencies.
-        global_r_cmd = '''
-required_packages <- c("shiny", "teal", "teal.modules.general", "teal.modules.clinical")
-global_file <- "global.R"
-
-if (!file.exists(global_file)) {
-  writeLines(paste0("library(", required_packages, ")"), global_file)
-} else {
-  existing <- readLines(global_file)
-  for (pkg in required_packages) {
-    pattern <- paste0("library\\\\(", pkg, "\\\\)")
-    if (!any(grepl(pattern, existing))) {
-      write(paste0("library(", pkg, ")"), global_file, append = TRUE)
-    }
-  }
-}
-'''
-        try:
-            rc, out, err = _run_r_command(global_r_cmd, project_path)
-            log_output(out, err)
-            if rc != 0:
-                return json.dumps({
-                    "status": "error",
-                    "error_type": "global_r_failed",
-                    "steps_completed": steps_completed,
-                    "message": "Failed to create/update global.R.",
-                    "logs_excerpt": "\n".join(logs)
-                }, indent=2)
-            steps_completed.append("global_r_updated")
-        except Exception as e:
-            return json.dumps({
-                "status": "error",
-                "error_type": "global_r_failed",
-                "steps_completed": steps_completed,
-                "message": f"Exception updating global.R: {str(e)}",
-                "logs_excerpt": "\n".join(logs)
-            }, indent=2)
-
-        # STEP 7: Snapshot Environment
-        snapshot_cmd = 'renv::snapshot(prompt = FALSE)'
-        try:
-            rc, out, err = _run_r_command(snapshot_cmd, project_path)
-            log_output(out, err)
-            if rc != 0:
-                return json.dumps({
-                    "status": "error",
-                    "error_type": "snapshot_failed",
-                    "steps_completed": steps_completed,
-                    "message": "Failed to create renv snapshot.",
-                    "logs_excerpt": "\n".join(logs)
-                }, indent=2)
-            steps_completed.append("snapshot_created")
-        except Exception as e:
-            return json.dumps({
-                "status": "error",
-                "error_type": "snapshot_failed",
-                "steps_completed": steps_completed,
-                "message": f"Exception creating snapshot: {str(e)}",
-                "logs_excerpt": "\n".join(logs)
-            }, indent=2)
-
         # Success
         result = {
             "status": "ok",
