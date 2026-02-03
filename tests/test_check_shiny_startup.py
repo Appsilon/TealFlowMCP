@@ -9,12 +9,15 @@ import sys
 import tempfile
 from pathlib import Path
 
+import pytest
+
 # Add parent directory to path so we can import tealflow_mcp
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from tealflow_mcp import CheckShinyStartupInput, tealflow_check_shiny_startup
 
 
+@pytest.mark.asyncio
 async def test_missing_file():
     """Test behavior when app.R doesn't exist."""
     print("\n=== Test 1: Missing app.R ===")
@@ -29,6 +32,7 @@ async def test_missing_file():
         assert data['error_type'] == 'file_not_found'
 
 
+@pytest.mark.asyncio
 async def test_syntax_error():
     """Test behavior with syntax error in app.R."""
     print("\n=== Test 2: Syntax Error ===")
@@ -46,6 +50,7 @@ async def test_syntax_error():
         assert data['error_type'] == 'syntax_error'
 
 
+@pytest.mark.asyncio
 async def test_missing_package():
     """Test behavior with missing R package."""
     print("\n=== Test 3: Missing Package ===")
@@ -63,6 +68,7 @@ async def test_missing_package():
         assert data['error_type'] == 'missing_package'
 
 
+@pytest.mark.asyncio
 async def test_object_not_found():
     """Test behavior with undefined object."""
     print("\n=== Test 4: Object Not Found ===")
@@ -80,6 +86,7 @@ async def test_object_not_found():
         assert data['error_type'] == 'object_not_found'
 
 
+@pytest.mark.asyncio
 async def test_simple_success():
     """Test behavior with simple successful R script."""
     print("\n=== Test 5: Simple Success ===")
@@ -96,6 +103,7 @@ async def test_simple_success():
         assert data['status'] == 'ok'
 
 
+@pytest.mark.asyncio
 async def test_custom_filename():
     """Test behavior with custom app filename."""
     print("\n=== Test 6: Custom Filename (server.R) ===")
@@ -117,6 +125,7 @@ async def test_custom_filename():
         assert data['status'] == 'ok'
 
 
+@pytest.mark.asyncio
 async def test_custom_filename_not_found():
     """Test behavior when custom filename doesn't exist."""
     print("\n=== Test 7: Custom Filename Not Found ===")

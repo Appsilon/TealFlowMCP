@@ -86,12 +86,11 @@ class TestSetupRenv(unittest.IsolatedAsyncioTestCase):
             "renv_installed",
             "renv_initialized",
             "packages_installed",
-            "snapshot_created"
         ]
         self.assertEqual(result["steps_completed"], expected_steps)
-        
-        # Verify tool called Rscript 4 times
-        self.assertEqual(mock_popen.call_count, 4)
+
+        # Verify tool called Rscript 3 times (removed snapshot step)
+        self.assertEqual(mock_popen.call_count, 3)
 
     @patch("tealflow_mcp.tools.setup_renv.subprocess.Popen")
     @patch("tealflow_mcp.tools.setup_renv.subprocess.run")

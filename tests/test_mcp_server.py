@@ -8,6 +8,8 @@ import asyncio
 import sys
 from pathlib import Path
 
+import pytest
+
 # Add MCP server package to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
@@ -32,6 +34,7 @@ from tealflow_mcp import (
 )
 
 
+@pytest.mark.asyncio
 async def test_mcp_server():
     """Run a series of tests to verify the MCP server works correctly."""
 
