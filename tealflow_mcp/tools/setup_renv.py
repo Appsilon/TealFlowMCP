@@ -14,7 +14,7 @@ from ..core.enums import ResponseFormat
 def _run_r_command(command: str, cwd: Path, timeout: int = 300) -> tuple[int, str, str]:
     """Run an R command using Rscript -e."""
     env = os.environ.copy()
-    
+
     try:
         process = subprocess.Popen(
             ["Rscript", "-e", command],
@@ -37,26 +37,26 @@ def _run_r_command(command: str, cwd: Path, timeout: int = 300) -> tuple[int, st
 def _format_markdown_response(result: dict[str, Any]) -> str:
     """Format the result as a Markdown report."""
     status_emoji = "✅" if result["status"] == "ok" else "❌"
-    
+
     md = f"# {status_emoji} Setup Environment: {result['status'].upper()}\n\n"
-    
+
     if result["status"] == "error":
         md += f"**Error Type:** `{result['error_type']}`\n\n"
-    
+
     md += f"**Message:** {result['message']}\n\n"
-    
+
     if result.get("steps_completed"):
         md += "### Steps Completed\n"
         for step in result["steps_completed"]:
             md += f"- {step}\n"
         md += "\n"
-        
+
     if result.get("logs_excerpt") and result["logs_excerpt"].strip():
         md += "### Implementation Logs\n"
         md += "```\n"
         md += result["logs_excerpt"]
         md += "\n```\n"
-        
+
     return md
 
 async def tealflow_setup_renv_environment(params: SetupRenvEnvironmentInput) -> str:
@@ -66,7 +66,7 @@ async def tealflow_setup_renv_environment(params: SetupRenvEnvironmentInput) -> 
     project_path = Path(params.project_path).resolve()
     steps_completed = []
     logs = []
-    
+
     # helper to append logs
     def log_output(stdout: str, stderr: str):
         if stdout.strip():
@@ -98,7 +98,16 @@ async def tealflow_setup_renv_environment(params: SetupRenvEnvironmentInput) -> 
             }, indent=2)
 
         # STEP 3: Install renv if Missing
-        check_renv_cmd = 'if (!requireNamespace("renv", quietly = TRUE)) install.packages("renv", repos = "https://cloud.r-project.org")'
+        # Use configured repos if available, fall back to CRAN only if not configured
+        check_renv_cmd = '''
+if (!requireNamespace("renv", quietly = TRUE)) {
+  repos <- getOption("repos")
+  if (is.null(repos) || identical(repos, c(CRAN = "@CRAN@")) || all(repos == "")) {
+    repos <- "https://cloud.r-project.org"
+  }
+  install.packages("renv", repos = repos)
+}
+'''
         try:
             rc, out, err = _run_r_command(check_renv_cmd, project_path)
             log_output(out, err)
@@ -124,7 +133,7 @@ async def tealflow_setup_renv_environment(params: SetupRenvEnvironmentInput) -> 
         # If lockfile exists, restore packages (also activates renv).
         # If not, initialize a bare environment.
         init_renv_cmd = 'if (!file.exists("renv.lock")) renv::init(bare = TRUE) else renv::restore(prompt = FALSE)'
-        
+
         try:
             rc, out, err = _run_r_command(init_renv_cmd, project_path)
             log_output(out, err)
@@ -200,10 +209,10 @@ if (file.exists("renv.lock")) {
             "message": "Renv environment set up successfully.",
             "logs_excerpt": "\n".join(logs)[-2000:] # Truncate logs if too long
         }
-        
+
         if params.response_format == ResponseFormat.MARKDOWN:
             return _format_markdown_response(result)
-            
+
         return json.dumps(result, indent=2)
 
     except Exception as e:
