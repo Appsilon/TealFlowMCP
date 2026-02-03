@@ -5,11 +5,11 @@ This module provides functionality for generating R code that loads ADaM dataset
 and creates teal_data objects.
 """
 
-from typing import Any
 from pathlib import Path
+from typing import Any
 
-from ..models.input_models import GenerateDataLoadingInput
 from ..core.enums import ResponseFormat
+from ..models.input_models import GenerateDataLoadingInput
 from .format_handlers import get_format_handler_by_name
 
 
@@ -243,7 +243,7 @@ def _format_data_loading_markdown(code: str, datasets: list[dict[str, Any]]) -> 
     lines.append("## Usage")
     lines.append("")
     lines.append("1. Save the code above as `data.R` in your project root directory")
-    lines.append("2. The app template will load this with `source(\"data.R\")`")
+    lines.append('2. The app template will load this with `source("data.R")`')
     lines.append("")
 
     lines.append("## Datasets Included")

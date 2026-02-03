@@ -84,7 +84,9 @@ The TealFlow MCP server provides the following tools to help you assist users:
 ### When user asks to create a Teal app
 
 1. **Setup Environment**
-   - Start by calling `tealflow_setup_renv_environment` to initialize the project environment
+   - **IMPORTANT**: Ask the user for the **absolute path** to their project directory
+   - Call `tealflow_setup_renv_environment` with the absolute path: `project_path="/full/path/to/project"`
+   - **NEVER use relative paths** like `"."` or `"./project"` - these will install packages in the wrong location
    - This tool:
      - Restores existing `renv.lock` if present (respects user's pinned package versions)
      - Installs only missing required packages (shiny, teal, teal.modules.general, teal.modules.clinical)

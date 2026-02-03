@@ -6,6 +6,7 @@ to ensure it handles all edge cases correctly.
 """
 
 import pytest
+
 from tealflow_mcp.tools.discovery import _extract_adam_name
 
 
@@ -76,8 +77,16 @@ class TestExtractAdamName:
     def test_all_standard_adam_datasets(self):
         """Test all standard ADaM dataset names are recognized."""
         standard_datasets = [
-            "ADSL", "ADTTE", "ADRS", "ADQS", "ADAE",
-            "ADLB", "ADVS", "ADCM", "ADEX", "ADMH"
+            "ADSL",
+            "ADTTE",
+            "ADRS",
+            "ADQS",
+            "ADAE",
+            "ADLB",
+            "ADVS",
+            "ADCM",
+            "ADEX",
+            "ADMH",
         ]
         for dataset in standard_datasets:
             assert _extract_adam_name(f"{dataset}.Rds") == dataset

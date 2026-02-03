@@ -771,7 +771,10 @@ async def setup_renv_environment_tool(
     4. Installs required packages (only missing ones if lockfile exists)
 
     Args:
-        project_path (str, optional): Path to the R project directory. Defaults to ".".
+        project_path (str, optional): **ABSOLUTE** path to the R project directory.
+            MUST be an absolute path (e.g., "/home/user/project" or "C:\\Users\\user\\project").
+            Relative paths like "." will resolve to the MCP server's directory, not the user's project.
+            Defaults to "." but should always be explicitly provided as an absolute path.
         response_format (str, optional): Output format - 'json' or 'markdown'. Defaults to 'json'.
 
     Returns:
@@ -826,7 +829,10 @@ async def snapshot_renv_environment_tool(
     - Project must have an active renv environment
 
     Args:
-        project_path (str, optional): Path to the R project directory. Defaults to ".".
+        project_path (str, optional): **ABSOLUTE** path to the R project directory.
+            MUST be an absolute path (e.g., "/home/user/project" or "C:\\Users\\user\\project").
+            Relative paths like "." will resolve to the MCP server's directory, not the user's project.
+            Defaults to "." but should always be explicitly provided as an absolute path.
         response_format (str, optional): Output format - 'json' or 'markdown'. Defaults to 'json'.
 
     Returns:

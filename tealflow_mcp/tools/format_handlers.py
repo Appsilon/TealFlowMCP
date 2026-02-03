@@ -61,7 +61,7 @@ class RdsFormatHandler(DataFormatHandler):
 
     def detect(self, file_path: Path) -> bool:
         """Check if file has .Rds or .rds extension."""
-        return file_path.suffix.lower() == '.rds'
+        return file_path.suffix.lower() == ".rds"
 
     def get_loading_code(self, dataset_name: str, file_path: str) -> str:
         """Generate readRDS() code."""
@@ -81,7 +81,7 @@ class CsvFormatHandler(DataFormatHandler):
 
     def detect(self, file_path: Path) -> bool:
         """Check if file has .csv extension."""
-        return file_path.suffix.lower() == '.csv'
+        return file_path.suffix.lower() == ".csv"
 
     def get_loading_code(self, dataset_name: str, file_path: str) -> str:
         """Generate read.csv() code with stringsAsFactors = FALSE."""

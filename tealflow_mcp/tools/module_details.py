@@ -13,7 +13,7 @@ from ..utils import _truncate_response, _validate_module_exists
 async def tealflow_get_module_details(params: GetModuleDetailsInput) -> str:
     """
     Get detailed information about a specific Teal module.
-    
+
     Validates module existence, retrieves module metadata and parameter information
     from JSON files, and formats output. Includes fuzzy matching for typo suggestions.
     """
@@ -78,7 +78,9 @@ async def tealflow_get_module_details(params: GetModuleDetailsInput) -> str:
                 if opt_params:
                     lines.append("## Optional Parameters (with defaults)")
                     lines.append("")
-                    for param_name, default_value in list(opt_params.items())[:10]:  # Limit to first 10
+                    for param_name, default_value in list(opt_params.items())[
+                        :10
+                    ]:  # Limit to first 10
                         lines.append(f"### `{param_name}`")
                         lines.append(f"- **Default**: `{default_value}`")
                         lines.append("")

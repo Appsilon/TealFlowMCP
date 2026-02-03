@@ -7,7 +7,9 @@ from ..models import GenerateModuleCodeInput
 from ..utils import _validate_module_exists
 
 
-def _generate_general_module_code(params: GenerateModuleCodeInput, module_info: dict, basic_info: dict) -> str:
+def _generate_general_module_code(
+    params: GenerateModuleCodeInput, module_info: dict, basic_info: dict
+) -> str:
     """
     Generate R code for general modules using data_extract_spec patterns.
 
@@ -36,7 +38,9 @@ def _generate_general_module_code(params: GenerateModuleCodeInput, module_info: 
         for param_name, param_info in req_params.items():
             if param_name == "label":
                 # Simple string parameter
-                param_lines.append(f'  label = "{basic_info.get("description", params.module_name)}",')
+                param_lines.append(
+                    f'  label = "{basic_info.get("description", params.module_name)}",'
+                )
 
             elif "data_extract_spec" in str(param_info.get("type", "")):
                 # Generate data_extract_spec structure
@@ -47,18 +51,26 @@ def _generate_general_module_code(params: GenerateModuleCodeInput, module_info: 
                 param_lines.append('    dataname = "ADSL",  # TODO: Specify your dataset name')
                 param_lines.append("    select = select_spec(")
                 param_lines.append('      label = "Select variable:",')
-                param_lines.append('      choices = variable_choices("ADSL"),  # TODO: Specify available columns')
+                param_lines.append(
+                    '      choices = variable_choices("ADSL"),  # TODO: Specify available columns'
+                )
                 param_lines.append("      selected = NULL,  # TODO: Set default selection")
-                param_lines.append("      multiple = FALSE,  # Set TRUE to allow multiple selections")
+                param_lines.append(
+                    "      multiple = FALSE,  # Set TRUE to allow multiple selections"
+                )
                 param_lines.append("      fixed = FALSE  # Set TRUE to prevent user changes")
                 param_lines.append("    )")
 
                 if params.include_comments:
-                    param_lines.append("    # Optional: Add filter_spec to subset data before selection")
+                    param_lines.append(
+                        "    # Optional: Add filter_spec to subset data before selection"
+                    )
                     param_lines.append("    # filter = filter_spec(")
                     param_lines.append('    #   label = "Filter data:",')
                     param_lines.append('    #   vars = c("ARM", "SEX"),  # Variables to filter on')
-                    param_lines.append('    #   choices = value_choices("ADSL", "ARM"),  # Available values')
+                    param_lines.append(
+                        '    #   choices = value_choices("ADSL", "ARM"),  # Available values'
+                    )
                     param_lines.append("    #   selected = NULL,  # Default filter values")
                     param_lines.append("    #   multiple = TRUE  # Allow multiple selections")
                     param_lines.append("    # )")
@@ -117,7 +129,7 @@ def _generate_general_module_code(params: GenerateModuleCodeInput, module_info: 
 async def tealflow_generate_module_code(params: GenerateModuleCodeInput) -> str:
     """
     Generate R code for a Teal module with sensible parameter defaults.
-    
+
     Handles both clinical and general modules with different generation strategies.
     Clinical modules use direct dataset references, while general modules use
     data_extract_spec patterns. Includes optional comments and parameter overrides.
@@ -152,7 +164,9 @@ async def tealflow_generate_module_code(params: GenerateModuleCodeInput) -> str:
 
         if params.include_comments:
             lines.append(f"# {basic_info.get('description', params.module_name)}")
-            lines.append(f"# Required datasets: {', '.join(basic_info.get('required_datasets', []))}")
+            lines.append(
+                f"# Required datasets: {', '.join(basic_info.get('required_datasets', []))}"
+            )
             lines.append("")
 
         # Start module call
@@ -170,7 +184,9 @@ async def tealflow_generate_module_code(params: GenerateModuleCodeInput) -> str:
         parent_dataname = datasets[0] if datasets else "ADSL"  # Usually ADSL
 
         # Check if this is a patient profile module (only label required, special handling)
-        is_patient_profile = params.module_name.startswith("tm_g_pp_") or params.module_name.startswith("tm_t_pp_")
+        is_patient_profile = params.module_name.startswith(
+            "tm_g_pp_"
+        ) or params.module_name.startswith("tm_t_pp_")
 
         if is_patient_profile and len(req_params) == 1 and "label" in req_params:
             # Patient profile modules need dataname and parentname explicitly
@@ -188,11 +204,15 @@ async def tealflow_generate_module_code(params: GenerateModuleCodeInput) -> str:
 
                 # Generate sensible defaults based on common patterns
                 if param_name == "label":
-                    param_lines.append(f'  label = "{basic_info.get("description", params.module_name)}",')
+                    param_lines.append(
+                        f'  label = "{basic_info.get("description", params.module_name)}",'
+                    )
                 elif param_name == "dataname":
                     # Get first required dataset
                     datasets = basic_info.get("required_datasets", [])
-                    actual_dataname = datasets[1] if len(datasets) > 1 else datasets[0] if datasets else "ADSL"
+                    actual_dataname = (
+                        datasets[1] if len(datasets) > 1 else datasets[0] if datasets else "ADSL"
+                    )
                     param_lines.append(f'  dataname = "{actual_dataname}",')
                 elif "arm_var" in param_name:
                     param_lines.append(

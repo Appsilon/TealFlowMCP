@@ -4,8 +4,9 @@ Unit tests for data loading code generation functionality.
 Tests the generation of R code that loads ADaM datasets and creates teal_data objects.
 """
 
-import pytest
 import json
+
+import pytest
 from pytest import mark
 
 
@@ -64,8 +65,14 @@ class TestDataLoadingCodeGeneration:
         result = generate_data_loading_code(datasets)
 
         # Check CSV loading
-        assert 'ADSL <- read.csv("/home/user/project/data/ADSL.csv", stringsAsFactors = FALSE)' in result
-        assert 'ADAE <- read.csv("/home/user/project/data/ADAE.csv", stringsAsFactors = FALSE)' in result
+        assert (
+            'ADSL <- read.csv("/home/user/project/data/ADSL.csv", stringsAsFactors = FALSE)'
+            in result
+        )
+        assert (
+            'ADAE <- read.csv("/home/user/project/data/ADAE.csv", stringsAsFactors = FALSE)'
+            in result
+        )
         assert "data <- teal_data(" in result
 
     def test_generate_mixed_formats(self):
@@ -97,7 +104,10 @@ class TestDataLoadingCodeGeneration:
 
         # Check mixed formats
         assert 'ADSL <- readRDS("/home/user/project/data/ADSL.Rds")' in result
-        assert 'ADTTE <- read.csv("/home/user/project/data/ADTTE.csv", stringsAsFactors = FALSE)' in result
+        assert (
+            'ADTTE <- read.csv("/home/user/project/data/ADTTE.csv", stringsAsFactors = FALSE)'
+            in result
+        )
         assert 'ADAE <- readRDS("/home/user/project/data/ADAE.Rds")' in result
 
     def test_generate_standard_adam_only(self):
@@ -222,10 +232,7 @@ class TestDataLoadingCodeGeneration:
         result = generate_data_loading_code(datasets)
 
         # Check exact path preservation
-        assert (
-            'ADSL <- readRDS("/home/user/my-project/workspace/datasets/ADSL.Rds")'
-            in result
-        )
+        assert 'ADSL <- readRDS("/home/user/my-project/workspace/datasets/ADSL.Rds")' in result
 
     def test_generate_all_standard_datasets(self):
         """Test generation with all 10 standard ADaM datasets."""
@@ -248,7 +255,7 @@ class TestDataLoadingCodeGeneration:
 
         # All should be loaded
         for ds in datasets:
-            assert f'{ds["name"]} <- readRDS' in result
+            assert f"{ds['name']} <- readRDS" in result
 
         # Should use default join keys
         assert "default_cdisc_join_keys" in result
@@ -346,9 +353,9 @@ class TestDataLoadingToolWrapper:
     @mark.anyio
     async def test_tool_markdown_format(self):
         """Test tool wrapper with markdown output format."""
-        from tealflow_mcp.tools.data_loading import tealflow_generate_data_loading
-        from tealflow_mcp.models.input_models import GenerateDataLoadingInput
         from tealflow_mcp.core.enums import ResponseFormat
+        from tealflow_mcp.models.input_models import GenerateDataLoadingInput
+        from tealflow_mcp.tools.data_loading import tealflow_generate_data_loading
 
         datasets = [
             {
@@ -375,9 +382,9 @@ class TestDataLoadingToolWrapper:
     @mark.anyio
     async def test_tool_json_format(self):
         """Test tool wrapper with JSON output format."""
-        from tealflow_mcp.tools.data_loading import tealflow_generate_data_loading
-        from tealflow_mcp.models.input_models import GenerateDataLoadingInput
         from tealflow_mcp.core.enums import ResponseFormat
+        from tealflow_mcp.models.input_models import GenerateDataLoadingInput
+        from tealflow_mcp.tools.data_loading import tealflow_generate_data_loading
 
         datasets = [
             {
@@ -406,8 +413,9 @@ class TestDataLoadingToolWrapper:
     @mark.anyio
     async def test_tool_empty_datasets_error(self):
         """Test tool error handling for empty datasets."""
-        from tealflow_mcp.models.input_models import GenerateDataLoadingInput
         from pydantic import ValidationError
+
+        from tealflow_mcp.models.input_models import GenerateDataLoadingInput
 
         # Should fail during model validation
         with pytest.raises(ValidationError) as exc_info:
@@ -421,8 +429,8 @@ class TestDataLoadingToolWrapper:
     @mark.anyio
     async def test_tool_with_discovery_output(self):
         """Test tool integration with actual discovery output format."""
-        from tealflow_mcp.tools.data_loading import tealflow_generate_data_loading
         from tealflow_mcp.models.input_models import GenerateDataLoadingInput
+        from tealflow_mcp.tools.data_loading import tealflow_generate_data_loading
 
         # Simulate discovery output
         discovery_output = {

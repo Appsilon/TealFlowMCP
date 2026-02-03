@@ -47,8 +47,8 @@ from .tools import (
 
 __all__ = [
     "CheckDatasetRequirementsInput",
-    "DiscoverDatasetsInput",
     "CheckShinyStartupInput",
+    "DiscoverDatasetsInput",
     "GenerateDataLoadingInput",
     "GenerateModuleCodeInput",
     "GetAppTemplateInput",
@@ -61,8 +61,8 @@ __all__ = [
     "SetupRenvEnvironmentInput",
     "SnapshotRenvEnvironmentInput",
     "tealflow_check_dataset_requirements",
-    "tealflow_discover_datasets",
     "tealflow_check_shiny_startup",
+    "tealflow_discover_datasets",
     "tealflow_generate_data_loading",
     "tealflow_generate_module_code",
     "tealflow_get_agent_guidance",
