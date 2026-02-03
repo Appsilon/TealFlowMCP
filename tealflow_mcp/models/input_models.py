@@ -148,6 +148,32 @@ class DiscoverDatasetsInput(BaseModel):
     )
 
 
+class GenerateDataLoadingInput(BaseModel):
+    """Input model for generating data loading code."""
+
+    model_config = ConfigDict(str_strip_whitespace=True, validate_assignment=True)
+
+    datasets: list[dict[str, Any]] = Field(
+        ...,
+        description="List of dataset dictionaries from discovery (with name, path, format, is_standard_adam)",
+    )
+    project_directory: str | None = Field(
+        default=None,
+        description="Optional absolute path to the project directory. If provided, dataset paths within this directory will be converted to relative paths.",
+    )
+    response_format: ResponseFormat = Field(
+        default=ResponseFormat.MARKDOWN,
+        description="Output format: 'markdown' for human-readable or 'json' for machine-readable",
+    )
+
+    @field_validator("datasets")
+    @classmethod
+    def validate_datasets(cls, v: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        if not v:
+            raise ValueError("Datasets list cannot be empty")
+        return v
+
+
 class CheckShinyStartupInput(BaseModel):
     """Input model for checking Shiny app startup."""
 

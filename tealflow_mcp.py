@@ -18,6 +18,7 @@ from tealflow_mcp import (
     CheckDatasetRequirementsInput,
     DiscoverDatasetsInput,
     CheckShinyStartupInput,
+    GenerateDataLoadingInput,
     GenerateModuleCodeInput,
     GetAppTemplateInput,
     GetModuleDetailsInput,
@@ -32,6 +33,7 @@ from tealflow_mcp import (
     tealflow_check_dataset_requirements,
     tealflow_discover_datasets,
     tealflow_check_shiny_startup,
+    tealflow_generate_data_loading,
     tealflow_generate_module_code,
     tealflow_get_app_template,
     tealflow_get_module_details,
@@ -463,6 +465,94 @@ async def discover_datasets_tool(
 
 
 @mcp.tool(
+    name="tealflow_generate_data_loading",
+    annotations={
+        "title": "Generate Data Loading Code",
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "idempotentHint": True,
+        "openWorldHint": False,
+    },
+)
+async def generate_data_loading_tool(
+    datasets: list[dict],
+    project_directory: str | None = None,
+    response_format: str = "markdown"
+) -> str:
+    """
+    Generate R code for loading discovered datasets and creating a teal_data object.
+
+    This tool generates complete R code that loads ADaM datasets from files and
+    creates a teal_data object with appropriate join keys. It's designed to work
+    seamlessly with the output from tealflow_discover_datasets.
+
+    **IMPORTANT**: This tool requires the datasets list from tealflow_discover_datasets.
+    Pass the 'datasets_found' array directly to this tool.
+
+    **Path Handling**: If datasets are in the project directory, provide project_directory
+    to generate relative paths. Otherwise, absolute paths will be used.
+
+    Args:
+        datasets (list[dict[str, Any]]): List of dataset dictionaries from discovery.
+                                         Each dictionary must contain:
+                                         - name: Dataset name (e.g., "ADSL")
+                                         - path: Absolute path to dataset file
+                                         - format: File format ("Rds" or "csv")
+                                         - is_standard_adam: Whether it's a standard ADaM dataset
+        project_directory (str, optional): Absolute path to the project directory.
+                                          If provided, dataset paths within this directory will use relative paths.
+                                          If None or datasets are outside, absolute paths will be used.
+                                          Defaults to None.
+        response_format (str, optional): Output format - 'markdown' for human-readable or 'json' for machine-readable.
+                                        Defaults to 'markdown'.
+
+    Returns:
+        str: Generated R code for loading datasets
+
+        Markdown format includes:
+        - Complete R code in code block
+        - Usage instructions
+        - List of datasets included
+
+        JSON format includes:
+        - code: The generated R code
+        - datasets: List of dataset names
+        - file_path: Recommended file path (data.R)
+        - instructions: Step-by-step usage instructions
+
+    Generated Code Structure:
+        1. Library import (library(teal))
+        2. Dataset loading (readRDS() for .Rds, read.csv() for .csv)
+        3. teal_data() object creation with all datasets
+        4. Join keys configuration:
+           - For standard ADaM datasets: Uses default_cdisc_join_keys
+           - For non-standard datasets: Includes warning comments
+
+    Workflow Integration:
+        1. Use tealflow_discover_datasets to find datasets
+        2. Pass the datasets_found array to this tool
+        3. Save the generated code as data.R in the project root
+        4. The app template will source this file
+
+    Examples:
+        - Generate loading code: datasets=[...from discovery...]
+        - Get JSON format: datasets=[...], response_format="json"
+
+    Note:
+        - Datasets are sorted alphabetically for consistent output
+        - Paths must be absolute (from discovery tool)
+        - Currently supports Rds and csv formats
+        - Extensible design for future format support
+    """
+    params = GenerateDataLoadingInput(
+        datasets=datasets,
+        project_directory=project_directory,
+        response_format=ResponseFormat(response_format)
+    )
+    return await tealflow_generate_data_loading(params)
+
+
+@mcp.tool(
     name="tealflow_get_app_template",
     annotations={
         "title": "Get Teal App Template",
@@ -529,7 +619,7 @@ async def get_app_template_tool(
 )
 async def generate_module_code_tool(
     module_name: str,
-    parameters: dict[str, any] | None = None,
+    parameters: dict | None = None,
     include_comments: bool = True
 ) -> str:
     """
