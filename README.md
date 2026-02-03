@@ -131,7 +131,67 @@ npx @modelcontextprotocol/inspector uv --directory /absolute/path/to/TealFlowMCP
 
 Get comprehensive guidance for assisting users with Teal application development.
 
-### 2. `tealflow_list_modules`
+### 2. `tealflow_setup_renv_environment`
+
+Initialize an R project environment with renv and install required packages for Teal apps.
+
+**Parameters:**
+- `project_path` (optional): Path to the project directory (default: ".")
+- `response_format` (optional): "markdown" or "json" (default: "json")
+
+**Example:**
+```json
+{
+  "project_path": ".",
+  "response_format": "json"
+}
+```
+
+### 3. `tealflow_list_datasets`
+
+List available clinical trial datasets.
+
+**Parameters:**
+- `response_format` (optional): "markdown" or "json" (default: "markdown")
+
+**Example:**
+```json
+{
+  "response_format": "markdown"
+}
+```
+
+### 4. `tealflow_get_app_template`
+
+Get the Teal application template as a starting point for building apps. The template includes data loading, configuration variables (arm_vars, strata_vars, etc.), and the basic structure for adding Teal modules.
+
+**Parameters:**
+- `response_format` (optional): "markdown" or "json" (default: "markdown")
+
+**Example:**
+```json
+{
+  "response_format": "markdown"
+}
+```
+
+### 5. `tealflow_search_modules_by_analysis`
+
+Search for modules that perform a specific type of analysis.
+
+**Parameters:**
+- `analysis_type` (required): Type of analysis (e.g., "survival", "kaplan-meier")
+- `response_format` (optional): "markdown" or "json" (default: "markdown")
+
+**Example:**
+```json
+{
+  "analysis_type": "survival analysis",
+  "response_format": "markdown"
+}
+```
+
+### 6. `tealflow_list_modules`
 
 List all available Teal modules with descriptions and dataset requirements.
 
@@ -148,39 +208,7 @@ List all available Teal modules with descriptions and dataset requirements.
 }
 ```
 
-### 3. `tealflow_get_module_details`
-
-Get comprehensive details about a specific module including all parameters.
-
-**Parameters:**
-- `module_name` (required): Name of the module (e.g., "tm_g_km")
-- `response_format` (optional): "markdown" or "json" (default: "markdown")
-
-**Example:**
-```json
-{
-  "module_name": "tm_g_km",
-  "response_format": "markdown"
-}
-```
-
-### 4. `tealflow_search_modules_by_analysis`
-
-Search for modules that perform a specific type of analysis.
-
-**Parameters:**
-- `analysis_type` (required): Type of analysis (e.g., "survival", "kaplan-meier")
-- `response_format` (optional): "markdown" or "json" (default: "markdown")
-
-**Example:**
-```json
-{
-  "analysis_type": "survival analysis",
-  "response_format": "markdown"
-}
-```
-
-### 5. `tealflow_check_dataset_requirements`
+### 7. `tealflow_check_dataset_requirements`
 
 Check if required datasets are available for a module.
 
@@ -197,35 +225,23 @@ Check if required datasets are available for a module.
 }
 ```
 
-### 6. `tealflow_list_datasets`
+### 8. `tealflow_get_module_details`
 
-List available clinical trial datasets.
+Get comprehensive details about a specific module including all parameters.
 
 **Parameters:**
+- `module_name` (required): Name of the module (e.g., "tm_g_km")
 - `response_format` (optional): "markdown" or "json" (default: "markdown")
 
 **Example:**
 ```json
 {
+  "module_name": "tm_g_km",
   "response_format": "markdown"
 }
 ```
 
-### 7. `tealflow_get_app_template`
-
-Get the Teal application template as a starting point for building apps. The template includes data loading, configuration variables (arm_vars, strata_vars, etc.), and the basic structure for adding Teal modules.
-
-**Parameters:**
-- `response_format` (optional): "markdown" or "json" (default: "markdown")
-
-**Example:**
-```json
-{
-  "response_format": "markdown"
-}
-```
-
-### 8. `tealflow_generate_module_code`
+### 9. `tealflow_generate_module_code`
 
 Generate R code for adding a module to a Teal app.
 
@@ -242,7 +258,7 @@ Generate R code for adding a module to a Teal app.
 }
 ```
 
-### 7. `tealflow_check_shiny_startup`
+### 10. `tealflow_check_shiny_startup`
 
 Validate that a Shiny app starts without errors. Runs the app file using `shiny::runApp()` with a timeout to detect startup issues without blocking indefinitely.
 
@@ -336,10 +352,10 @@ This MCP server works with any MCP-compatible client (Claude Desktop, Claude Cod
 
 Once configured with your MCP-compatible LLM client, you can request help building Teal apps using natural language.
 
-__NOTE:__ Current version requires manual environment setup:
+__NOTE:__ Current version supports automated environment setup:
 
-1. Prepare your R environment - make sure that required R packages are installed. This includes `shiny`, `teal`, `teal.modules.general` and `teal.modules.clinical`. Using `renv` is strongly recommended.
-2. Add a data directory to your project. Sample data can be found in the `./sample_data` directory.
+1. **Setup Environment**: Ask the agent to "setup the environment" to install required R packages using `renv`. This ensures reproducibility.
+2. **Add Data**: Add a data directory to your project. Sample data can be found in the `./sample_data` directory.
 
 Here are common patterns for prompts that can be used to build Teal applications:
 
@@ -350,6 +366,7 @@ Here are common patterns for prompts that can be used to build Teal applications
 
 **The LLM will:**
 - Run `tealflow_agent_guidance` to check the next steps.
+- Run `tealflow_setup_renv_environment` to ensure packages are installed.
 - Get the app template using `tealflow_get_app_template` (when starting from scratch).
 - Search for survival analysis modules using `tealflow_search_modules_by_analysis`
 - Validate dataset compatibility using `tealflow_check_dataset_requirements`

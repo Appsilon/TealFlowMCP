@@ -33,7 +33,10 @@ The TealFlow MCP server provides the following tools to help you assist users:
 ### Code Generation Tools
 - **tealflow_get_app_template**: Get the base Teal app template with data loading and configuration
 - **tealflow_generate_module_code**: Generate ready-to-use R code for adding a specific module to the app
-- **tealflow_generate_data_loading**: Generate R code for loading datasets and creating teal_data objects (works seamlessly with tealflow_discover_datasets output)
+
+### Environment Setup Tools
+- **tealflow_setup_renv_environment**: Initialize renv environment and install required packages for Teal apps
+- **tealflow_snapshot_renv_environment**: Create a snapshot of the current R environment in renv.lock for reproducibility
 
 **Note**: All tools support both markdown (human-readable) and json (machine-readable) output formats. Default is markdown.
 
@@ -80,49 +83,61 @@ The TealFlow MCP server provides the following tools to help you assist users:
 
 ### When user asks to create a Teal app
 
-1. **Discover datasets first** (if not already done)
+1. **Setup Environment**
+   - Start by calling `tealflow_setup_renv_environment` to initialize the project environment
+   - This tool:
+     - Restores existing `renv.lock` if present (respects user's pinned package versions)
+     - Installs only missing required packages (shiny, teal, teal.modules.general, teal.modules.clinical)
+   - This ensures the user has all necessary dependencies installed before they begin coding.
+
+2. **Discover datasets first** (if not already done)
    - Follow the "When user wants to work with their datasets" workflow above
    - Make note of which datasets are available for use in the app
 
-2. **Generate data loading code**
+3. **Generate data loading code**
    - Use `tealflow_generate_data_loading` with the discovered datasets
    - The output provides R code to save as `data.R` in the project root
    - This code will be sourced by the app template
    - For standard ADaM datasets, join keys are configured automatically
    - For non-standard datasets, the code includes warnings and TODO comments for manual configuration
 
-3. **Start with the template**
+4. **Start with the template**
    - Use `tealflow_get_app_template` to provide the base application structure
    - The template includes data loading (sources `data.R`), configuration variables, and basic modules (front page, data table, variable browser)
    - Don't mention the template file path; simply say "Create an initial Teal app"
 
-4. **Identify required analyses**
+5. **Snapshot the environment after creating initial app**
+   - After the user has created the initial app.R file from the template, call `tealflow_snapshot_renv_environment`
+   - This creates a reproducible snapshot of the R environment in renv.lock
+   - The snapshot captures all installed packages so the environment can be restored later
+   - This is important for reproducibility before adding custom modules
+
+6. **Identify required analyses**
    - Ask the user what type of analysis they want to perform
    - For survival analysis or other broad categories, propose specific module suggestions
    - If user mentions a Statistical Analysis Plan (SAP), they're referring to SAP_001.txt - analyze it to understand required analyses
 
-5. **Find appropriate modules**
+7. **Find appropriate modules**
    - Use `tealflow_search_modules_by_analysis` with the analysis type (e.g., "survival", "kaplan-meier", "cox regression")
    - This returns modules organized by relevance with their descriptions and dataset requirements
    - Present options to the user with clear descriptions
 
-6. **Verify dataset compatibility**
+8. **Verify dataset compatibility**
    - Use `tealflow_check_dataset_requirements` for each candidate module
    - Use the list of datasets discovered earlier (from `tealflow_discover_datasets`)
    - If modules require missing datasets, inform the user which datasets are missing for which modules
    - Note: Default datasets in sample data are ADSL, ADTTE, ADRS, ADQS, ADAE
 
-7. **Get detailed module information**
+9. **Get detailed module information**
    - Use `tealflow_get_module_details` to understand the module's parameters before generating code
    - This provides required vs optional parameters, types, and defaults
 
-8. **Generate module code**
+10. **Generate module code**
    - Use `tealflow_generate_module_code` to create ready-to-use R code
    - Generated code includes all required parameters with sensible defaults
    - Provide clear instructions on where to add the code
 
-9. **Validate app startup**
-
+11. **Validate app startup**
    - After all modules are added and the app is complete, use `tealflow_check_shiny_startup` with the `app_filename` parameter to validate the app starts without errors
    - This tool runs the app file briefly with a timeout (default 15 seconds) and detects startup errors
    - The tool returns structured JSON with `status` ("ok" or "error"), `error_type` (e.g., "missing_package", "syntax_error", "object_not_found"), and a detailed `message`
