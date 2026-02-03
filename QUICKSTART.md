@@ -106,11 +106,10 @@ The sample data includes:
 - `ADAE.Rds` - Adverse events analysis dataset
 - `ADRS.Rds` - Response analysis dataset
 - `ADQS.Rds` - Questionnaire analysis dataset
-- `data.R` - Helper script for loading data
 
 ## R Setup
 
-Ensure R is installed on your system. You don't need to manually install packages - TealFlowMCP includes a tool to set up the environment for you. 
+Ensure R is installed on your system. You don't need to manually install packages - TealFlowMCP includes a tool to set up the environment for you.
 
 ## Verify Everything Works
 
