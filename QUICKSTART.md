@@ -110,18 +110,7 @@ The sample data includes:
 
 ## R Setup
 
-TealFlowMCP generates R code for Teal applications, so you need R and specific packages installed.
-
-### Using renv (Recommended)
-
-For reproducible environments, we strongly recommend using `renv`:
-
-```r
-# In your project directory
-install.packages("renv")
-renv::init()
-renv::install(c("shiny", "teal", "teal.modules.general", "teal.modules.clinical"))
-```
+Ensure R is installed on your system. You don't need to manually install packages - TealFlowMCP includes a tool to set up the environment for you. 
 
 ## Verify Everything Works
 
@@ -140,10 +129,13 @@ Try asking Copilot:
 > "Build me a Teal app with a Kaplan-Meier plot for survival analysis."
 
 Copilot will:
-1. Get the app template
-2. Search for relevant modules
-3. Check dataset compatibility
-4. Generate complete working code in `app.R`
+1. Verify the environment setup
+2. Get the app template
+3. Search for relevant modules
+4. Check dataset compatibility
+5. Generate complete working code in `app.R`
+
+**Important!** Take into account that this process can take up to several minutes the first time the tool is called, as it needs to download and install several packages. Once the environment is properly set up and packages are installed, things should go faster.
 
 ### Run the App
 

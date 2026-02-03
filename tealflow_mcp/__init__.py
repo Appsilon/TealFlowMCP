@@ -24,6 +24,8 @@ from .models import (
     ListDatasetsInput,
     ListModulesInput,
     SearchModulesInput,
+    SetupRenvEnvironmentInput,
+    SnapshotRenvEnvironmentInput,
 )
 
 from .tools import (
@@ -37,6 +39,8 @@ from .tools import (
     tealflow_list_datasets,
     tealflow_list_modules,
     tealflow_search_modules_by_analysis,
+    tealflow_setup_renv_environment,
+    tealflow_snapshot_renv_environment,
 )
 
 __all__ = [
@@ -51,6 +55,8 @@ __all__ = [
     "PackageFilter",
     "ResponseFormat",
     "SearchModulesInput",
+    "SetupRenvEnvironmentInput",
+    "SnapshotRenvEnvironmentInput",
     "tealflow_check_dataset_requirements",
     "tealflow_discover_datasets",
     "tealflow_check_shiny_startup",
@@ -61,4 +67,6 @@ __all__ = [
     "tealflow_list_datasets",
     "tealflow_list_modules",
     "tealflow_search_modules_by_analysis",
+    "tealflow_setup_renv_environment",
+    "tealflow_snapshot_renv_environment",
 ]

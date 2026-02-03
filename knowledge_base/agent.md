@@ -33,6 +33,10 @@ The TealFlow MCP server provides the following tools to help you assist users:
 - **tealflow_get_app_template**: Get the base Teal app template with data loading and configuration
 - **tealflow_generate_module_code**: Generate ready-to-use R code for adding a specific module to the app
 
+### Environment Setup Tools
+- **tealflow_setup_renv_environment**: Initialize renv environment and install required packages for Teal apps
+- **tealflow_snapshot_renv_environment**: Create a snapshot of the current R environment in renv.lock for reproducibility
+
 **Note**: All tools support both markdown (human-readable) and json (machine-readable) output formats. Default is markdown.
 
 ## Workflow Guidance
@@ -68,42 +72,54 @@ The TealFlow MCP server provides the following tools to help you assist users:
 
 ### When user asks to create a Teal app
 
-1. **Discover datasets first** (if not already done)
+1. **Setup Environment**
+   - Start by calling `tealflow_setup_renv_environment` to initialize the project environment
+   - This tool:
+     - Restores existing `renv.lock` if present (respects user's pinned package versions)
+     - Installs only missing required packages (shiny, teal, teal.modules.general, teal.modules.clinical)
+   - This ensures the user has all necessary dependencies installed before they begin coding.
+
+2. **Discover datasets first** (if not already done)
    - Follow the "When user wants to work with their datasets" workflow above
    - Make note of which datasets are available for use in the app
 
-2. **Start with the template**
+3. **Start with the template**
    - Use `tealflow_get_app_template` to provide the base application structure
    - The template includes data loading, configuration variables, and basic modules (front page, data table, variable browser)
    - Don't mention the template file path; simply say "Create an initial Teal app"
 
-3. **Identify required analyses**
+4. **Snapshot the environment after creating initial app**
+   - After the user has created the initial app.R file from the template, call `tealflow_snapshot_renv_environment`
+   - This creates a reproducible snapshot of the R environment in renv.lock
+   - The snapshot captures all installed packages so the environment can be restored later
+   - This is important for reproducibility before adding custom modules
+
+5. **Identify required analyses**
    - Ask the user what type of analysis they want to perform
    - For survival analysis or other broad categories, propose specific module suggestions
    - If user mentions a Statistical Analysis Plan (SAP), they're referring to SAP_001.txt - analyze it to understand required analyses
 
-3. **Find appropriate modules**
+6. **Find appropriate modules**
    - Use `tealflow_search_modules_by_analysis` with the analysis type (e.g., "survival", "kaplan-meier", "cox regression")
    - This returns modules organized by relevance with their descriptions and dataset requirements
    - Present options to the user with clear descriptions
 
-4. **Verify dataset compatibility**
+7. **Verify dataset compatibility**
    - Use `tealflow_check_dataset_requirements` for each candidate module
    - Use the list of datasets discovered earlier (from `tealflow_discover_datasets`)
    - If modules require missing datasets, inform the user which datasets are missing for which modules
    - Note: Default datasets in sample data are ADSL, ADTTE, ADRS, ADQS, ADAE
 
-5. **Get detailed module information**
+8. **Get detailed module information**
    - Use `tealflow_get_module_details` to understand the module's parameters before generating code
    - This provides required vs optional parameters, types, and defaults
 
-6. **Generate module code**
+9. **Generate module code**
    - Use `tealflow_generate_module_code` to create ready-to-use R code
    - Generated code includes all required parameters with sensible defaults
    - Provide clear instructions on where to add the code
 
-7. **Validate app startup**
-
+10. **Validate app startup**
    - After all modules are added and the app is complete, use `tealflow_check_shiny_startup` with the `app_filename` parameter to validate the app starts without errors
    - This tool runs the app file briefly with a timeout (default 15 seconds) and detects startup errors
    - The tool returns structured JSON with `status` ("ok" or "error"), `error_type` (e.g., "missing_package", "syntax_error", "object_not_found"), and a detailed `message`

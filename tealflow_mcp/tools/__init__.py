@@ -8,6 +8,8 @@ from .code_generation import tealflow_generate_module_code
 from .dataset_discovery import tealflow_discover_datasets
 from .list_modules import tealflow_list_modules
 from .module_details import tealflow_get_module_details
+from .setup_renv import tealflow_setup_renv_environment
+from .snapshot_renv import tealflow_snapshot_renv_environment
 from .other_tools import (
     tealflow_check_dataset_requirements,
     tealflow_get_app_template,
@@ -26,4 +28,6 @@ __all__ = [
     "tealflow_list_datasets",
     "tealflow_list_modules",
     "tealflow_search_modules_by_analysis",
+    "tealflow_setup_renv_environment",
+    "tealflow_snapshot_renv_environment",
 ]
