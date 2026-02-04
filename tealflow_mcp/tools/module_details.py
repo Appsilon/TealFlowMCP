@@ -15,7 +15,8 @@ async def tealflow_get_module_details(params: GetModuleDetailsInput) -> str:
     Get detailed information about a specific Teal module.
 
     Validates module existence, retrieves module metadata and parameter information
-    from JSON files, and formats output. Includes fuzzy matching for typo suggestions.
+    from JSON files, fetches R help documentation, and formats output.
+    Includes fuzzy matching for typo suggestions.
     """
     try:
         # Validate module exists
