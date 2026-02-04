@@ -7,7 +7,7 @@ import json
 from ..core.enums import ResponseFormat
 from ..data import _get_clinical_module_requirements, _get_clinical_modules, _get_general_modules
 from ..models import GetModuleDetailsInput
-from ..utils import _truncate_response, _validate_module_exists
+from ..utils import _get_r_help, _truncate_response, _validate_module_exists
 
 
 async def tealflow_get_module_details(params: GetModuleDetailsInput) -> str:
@@ -43,6 +43,15 @@ async def tealflow_get_module_details(params: GetModuleDetailsInput) -> str:
             modules = general_data.get("modules", {})
             module_info = modules.get(params.module_name, {})
             basic_info = module_info
+
+        # Get R help documentation
+        r_help = None
+        r_package = f"teal.modules.{package}"
+        try:
+            r_help = _get_r_help(params.module_name, package=r_package)
+        except (ValueError, FileNotFoundError) as e:
+            # If help is not available, continue without it
+            r_help = f"R help not available: {e}"
 
         if params.response_format == ResponseFormat.MARKDOWN:
             lines = [f"# {params.module_name}", ""]
@@ -89,6 +98,15 @@ async def tealflow_get_module_details(params: GetModuleDetailsInput) -> str:
                         lines.append(f"... and {len(opt_params) - 10} more optional parameters")
                         lines.append("")
 
+            # Add R help documentation
+            if r_help:
+                lines.append("## R Help Documentation")
+                lines.append("")
+                lines.append("```")
+                lines.append(r_help)
+                lines.append("```")
+                lines.append("")
+
             response = "\n".join(lines)
         else:
             # JSON format
@@ -99,6 +117,7 @@ async def tealflow_get_module_details(params: GetModuleDetailsInput) -> str:
                     "description": basic_info.get("description", ""),
                     "required_datasets": basic_info.get("required_datasets", []),
                     "parameters": module_info.get("function_parameters", {}),
+                    "r_help": r_help,
                 },
                 indent=2,
             )
