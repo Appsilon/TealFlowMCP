@@ -3,37 +3,13 @@ Snapshot Renv Environment tool implementation.
 """
 
 import json
-import os
 import subprocess
 from pathlib import Path
 from typing import Any
 
 from ..core.enums import ResponseFormat
 from ..models import SnapshotRenvEnvironmentInput
-
-
-def _run_r_command(command: str, cwd: Path, timeout: int = 300) -> tuple[int, str, str]:
-    """Run an R command using Rscript -e."""
-    env = os.environ.copy()
-
-    try:
-        process = subprocess.Popen(
-            ["Rscript", "-e", command],
-            cwd=str(cwd),
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True,
-            env=env,
-        )
-        stdout, stderr = process.communicate(timeout=timeout)
-        return process.returncode, stdout, stderr
-    except subprocess.TimeoutExpired:
-        process.kill()
-        stdout, stderr = process.communicate()
-        raise TimeoutError("Command timed out") from None
-    except FileNotFoundError:
-        # This means Rscript is not found
-        raise FileNotFoundError("Rscript not found") from None
+from ..utils import _run_r_command
 
 
 def _format_markdown_response(result: dict[str, Any]) -> str:
