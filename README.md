@@ -128,6 +128,27 @@ Run static type checking:
 uv run mypy tealflow_mcp/
 ```
 
+### Run All Checks
+
+Run all code quality checks at once (same as CI):
+
+```bash
+uv run ruff check tealflow_mcp/ tests/ && \
+uv run ruff format tealflow_mcp/ tests/ --check && \
+uv run mypy tealflow_mcp/ && \
+uv run python -m pytest tests/ -v
+```
+
+## Continuous Integration
+
+This project uses GitHub Actions for automated testing and code quality checks.
+
+The CI pipeline runs on every push and pull request:
+- ✅ Linting and formatting checks
+- ✅ Type checking with mypy
+- ✅ Tests on Python 3.10, 3.11, and 3.12
+- ✅ Code coverage reporting
+
 ## Manual Testing
 
 For quick manual verification:
