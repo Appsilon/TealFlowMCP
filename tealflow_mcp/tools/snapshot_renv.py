@@ -8,8 +8,9 @@ import subprocess
 from pathlib import Path
 from typing import Any
 
-from ..models import SnapshotRenvEnvironmentInput
 from ..core.enums import ResponseFormat
+from ..models import SnapshotRenvEnvironmentInput
+
 
 def _run_r_command(command: str, cwd: Path, timeout: int = 300) -> tuple[int, str, str]:
     """Run an R command using Rscript -e."""
@@ -22,17 +23,18 @@ def _run_r_command(command: str, cwd: Path, timeout: int = 300) -> tuple[int, st
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=True,
-            env=env
+            env=env,
         )
         stdout, stderr = process.communicate(timeout=timeout)
         return process.returncode, stdout, stderr
     except subprocess.TimeoutExpired:
         process.kill()
         stdout, stderr = process.communicate()
-        raise TimeoutError("Command timed out")
+        raise TimeoutError("Command timed out") from None
     except FileNotFoundError:
         # This means Rscript is not found
-        raise FileNotFoundError("Rscript not found")
+        raise FileNotFoundError("Rscript not found") from None
+
 
 def _format_markdown_response(result: dict[str, Any]) -> str:
     """Format the result as a Markdown report."""
@@ -53,6 +55,7 @@ def _format_markdown_response(result: dict[str, Any]) -> str:
 
     return md
 
+
 async def tealflow_snapshot_renv_environment(params: SnapshotRenvEnvironmentInput) -> str:
     """
     Create an renv snapshot of the current R project environment.
@@ -72,60 +75,75 @@ async def tealflow_snapshot_renv_environment(params: SnapshotRenvEnvironmentInpu
     try:
         # STEP 1: Validate Project Path
         if not project_path.exists():
-            return json.dumps({
-                "status": "error",
-                "error_type": "filesystem_error",
-                "message": f"Project path does not exist: {project_path}",
-                "logs_excerpt": ""
-            }, indent=2)
+            return json.dumps(
+                {
+                    "status": "error",
+                    "error_type": "filesystem_error",
+                    "message": f"Project path does not exist: {project_path}",
+                    "logs_excerpt": "",
+                },
+                indent=2,
+            )
 
         # STEP 2: Ensure Rscript Exists
         try:
             subprocess.run(["Rscript", "--version"], check=True, capture_output=True)
         except (FileNotFoundError, subprocess.CalledProcessError):
-             return json.dumps({
-                "status": "error",
-                "error_type": "rscript_not_found",
-                "message": "Rscript command not found. Please install R.",
-                "logs_excerpt": ""
-            }, indent=2)
+            return json.dumps(
+                {
+                    "status": "error",
+                    "error_type": "rscript_not_found",
+                    "message": "Rscript command not found. Please install R.",
+                    "logs_excerpt": "",
+                },
+                indent=2,
+            )
 
         # STEP 3: Check if renv is initialized
         renv_dir = project_path / "renv"
         if not renv_dir.exists():
-            return json.dumps({
-                "status": "error",
-                "error_type": "renv_not_initialized",
-                "message": f"renv is not initialized in this project. Please run tealflow_setup_renv_environment first.",
-                "logs_excerpt": ""
-            }, indent=2)
+            return json.dumps(
+                {
+                    "status": "error",
+                    "error_type": "renv_not_initialized",
+                    "message": "renv is not initialized in this project. Please run tealflow_setup_renv_environment first.",
+                    "logs_excerpt": "",
+                },
+                indent=2,
+            )
 
         # STEP 4: Snapshot Environment
-        snapshot_cmd = 'renv::snapshot(prompt = FALSE)'
+        snapshot_cmd = "renv::snapshot(prompt = FALSE)"
         try:
             rc, out, err = _run_r_command(snapshot_cmd, project_path)
             log_output(out, err)
             if rc != 0:
-                return json.dumps({
+                return json.dumps(
+                    {
+                        "status": "error",
+                        "error_type": "snapshot_failed",
+                        "message": "Failed to create renv snapshot.",
+                        "logs_excerpt": "\n".join(logs),
+                    },
+                    indent=2,
+                )
+        except Exception as e:
+            return json.dumps(
+                {
                     "status": "error",
                     "error_type": "snapshot_failed",
-                    "message": "Failed to create renv snapshot.",
-                    "logs_excerpt": "\n".join(logs)
-                }, indent=2)
-        except Exception as e:
-            return json.dumps({
-                "status": "error",
-                "error_type": "snapshot_failed",
-                "message": f"Exception creating snapshot: {str(e)}",
-                "logs_excerpt": "\n".join(logs)
-            }, indent=2)
+                    "message": f"Exception creating snapshot: {e!s}",
+                    "logs_excerpt": "\n".join(logs),
+                },
+                indent=2,
+            )
 
         # Success
         result = {
             "status": "ok",
             "error_type": None,
             "message": "Renv snapshot created successfully.",
-            "logs_excerpt": "\n".join(logs)[-2000:] # Truncate logs if too long
+            "logs_excerpt": "\n".join(logs)[-2000:],  # Truncate logs if too long
         }
 
         if params.response_format == ResponseFormat.MARKDOWN:
@@ -135,9 +153,12 @@ async def tealflow_snapshot_renv_environment(params: SnapshotRenvEnvironmentInpu
 
     except Exception as e:
         # Catch-all
-        return json.dumps({
-            "status": "error",
-            "error_type": "execution_error",
-            "message": f"Unexpected error: {str(e)}",
-            "logs_excerpt": "\n".join(logs)
-        }, indent=2)
+        return json.dumps(
+            {
+                "status": "error",
+                "error_type": "execution_error",
+                "message": f"Unexpected error: {e!s}",
+                "logs_excerpt": "\n".join(logs),
+            },
+            indent=2,
+        )

@@ -4,10 +4,11 @@ Unit tests for dataset discovery functionality.
 Tests the core discovery logic for finding ADaM datasets in a directory.
 """
 
-import pytest
-from pathlib import Path
-import tempfile
 import shutil
+import tempfile
+from pathlib import Path
+
+import pytest
 
 
 class TestDatasetDiscovery:
@@ -287,5 +288,3 @@ class TestDatasetDiscovery:
         assert result["count"] == 1
         # Should extract the first ADaM dataset name found
         assert result["datasets_found"][0]["name"] in ["ADSL", "ADTTE"]
-
-

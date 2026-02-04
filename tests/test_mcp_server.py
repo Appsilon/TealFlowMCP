@@ -82,7 +82,9 @@ async def test_mcp_server():
     # Test 4: Check dataset requirements
     print("\n✅ Test 4: Check dataset requirements for tm_g_km")
     print("-" * 70)
-    result = await tealflow_check_dataset_requirements(CheckDatasetRequirementsInput(module_name="tm_g_km"))
+    result = await tealflow_check_dataset_requirements(
+        CheckDatasetRequirementsInput(module_name="tm_g_km")
+    )
     print("Compatibility:", result[:300] + "...")
 
     # Test 5: List available datasets
@@ -101,7 +103,9 @@ async def test_mcp_server():
     # Test 7: Test error handling (invalid module)
     print("\n✅ Test 7: Test error handling with invalid module")
     print("-" * 70)
-    result = await tealflow_get_module_details(GetModuleDetailsInput(module_name="tm_invalid_module"))
+    result = await tealflow_get_module_details(
+        GetModuleDetailsInput(module_name="tm_invalid_module")
+    )
     print("Error handling:", result)
 
     # Test 8: Test fuzzy matching (typo in module name)

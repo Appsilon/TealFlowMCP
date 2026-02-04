@@ -42,7 +42,9 @@ def _format_module_list_json(modules: dict[str, Any]) -> str:
     return json.dumps({"modules": module_list, "count": len(module_list)}, indent=2)
 
 
-def _truncate_response(response: str, message: str = "Response truncated. Use filters to reduce results.") -> str:
+def _truncate_response(
+    response: str, message: str = "Response truncated. Use filters to reduce results."
+) -> str:
     """Truncate response if it exceeds CHARACTER_LIMIT."""
     if len(response) <= CHARACTER_LIMIT:
         return response

@@ -81,7 +81,9 @@ class CheckDatasetRequirementsInput(BaseModel):
 
     model_config = ConfigDict(str_strip_whitespace=True, validate_assignment=True)
 
-    module_name: str = Field(..., description="Name of the module to check", min_length=3, max_length=100)
+    module_name: str = Field(
+        ..., description="Name of the module to check", min_length=3, max_length=100
+    )
     available_datasets: list[str] | None = Field(
         default=None,
         description="List of available datasets (defaults to Flow's standard: ADSL, ADTTE, ADRS, ADQS, ADAE)",
@@ -108,8 +110,12 @@ class GenerateModuleCodeInput(BaseModel):
 
     model_config = ConfigDict(str_strip_whitespace=True, validate_assignment=True)
 
-    module_name: str = Field(..., description="Name of the module to generate code for", min_length=3, max_length=100)
-    parameters: dict[str, Any] | None = Field(default=None, description="Optional parameter overrides as JSON object")
+    module_name: str = Field(
+        ..., description="Name of the module to generate code for", min_length=3, max_length=100
+    )
+    parameters: dict[str, Any] | None = Field(
+        default=None, description="Optional parameter overrides as JSON object"
+    )
     include_comments: bool = Field(
         default=True, description="Whether to include explanatory comments in the generated code"
     )
@@ -210,30 +216,24 @@ class CheckShinyStartupInput(BaseModel):
             raise ValueError("App filename must end with .R")
         return v.strip()
 
+
 class SetupRenvEnvironmentInput(BaseModel):
     """Input model for setting up renv environment."""
 
     model_config = ConfigDict(str_strip_whitespace=True, validate_assignment=True)
 
-    project_path: str = Field(
-        default=".",
-        description="Path to the user's R project"
-    )
+    project_path: str = Field(default=".", description="Path to the user's R project")
     response_format: ResponseFormat = Field(
-        default=ResponseFormat.JSON,
-        description="Output format: 'json' or 'markdown'"
+        default=ResponseFormat.JSON, description="Output format: 'json' or 'markdown'"
     )
+
 
 class SnapshotRenvEnvironmentInput(BaseModel):
     """Input model for snapshotting renv environment."""
 
     model_config = ConfigDict(str_strip_whitespace=True, validate_assignment=True)
 
-    project_path: str = Field(
-        default=".",
-        description="Path to the R project directory"
-    )
+    project_path: str = Field(default=".", description="Path to the R project directory")
     response_format: ResponseFormat = Field(
-        default=ResponseFormat.JSON,
-        description="Output format: 'json' or 'markdown'"
+        default=ResponseFormat.JSON, description="Output format: 'json' or 'markdown'"
     )

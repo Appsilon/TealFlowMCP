@@ -94,7 +94,41 @@ uv run python -m pytest tests/test_discovery.py::TestDatasetDiscovery::test_disc
 uv run python -m pytest tests/ --cov=tealflow_mcp --cov-report=term-missing -v
 ```
 
-### Manual Testing
+## Code Quality
+
+### Check Linting
+
+Check for linting issues:
+
+```bash
+uv run ruff check tealflow_mcp/ tests/
+```
+
+### Auto-fix Linting Issues
+
+Automatically fix linting issues:
+
+```bash
+uv run ruff check tealflow_mcp/ tests/ --fix
+```
+
+### Format Code
+
+Format code consistently:
+
+```bash
+uv run ruff format tealflow_mcp/ tests/
+```
+
+### Type Checking
+
+Run static type checking:
+
+```bash
+uv run mypy tealflow_mcp/
+```
+
+## Manual Testing
 
 For quick manual verification:
 

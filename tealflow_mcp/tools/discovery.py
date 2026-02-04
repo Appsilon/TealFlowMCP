@@ -11,23 +11,21 @@ from typing import Any
 
 # Standard ADaM dataset names (CDISC standard)
 STANDARD_ADAM_DATASETS = {
-    "ADSL",   # Subject-Level Analysis Dataset
+    "ADSL",  # Subject-Level Analysis Dataset
     "ADTTE",  # Time-to-Event Analysis Dataset
-    "ADRS",   # Response Analysis Dataset
-    "ADQS",   # Questionnaire Analysis Dataset
-    "ADAE",   # Adverse Events Analysis Dataset
-    "ADLB",   # Laboratory Analysis Dataset
-    "ADVS",   # Vital Signs Analysis Dataset
-    "ADCM",   # Concomitant Medications Analysis Dataset
-    "ADEX",   # Exposure Analysis Dataset
-    "ADMH",   # Medical History Analysis Dataset
+    "ADRS",  # Response Analysis Dataset
+    "ADQS",  # Questionnaire Analysis Dataset
+    "ADAE",  # Adverse Events Analysis Dataset
+    "ADLB",  # Laboratory Analysis Dataset
+    "ADVS",  # Vital Signs Analysis Dataset
+    "ADCM",  # Concomitant Medications Analysis Dataset
+    "ADEX",  # Exposure Analysis Dataset
+    "ADMH",  # Medical History Analysis Dataset
 }
 
 
 def discover_datasets(
-    data_directory: str | Path,
-    file_formats: list[str] | None = None,
-    pattern: str = "AD*"
+    data_directory: str | Path, file_formats: list[str] | None = None, pattern: str = "AD*"
 ) -> dict[str, Any]:
     """
     Discover ADaM datasets in a directory.
@@ -74,7 +72,9 @@ def discover_datasets(
         error_msg = f"Relative path provided: {data_directory}"
         error_msg += "\n\nThis tool requires an absolute path to work correctly."
         error_msg += "\nExample of absolute path: /home/user/project/workspace/"
-        error_msg += "\n\nYou provided a relative path. Please provide the full path starting from root."
+        error_msg += (
+            "\n\nYou provided a relative path. Please provide the full path starting from root."
+        )
         raise ValueError(error_msg)
 
     # Check if directory exists
@@ -95,14 +95,11 @@ def discover_datasets(
 
     # Initialize results
     datasets_found = []
-    warnings = []
+    warnings: list[str] = []
     supported_formats = ["Rds", "csv"]
 
     # Normalize file formats filter (case-insensitive)
-    if file_formats is not None:
-        file_formats_lower = [fmt.lower() for fmt in file_formats]
-    else:
-        file_formats_lower = None
+    file_formats_lower = [fmt.lower() for fmt in file_formats] if file_formats is not None else None
 
     # Scan directory for files
     for file_path in data_dir.iterdir():
@@ -111,7 +108,7 @@ def discover_datasets(
             continue
 
         # Get file extension (case-insensitive)
-        file_ext = file_path.suffix.lower().lstrip('.')
+        file_ext = file_path.suffix.lower().lstrip(".")
 
         # Check if file format is supported
         if file_ext not in ["rds", "csv"]:
@@ -136,13 +133,13 @@ def discover_datasets(
             "format": file_format,
             "is_standard_adam": adam_name in STANDARD_ADAM_DATASETS,
             "size_bytes": file_path.stat().st_size,
-            "readable": _check_readable(file_path)
+            "readable": _check_readable(file_path),
         }
 
         datasets_found.append(dataset_info)
 
     # Sort by dataset name (alphabetically)
-    datasets_found.sort(key=lambda x: x["name"])
+    datasets_found.sort(key=lambda x: str(x["name"]))
 
     return {
         "status": "success",
@@ -150,7 +147,7 @@ def discover_datasets(
         "datasets_found": datasets_found,
         "count": len(datasets_found),
         "supported_formats": supported_formats,
-        "warnings": warnings
+        "warnings": warnings,
     }
 
 
@@ -181,14 +178,14 @@ def _extract_adam_name(filename: str) -> str | None:
     filename_upper = filename.upper()
 
     # Remove file extension
-    name_without_ext = filename_upper.rsplit('.', 1)[0] if '.' in filename_upper else filename_upper
+    name_without_ext = filename_upper.rsplit(".", 1)[0] if "." in filename_upper else filename_upper
 
     # Try to match each standard ADaM dataset name
     for adam_name in STANDARD_ADAM_DATASETS:
         # Use word boundary pattern to avoid false positives
         # Match ADaM name as a whole word (surrounded by non-letter or start/end)
         # Numbers, underscores, hyphens, dots, etc. act as separators
-        pattern = rf'(?:^|[^A-Z]){adam_name}(?:[^A-Z]|$)'
+        pattern = rf"(?:^|[^A-Z]){adam_name}(?:[^A-Z]|$)"
         if re.search(pattern, name_without_ext):
             return adam_name
 

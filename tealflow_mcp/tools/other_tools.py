@@ -13,14 +13,19 @@ from ..data import (
     _get_general_by_analysis_type,
     _get_general_modules,
 )
-from ..models import CheckDatasetRequirementsInput, GetAppTemplateInput, ListDatasetsInput, SearchModulesInput
+from ..models import (
+    CheckDatasetRequirementsInput,
+    GetAppTemplateInput,
+    ListDatasetsInput,
+    SearchModulesInput,
+)
 from ..utils import _truncate_response, _validate_module_exists
 
 
 async def tealflow_search_modules_by_analysis(params: SearchModulesInput) -> str:
     """
     Search for modules by analysis type using structured categories and text matching.
-    
+
     First attempts exact/partial category matches from predefined analysis types,
     then falls back to text search across module descriptions. Scores and ranks
     results by relevance.
@@ -113,7 +118,9 @@ async def tealflow_search_modules_by_analysis(params: SearchModulesInput) -> str
                             "description": module_info.get("description", ""),
                             "required_datasets": module_info.get("required_datasets", []),
                             "categories": [
-                                cat["category"] for cat in category_matches if module_name in cat["modules"]
+                                cat["category"]
+                                for cat in category_matches
+                                if module_name in cat["modules"]
                             ],
                         }
                     )
@@ -126,7 +133,9 @@ async def tealflow_search_modules_by_analysis(params: SearchModulesInput) -> str
                 lines.append("## Matching Analysis Categories")
                 lines.append("")
                 for cat_match in category_matches[:3]:
-                    lines.append(f"### {cat_match['category'].replace('_', ' ').title()} ({cat_match['type'].title()})")
+                    lines.append(
+                        f"### {cat_match['category'].replace('_', ' ').title()} ({cat_match['type'].title()})"
+                    )
                     lines.append(f"{cat_match['description']}")
                     lines.append(f"**Modules**: {', '.join(cat_match['modules'][:5])}")
                     if len(cat_match["modules"]) > 5:
@@ -204,7 +213,9 @@ async def tealflow_search_modules_by_analysis(params: SearchModulesInput) -> str
                 return (
                     f"No modules found for '{params.analysis_type}'.\n\n"
                     "Available analysis categories:\n"
-                    + "\n".join([f"  - {cat.replace('_', ' ')}" for cat in available_categories[:10]])
+                    + "\n".join(
+                        [f"  - {cat.replace('_', ' ')}" for cat in available_categories[:10]]
+                    )
                     + "\n\nTry terms like: 'survival', 'safety', 'efficacy', 'data exploration', 'visualization'"
                 )
 
@@ -230,7 +241,8 @@ async def tealflow_search_modules_by_analysis(params: SearchModulesInput) -> str
                 response = "\n".join(lines)
             else:
                 response = json.dumps(
-                    {"query": params.analysis_type, "count": len(matches), "matches": matches[:20]}, indent=2
+                    {"query": params.analysis_type, "count": len(matches), "matches": matches[:20]},
+                    indent=2,
                 )
 
         return _truncate_response(response)
@@ -242,7 +254,7 @@ async def tealflow_search_modules_by_analysis(params: SearchModulesInput) -> str
 async def tealflow_check_dataset_requirements(params: CheckDatasetRequirementsInput) -> str:
     """
     Validate dataset availability for a specific module.
-    
+
     Compares module's required datasets against available datasets list
     (defaults to Flow's standard datasets if not specified). Returns
     compatibility status and lists any missing datasets.
@@ -333,7 +345,7 @@ async def tealflow_check_dataset_requirements(params: CheckDatasetRequirementsIn
 async def tealflow_list_datasets(params: ListDatasetsInput) -> str:
     """
     List standard ADaM datasets available in the Flow project.
-    
+
     Returns hardcoded information about the five standard CDISC ADaM datasets
     (ADSL, ADTTE, ADRS, ADQS, ADAE) including descriptions, usage statistics,
     and key modules that use each dataset.
@@ -400,19 +412,21 @@ async def tealflow_list_datasets(params: ListDatasetsInput) -> str:
             lines.append("")
 
             for ds_name, ds_info in datasets.items():
-                lines.append(f"## {ds_name} - {ds_info['full_name']}")
-                lines.append(f"**Type**: {ds_info['type']}")
-                lines.append(f"**Description**: {ds_info['description']}")
-                lines.append(f"**Usage**: {ds_info['usage']}")
+                lines.append(f"## {ds_name} - {ds_info['full_name']}")  # type: ignore[index]
+                lines.append(f"**Type**: {ds_info['type']}")  # type: ignore[index]
+                lines.append(f"**Description**: {ds_info['description']}")  # type: ignore[index]
+                lines.append(f"**Usage**: {ds_info['usage']}")  # type: ignore[index]
 
-                if "modules" in ds_info:
-                    lines.append(f"**Key Modules**: {', '.join(ds_info['modules'][:4])}")
+                if "modules" in ds_info:  # type: ignore[operator]
+                    lines.append(f"**Key Modules**: {', '.join(ds_info['modules'][:4])}")  # type: ignore[index]
 
                 lines.append("")
 
             response = "\n".join(lines)
         else:
-            response = json.dumps({"datasets": list(datasets.values()), "count": len(datasets)}, indent=2)
+            response = json.dumps(
+                {"datasets": list(datasets.values()), "count": len(datasets)}, indent=2
+            )
 
         return response
 
@@ -423,7 +437,7 @@ async def tealflow_list_datasets(params: ListDatasetsInput) -> str:
 async def tealflow_get_app_template(params: GetAppTemplateInput) -> str:
     """
     Return the base R code template for Teal applications.
-    
+
     Reads app.template.R from knowledge base directory and formats as markdown
     with usage instructions or as JSON with structured metadata.
     """

@@ -11,7 +11,7 @@ from ..utils import _format_module_list_json, _format_module_list_markdown, _tru
 async def tealflow_list_modules(params: ListModulesInput) -> str:
     """
     List available Teal modules with filtering by package and category.
-    
+
     Loads module data from JSON files and applies user-specified filters.
     Formats output as markdown or JSON based on response_format parameter.
     """
@@ -33,7 +33,8 @@ async def tealflow_list_modules(params: ListModulesInput) -> str:
             modules_to_show = {
                 name: info
                 for name, info in modules_to_show.items()
-                if category_lower in info.get("description", "").lower() or category_lower in name.lower()
+                if category_lower in info.get("description", "").lower()
+                or category_lower in name.lower()
             }
 
         if not modules_to_show:
