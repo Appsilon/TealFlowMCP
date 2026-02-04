@@ -14,10 +14,12 @@ The server helps with:
 - Generating R code for Teal apps
 """
 
+from mcp.server.fastmcp import FastMCP
+
 from tealflow_mcp import (
     CheckDatasetRequirementsInput,
-    DiscoverDatasetsInput,
     CheckShinyStartupInput,
+    DiscoverDatasetsInput,
     GenerateDataLoadingInput,
     GenerateModuleCodeInput,
     GetAppTemplateInput,
@@ -29,12 +31,12 @@ from tealflow_mcp import (
     SearchModulesInput,
     SetupRenvEnvironmentInput,
     SnapshotRenvEnvironmentInput,
-    tealflow_get_agent_guidance,
     tealflow_check_dataset_requirements,
-    tealflow_discover_datasets,
     tealflow_check_shiny_startup,
+    tealflow_discover_datasets,
     tealflow_generate_data_loading,
     tealflow_generate_module_code,
+    tealflow_get_agent_guidance,
     tealflow_get_app_template,
     tealflow_get_module_details,
     tealflow_list_datasets,
@@ -43,8 +45,6 @@ from tealflow_mcp import (
     tealflow_setup_renv_environment,
     tealflow_snapshot_renv_environment,
 )
-
-from mcp.server.fastmcp import FastMCP
 
 # Initialize the MCP server
 mcp = FastMCP(
@@ -213,18 +213,18 @@ async def get_module_details_tool(
     response_format: str = "markdown"
 ) -> str:
     """
-    Get comprehensive details about a specific Teal module including all parameters.
+    Get comprehensive details about a specific Teal module including all parameters and R help documentation.
 
     This tool provides complete information about a module's required and optional
-    parameters, their types, default values, and descriptions. Use this after
-    discovering a module to understand how to configure it properly.
+    parameters, their types, default values, descriptions, and official R help documentation.
+    Use this after discovering a module to understand how to configure it properly.
 
     Args:
         module_name (str, required): Name of the module (e.g., 'tm_g_km', 'tm_t_coxreg', 'tm_g_scatterplot').
         response_format (str, optional): Output format - 'markdown' for human-readable or 'json' for machine-readable. Defaults to 'markdown'.
 
     Returns:
-        str: Detailed module information including parameters, datasets, and usage
+        str: Detailed module information including parameters, datasets, R help, and usage
 
         Includes:
         - Module description
@@ -232,12 +232,14 @@ async def get_module_details_tool(
         - Required parameters (no defaults)
         - Optional parameters (with defaults)
         - Parameter types and constraints
-        - Usage examples
+        - R help documentation (complete help text from R's help system)
+        - Usage examples from R documentation
 
     Error Handling:
         - Returns error if module not found
         - Suggests similar module names for typos
         - Provides guidance on correct module names
+        - Falls back gracefully if R help is unavailable
 
     Examples:
         - Get details for KM plot: module_name="tm_g_km"
