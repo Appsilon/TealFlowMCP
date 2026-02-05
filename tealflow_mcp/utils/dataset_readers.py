@@ -41,6 +41,40 @@ class DatasetInfo:
     """File size in bytes."""
 
 
+def _infer_object_type(col_data: pd.Series) -> str:
+    """
+    Infer the R type for an object dtype column.
+
+    pyreadr converts numeric columns with NA values to object dtype.
+    This function checks if non-null values can be converted to numeric.
+
+    Args:
+        col_data: pandas Series with object dtype
+
+    Returns:
+        "integer", "numeric", or "character"
+    """
+    # Get non-null values
+    non_null = col_data.dropna()
+
+    # If all values are null, default to character
+    if len(non_null) == 0:
+        return "character"
+
+    # Try to convert to numeric
+    try:
+        numeric_values = pd.to_numeric(non_null, errors="raise")
+
+        # Check if all numeric values are integers
+        if (numeric_values == numeric_values.astype(int)).all():
+            return "integer"
+        else:
+            return "numeric"
+    except (ValueError, TypeError):
+        # Not numeric, it's character
+        return "character"
+
+
 def _read_rds_dataset(file_path: Path, include_sample_values: bool = False) -> DatasetInfo:
     """
     Read dataset information from an RDS file using pyreadr.
@@ -83,7 +117,9 @@ def _read_rds_dataset(file_path: Path, include_sample_values: bool = False) -> D
             elif dtype.startswith("float"):
                 r_type = "numeric"
             elif dtype == "object":
-                r_type = "character"
+                # For object dtype, try to infer if it's actually numeric
+                # pyreadr converts numeric columns with NAs to object dtype
+                r_type = _infer_object_type(col_data)
             elif dtype == "bool":
                 r_type = "logical"
             elif dtype.startswith("datetime"):
@@ -155,6 +191,11 @@ def _read_csv_dataset(file_path: Path, include_sample_values: bool = False) -> D
             elif dtype.startswith("float"):
                 type_name = "numeric"
             elif dtype == "object":
+                # For object dtype, try to infer if it's actually numeric
+                # Some CSV files may have numeric data stored as strings
+                type_name = _infer_object_type(col_data)
+            elif dtype in ["str", "string"]:
+                # Pandas 2.x string dtype
                 type_name = "character"
             elif dtype == "bool":
                 type_name = "logical"
