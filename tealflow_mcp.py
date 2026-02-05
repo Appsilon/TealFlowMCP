@@ -23,6 +23,7 @@ from tealflow_mcp import (
     GenerateDataLoadingInput,
     GenerateModuleCodeInput,
     GetAppTemplateInput,
+    GetDatasetInfoInput,
     GetModuleDetailsInput,
     ListDatasetsInput,
     ListModulesInput,
@@ -38,6 +39,7 @@ from tealflow_mcp import (
     tealflow_generate_module_code,
     tealflow_get_agent_guidance,
     tealflow_get_app_template,
+    tealflow_get_dataset_info,
     tealflow_get_module_details,
     tealflow_list_datasets,
     tealflow_list_modules,
@@ -464,6 +466,94 @@ async def discover_datasets_tool(
         response_format=ResponseFormat(response_format)
     )
     return await tealflow_discover_datasets(params)
+
+
+@mcp.tool(
+    name="tealflow_get_dataset_info",
+    annotations={
+        "title": "Get Dataset Information",
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "idempotentHint": True,
+        "openWorldHint": False,
+    },
+)
+async def get_dataset_info_tool(
+    file_path: str,
+    include_sample_values: bool = True,
+    response_format: str = "markdown"
+) -> str:
+    """
+    Get detailed information about a dataset file including columns, types, and row count.
+
+    This tool reads a dataset file (.rds or .csv) and returns comprehensive metadata about
+    its structure without loading the entire dataset into memory. It's useful for understanding
+    the contents of a dataset before using it in a Teal application.
+
+    **IMPORTANT**: This tool requires an **absolute path** to the dataset file.
+    Relative paths will not work correctly due to MCP server/client working directory differences.
+
+    Args:
+        file_path (str): **Absolute path** to the dataset file (.rds or .csv).
+                        Example: '/home/user/data/ADSL.Rds' or 'C:\\Users\\user\\data\\ADSL.csv'.
+        include_sample_values (bool, optional): Whether to include sample values (first 5 unique values)
+                                               for each column. Useful for understanding data content.
+                                               Defaults to True.
+        response_format (str, optional): Output format - 'markdown' for human-readable or 'json'
+                                        for machine-readable. Defaults to 'markdown'.
+
+    Returns:
+        str: Dataset information with columns, types, and metadata
+
+        Markdown format includes:
+        - File path and basic statistics (rows, columns, file size)
+        - Table of columns with names and types
+        - If include_sample_values=True: Detailed view with sample values for each column
+
+        JSON format includes:
+        - file_path: Path to the dataset
+        - row_count: Number of rows
+        - column_count: Number of columns
+        - file_size_bytes: File size in bytes
+        - columns: Array of column objects with name, type, and optional sample_values
+
+    Column Type Mapping:
+        - For RDS files: R types (integer, numeric, character, logical, category, POSIXct)
+        - For CSV files: Pandas-derived types (integer, numeric, character, logical, datetime)
+        - category: R factors or categorical data
+        - character: String/text data
+        - integer: Whole numbers
+        - numeric: Decimal numbers
+        - logical: Boolean values
+        - POSIXct/datetime: Date and time values
+
+    Examples:
+        - Get basic info: file_path="/home/user/data/ADSL.Rds"
+        - Get with samples: file_path="/home/user/data/ADSL.Rds", include_sample_values=True
+        - Get JSON format: file_path="/home/user/data/ADSL.csv", response_format="json"
+
+    Common Errors:
+        - FileNotFoundError: File not found at the specified path
+        - ValueError: Unsupported file format (only .rds and .csv are supported)
+        - ValueError: Invalid or corrupted dataset file
+
+    Use Cases:
+        - Verify dataset structure before creating Teal app
+        - Understand available columns for module configuration
+        - Check data types to ensure compatibility with module requirements
+        - Inspect sample values to understand data content
+        - Validate dataset after loading from external sources
+
+    Note:
+        This tool reads only the dataset structure, not the full data, making it efficient
+        even for large datasets. For RDS files, it uses pyreadr. For CSV files, it uses pandas.
+    """
+    params = GetDatasetInfoInput(
+        file_path=file_path,
+        include_sample_values=include_sample_values,
+        response_format=ResponseFormat(response_format)
+    )
+    return await tealflow_get_dataset_info(params)
 
 
 @mcp.tool(

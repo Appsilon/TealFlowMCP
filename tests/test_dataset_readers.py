@@ -26,9 +26,7 @@ class TestDatasetInfo:
 
     def test_column_info_with_samples(self):
         """Test creating a ColumnInfo object with sample values."""
-        col = ColumnInfo(
-            name="AGE", type="numeric", sample_values=["25", "30", "45", "50", "60"]
-        )
+        col = ColumnInfo(name="AGE", type="numeric", sample_values=["25", "30", "45", "50", "60"])
         assert col.name == "AGE"
         assert col.type == "numeric"
         assert len(col.sample_values) == 5
@@ -68,38 +66,48 @@ class TestReadDatasetInfoDispatcher:
 
     def test_dispatches_to_rds_reader(self):
         """Test that .rds files are dispatched to RDS reader."""
-        with TemporaryDirectory() as tmpdir:
-            rds_file = Path(tmpdir) / "data.rds"
-            rds_file.touch()
+        adsl_file = FIXTURES_DIR / "ADSL.Rds"
 
-            # Should call _read_rds_dataset which is not implemented
-            with pytest.raises((NotImplementedError, TypeError)):
-                read_dataset_info(rds_file)
+        # Should successfully dispatch to RDS reader
+        result = read_dataset_info(adsl_file)
+
+        assert isinstance(result, DatasetInfo)
+        assert len(result.columns) > 0
+        assert result.row_count > 0
 
     def test_dispatches_to_csv_reader(self):
         """Test that .csv files are dispatched to CSV reader."""
-        with TemporaryDirectory() as tmpdir:
-            csv_file = Path(tmpdir) / "data.csv"
-            csv_file.touch()
+        csv_file = FIXTURES_DIR / "test_basic.csv"
 
-            # Should call _read_csv_dataset which is not implemented
-            with pytest.raises((NotImplementedError, TypeError)):
-                read_dataset_info(csv_file)
+        # Should successfully dispatch to CSV reader
+        result = read_dataset_info(csv_file)
+
+        assert isinstance(result, DatasetInfo)
+        assert len(result.columns) == 3
+        assert result.row_count > 0
 
     def test_case_insensitive_extension(self):
         """Test that file extensions are case-insensitive."""
+        # Test with uppercase extensions using existing fixtures
+        # Create temporary copies with uppercase extensions
         with TemporaryDirectory() as tmpdir:
-            # Test .RDS (should dispatch to rds reader)
-            rds_file = Path(tmpdir) / "data.RDS"
-            rds_file.touch()
-            with pytest.raises((NotImplementedError, TypeError)):
-                read_dataset_info(rds_file)
+            # Copy ADSL.Rds to data.RDS
+            import shutil
 
-            # Test .CSV (should dispatch to csv reader)
+            rds_source = FIXTURES_DIR / "ADSL.Rds"
+            rds_file = Path(tmpdir) / "data.RDS"
+            shutil.copy(rds_source, rds_file)
+
+            result = read_dataset_info(rds_file)
+            assert isinstance(result, DatasetInfo)
+
+            # Copy test_basic.csv to data.CSV
+            csv_source = FIXTURES_DIR / "test_basic.csv"
             csv_file = Path(tmpdir) / "data.CSV"
-            csv_file.touch()
-            with pytest.raises((NotImplementedError, TypeError)):
-                read_dataset_info(csv_file)
+            shutil.copy(csv_source, csv_file)
+
+            result = read_dataset_info(csv_file)
+            assert isinstance(result, DatasetInfo)
 
 
 class TestReadRdsDataset:
