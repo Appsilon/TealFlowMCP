@@ -46,20 +46,36 @@ def _infer_object_type(col_data: pd.Series) -> str:
     Infer the R type for an object dtype column.
 
     pyreadr converts numeric columns with NA values to object dtype.
-    This function checks if non-null values can be converted to numeric.
+    This function checks if non-null values can be converted to numeric or are date objects.
 
     Args:
         col_data: pandas Series with object dtype
 
     Returns:
-        "integer", "numeric", or "character"
+        "integer", "numeric", "date", or "character"
     """
+    import datetime
+
     # Get non-null values
     non_null = col_data.dropna()
 
     # If all values are null, default to character
     if len(non_null) == 0:
         return "character"
+
+    # Check if values are date/datetime objects
+    # Sample first few values to determine if this is a date column
+    sample = non_null.head(min(10, len(non_null)))
+    if all(isinstance(val, (datetime.date, datetime.datetime)) for val in sample):
+        # Check if all are date objects (not datetime with time component)
+        if all(
+            isinstance(val, datetime.date) and not isinstance(val, datetime.datetime)
+            for val in sample
+        ):
+            return "date"
+        else:
+            # Has datetime objects, should have been caught earlier as POSIXct
+            return "POSIXct"
 
     # Try to convert to numeric
     try:

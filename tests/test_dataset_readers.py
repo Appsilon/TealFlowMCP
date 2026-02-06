@@ -362,6 +362,48 @@ class TestInferObjectType:
         result = _infer_object_type(series)
         assert result == "integer"
 
+    def test_infer_date_objects(self):
+        """Test inferring date type from datetime.date objects."""
+        import datetime
+
+        # Create a Series with date objects (like pyreadr does)
+        series = pd.Series(
+            [
+                datetime.date(2019, 2, 22),
+                datetime.date(2019, 2, 23),
+                None,
+                datetime.date(2019, 2, 24),
+            ],
+            dtype=object,
+        )
+        result = _infer_object_type(series)
+        assert result == "date"
+
+    def test_infer_datetime_objects(self):
+        """Test inferring POSIXct type from datetime.datetime objects."""
+        import datetime
+
+        # Create a Series with datetime objects
+        series = pd.Series(
+            [
+                datetime.datetime(2019, 2, 22, 10, 30, 0),
+                datetime.datetime(2019, 2, 23, 14, 45, 0),
+                None,
+                datetime.datetime(2019, 2, 24, 8, 15, 0),
+            ],
+            dtype=object,
+        )
+        result = _infer_object_type(series)
+        assert result == "POSIXct"
+
+    def test_infer_date_with_all_nulls(self):
+        """Test that all-null date columns default to character."""
+        import datetime
+
+        series = pd.Series([None, None, None], dtype=object)
+        result = _infer_object_type(series)
+        assert result == "character"
+
 
 class TestTypeInferenceInRdsFiles:
     """Test that type inference works correctly with real RDS files."""
@@ -417,6 +459,40 @@ class TestTypeInferenceInRdsFiles:
                             f"Column {col.name} is typed as {col.type} "
                             f"but has non-numeric sample: {sample}"
                         )
+
+    def test_date_columns_in_adsl(self):
+        """Test that date columns are correctly typed as 'date' in ADSL.Rds."""
+        adsl_file = FIXTURES_DIR / "ADSL.Rds"
+        result = _read_rds_dataset(adsl_file, include_sample_values=False)
+
+        # Find date columns (R Date objects stored as datetime.date)
+        col_types = {col.name: col.type for col in result.columns}
+
+        # These columns contain date objects (not datetime)
+        date_columns = ["RANDDT", "EOSDT", "DTHDT", "LSTALVDT"]
+
+        for col_name in date_columns:
+            if col_name in col_types:
+                assert col_types[col_name] == "date", (
+                    f"{col_name} should be date type, got {col_types[col_name]}"
+                )
+
+    def test_datetime_columns_remain_posixct(self):
+        """Test that datetime columns remain POSIXct in ADSL.Rds."""
+        adsl_file = FIXTURES_DIR / "ADSL.Rds"
+        result = _read_rds_dataset(adsl_file, include_sample_values=False)
+
+        # Find datetime columns
+        col_types = {col.name: col.type for col in result.columns}
+
+        # These columns contain datetime objects (with time component)
+        datetime_columns = ["TRTSDTM", "TRTEDTM", "TRT01SDTM", "TRT01EDTM"]
+
+        for col_name in datetime_columns:
+            if col_name in col_types:
+                assert col_types[col_name] == "POSIXct", (
+                    f"{col_name} should be POSIXct type, got {col_types[col_name]}"
+                )
 
 
 class TestCsvTypeInference:
@@ -604,6 +680,53 @@ class TestCsvTypeInference:
 
             # All-NA column defaults to character
             assert col_types["ALL_NA"] in ["character", "numeric"]  # pandas may use float
+
+    def test_csv_date_strings(self):
+        """Test CSV with date strings (not automatically parsed as dates)."""
+        with TemporaryDirectory() as tmpdir:
+            csv_path = Path(tmpdir) / "test_date_strings.csv"
+
+            # CSV with date-like strings
+            csv_content = """ID,DATE_COL
+1,2019-02-22
+2,2019-02-23
+3,2019-02-24
+"""
+            csv_path.write_text(csv_content)
+
+            result = _read_csv_dataset(csv_path, include_sample_values=False)
+            col_types = {col.name: col.type for col in result.columns}
+
+            # Date strings without parse_dates will be character/str
+            assert col_types["DATE_COL"] == "character"
+
+    def test_csv_parsed_dates(self):
+        """Test CSV with dates that pandas parses automatically."""
+        with TemporaryDirectory() as tmpdir:
+            csv_path = Path(tmpdir) / "test_parsed_dates.csv"
+
+            # Create CSV with date column, then read with parse_dates
+            import datetime
+
+            df = pd.DataFrame(
+                {
+                    "ID": [1, 2, 3],
+                    "DATE_COL": [
+                        datetime.date(2019, 2, 22),
+                        datetime.date(2019, 2, 23),
+                        datetime.date(2019, 2, 24),
+                    ],
+                }
+            )
+            df.to_csv(csv_path, index=False)
+
+            # When pandas writes datetime.date objects to CSV and reads them back,
+            # they become strings unless we use parse_dates
+            result = _read_csv_dataset(csv_path, include_sample_values=False)
+            col_types = {col.name: col.type for col in result.columns}
+
+            # Without parse_dates, date columns are strings
+            assert col_types["DATE_COL"] in ["character", "date"]
 
 
 class TestDatasetInfoStructure:
