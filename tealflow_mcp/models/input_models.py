@@ -237,3 +237,29 @@ class SnapshotRenvEnvironmentInput(BaseModel):
     response_format: ResponseFormat = Field(
         default=ResponseFormat.JSON, description="Output format: 'json' or 'markdown'"
     )
+
+
+class GetDatasetInfoInput(BaseModel):
+    """Input model for getting dataset information."""
+
+    model_config = ConfigDict(str_strip_whitespace=True, validate_assignment=True)
+
+    file_path: str = Field(
+        ...,
+        description="Absolute path to the dataset file (.rds or .csv)",
+    )
+    include_sample_values: bool = Field(
+        default=True,
+        description="Whether to include sample values (first 5 unique values) for each column",
+    )
+    response_format: ResponseFormat = Field(
+        default=ResponseFormat.MARKDOWN,
+        description="Output format: 'markdown' for human-readable or 'json' for machine-readable",
+    )
+
+    @field_validator("file_path")
+    @classmethod
+    def validate_file_path(cls, v: str) -> str:
+        if not v.strip():
+            raise ValueError("File path cannot be empty")
+        return v.strip()

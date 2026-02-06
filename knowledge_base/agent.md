@@ -20,6 +20,7 @@ The TealFlow MCP server provides the following tools to help you assist users:
 
 ### Data Discovery and Loading Tools
 - **tealflow_discover_datasets**: Discover ADaM datasets in a directory (scan for .Rds and .csv files containing ADaM datasets)
+- **tealflow_get_dataset_info**: Get detailed information about a dataset file (columns, types, row count, sample values)
 - **tealflow_generate_data_loading**: Generate R code for loading discovered datasets and creating a teal_data object
 
 ### Module Discovery and Search Tools
@@ -71,7 +72,22 @@ The TealFlow MCP server provides the following tools to help you assist users:
    - Confirm these are the datasets they want to use
    - Note which are standard ADaM datasets (ADSL, ADTTE, ADRS, ADQS, ADAE, etc.)
 
-5. **Generate data loading code**
+5. **Inspect dataset structure (optional but recommended)**
+   - Use `tealflow_get_dataset_info` to examine a dataset's structure before using it
+   - Provide the absolute file path to the dataset (from discovery results)
+   - By default, the tool includes sample values for each column (first 5 unique values)
+   - Use this tool when:
+     - User wants to understand dataset contents before creating an app
+     - You need to verify which columns are available for module configuration
+     - Checking data types to ensure module compatibility
+     - User asks about dataset structure, columns, or data types
+   - The tool returns:
+     - Column names and data types (integer, numeric, character, logical, category, POSIXct/datetime)
+     - Row count and file size
+     - Sample values for understanding data content
+   - **Example**: After discovering ADSL.Rds, use `tealflow_get_dataset_info(file_path="/path/to/ADSL.Rds")` to see all columns, types, and sample values
+
+6. **Generate data loading code**
    - Use `tealflow_generate_data_loading` with the datasets from discovery
    - This generates R code that:
      - Loads each dataset file (readRDS for .Rds, read.csv for .csv)
