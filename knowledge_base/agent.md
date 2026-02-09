@@ -72,20 +72,25 @@ The TealFlow MCP server provides the following tools to help you assist users:
    - Confirm these are the datasets they want to use
    - Note which are standard ADaM datasets (ADSL, ADTTE, ADRS, ADQS, ADAE, etc.)
 
-5. **Inspect dataset structure (optional but recommended)**
-   - Use `tealflow_get_dataset_info` to examine a dataset's structure before using it
+5. **Inspect dataset structure before module selection and configuration**
+   - **IMPORTANT**: Use `tealflow_get_dataset_info` to examine datasets before selecting modules or generating configuration
    - Provide the absolute file path to the dataset (from discovery results)
    - By default, the tool includes sample values for each column (first 5 unique values)
-   - Use this tool when:
-     - User wants to understand dataset contents before creating an app
-     - You need to verify which columns are available for module configuration
-     - Checking data types to ensure module compatibility
-     - User asks about dataset structure, columns, or data types
+   - **Why this is critical**:
+     - Verify required variables exist in the dataset (e.g., ARM, PARAMCD, AVAL, USUBJID)
+     - Check data types match module requirements (e.g., numeric vs binary, continuous vs categorical)
+     - Identify alternative variables if expected ones are missing (e.g., ACTARM instead of ARM)
+     - Understand value ranges to ensure compatibility (e.g., checking if AVAL is 0/1 or continuous)
+     - Validate configuration variables before generating code
    - The tool returns:
-     - Column names and data types (integer, numeric, character, logical, category, POSIXct/datetime)
+     - Column names and data types (integer, numeric, character, logical, category, POSIXct/datetime, Date)
      - Row count and file size
-     - Sample values for understanding data content
-   - **Example**: After discovering ADSL.Rds, use `tealflow_get_dataset_info(file_path="/path/to/ADSL.Rds")` to see all columns, types, and sample values
+     - Sample values showing actual data content and ranges
+   - **When to use**:
+     - Before selecting modules: Check if datasets have variables compatible with module requirements
+     - Before generating code: Verify configuration variables (ARM, PARAMCD, STRATA1, etc.) exist
+     - When modules fail: Inspect data to understand why and suggest alternatives
+     - When user asks about dataset contents or structure
 
 6. **Generate data loading code**
    - Use `tealflow_generate_data_loading` with the datasets from discovery
@@ -135,27 +140,45 @@ The TealFlow MCP server provides the following tools to help you assist users:
    - For survival analysis or other broad categories, propose specific module suggestions
    - If user mentions a Statistical Analysis Plan (SAP), they're referring to SAP_001.txt - analyze it to understand required analyses
 
-7. **Find appropriate modules**
+7. **Inspect datasets to understand available variables**
+   - **Before selecting modules**, use `tealflow_get_dataset_info` on relevant datasets
+   - Check which variables are available (ARM, PARAMCD, AVAL, USUBJID, etc.)
+   - Verify data types match expected module requirements
+   - Note variable names that differ from standards (e.g., ACTARM vs ARM, AVISITN vs AVISIT)
+   - This prevents selecting incompatible modules and enables suggesting appropriate alternatives
+
+8. **Find appropriate modules**
    - Use `tealflow_search_modules_by_analysis` with the analysis type (e.g., "survival", "kaplan-meier", "cox regression")
    - This returns modules organized by relevance with their descriptions and dataset requirements
+   - Cross-reference with dataset inspection results to filter compatible modules
    - Present options to the user with clear descriptions
 
-8. **Verify dataset compatibility**
+9. **Verify dataset compatibility**
    - Use `tealflow_check_dataset_requirements` for each candidate module
    - Use the list of datasets discovered earlier (from `tealflow_discover_datasets`)
    - If modules require missing datasets, inform the user which datasets are missing for which modules
+   - **CRITICAL**: Check if module requirements match actual data characteristics:
+     - Modules expecting binary outcomes (0/1) need binary data, not continuous
+     - Modules using specific variables need those variables to exist
+     - If a module seems incompatible based on data inspection, suggest alternatives
    - Note: Default datasets in sample data are ADSL, ADTTE, ADRS, ADQS, ADAE
 
-9. **Get detailed module information**
+10. **Get detailed module information**
    - Use `tealflow_get_module_details` to understand the module's parameters before generating code
    - This provides required vs optional parameters, types, and defaults
 
-10. **Generate module code**
+11. **Generate module code and configuration**
+   - Before generating code, verify all configuration variables exist in datasets:
+     - Check ARM/ARMCD/ACTARM/ACTARMCD variables are available
+     - Verify PARAMCD exists in analysis datasets
+     - Confirm AVAL, USUBJID, AVISIT variables are present
+     - Identify stratification variables (STRATA1, STRATA2, SEX, etc.)
+   - If standard variables are missing, suggest alternatives from dataset inspection results
    - Use `tealflow_generate_module_code` to create ready-to-use R code
    - Generated code includes all required parameters with sensible defaults
-   - Provide clear instructions on where to add the code
+   - Provide clear instructions on where to add the code and which configuration variables to adjust
 
-11. **Validate app startup**
+12. **Validate app startup**
    - After all modules are added and the app is complete, use `tealflow_check_shiny_startup` with the `app_filename` parameter to validate the app starts without errors
    - This tool runs the app file briefly with a timeout (default 15 seconds) and detects startup errors
    - The tool returns structured JSON with `status` ("ok" or "error"), `error_type` (e.g., "missing_package", "syntax_error", "object_not_found"), and a detailed `message`
@@ -163,8 +186,14 @@ The TealFlow MCP server provides the following tools to help you assist users:
    - If `status` is "error", analyze the `error_type` and `message` to fix the specific issue:
      - **missing_package**: Suggest installing the missing R package
      - **syntax_error**: Check recent edits for R syntax issues
-     - **object_not_found**: Verify data loading code and variable names
+     - **object_not_found**: Verify data loading code and variable names using `tealflow_get_dataset_info`
+     - **data_incompatibility**: Use `tealflow_get_dataset_info` to check data characteristics and suggest compatible alternatives
      - **timeout**: Consider increasing timeout_seconds or check for infinite loops
+   - **When data-related errors occur**:
+     - Use `tealflow_get_dataset_info` to inspect the problematic dataset
+     - Check if required variables exist and have appropriate types
+     - Suggest alternative variables or modules based on actual data structure
+     - Example: If a module fails with continuous data, suggest binary outcome modules or continuous analysis alternatives
    - Make only the minimal change necessary to fix the specific error reported
    - Retry validation at most 2 additional times after making fixes
    - Do not refactor unrelated code or add new features during retries
@@ -273,7 +302,61 @@ These datasets follow CDISC standards and include standard variables like:
 - Strata variables: `STRATA1`, `STRATA2`
 - For time-to-event: `AVAL` (analysis value), `CNSR` (censor), `AVALU` (time unit), `PARAMCD` (parameter code)
 
+## Data-Module Compatibility
+
+### Verifying Data Characteristics Before Module Selection
+
+**CRITICAL WORKFLOW**: Always use `tealflow_get_dataset_info` to inspect datasets before selecting modules and generating configuration code.
+
+**Common compatibility issues to check**:
+
+1. **Binary vs Continuous Data**:
+   - Some modules require binary (0/1) outcomes, others need continuous values
+   - Check AVAL column characteristics using `tealflow_get_dataset_info`
+   - Example: `tm_a_gee` with logistic regression needs binary AVAL (0/1)
+   - Example: `tm_a_mmrm` needs continuous AVAL (numeric range)
+   - **Action**: If data doesn't match module requirements, suggest appropriate alternatives
+
+2. **Required Variable Presence**:
+   - Check if expected variables exist: ARM, PARAMCD, AVAL, USUBJID, STRATA1, etc.
+   - Datasets may use alternative names: ACTARM vs ARM, AVISITN vs AVISIT
+   - **Action**: Use dataset info to identify available alternatives and adjust configuration
+
+3. **Data Type Compatibility**:
+   - Verify variable types match module expectations (numeric, character, factor, date)
+   - Check sample values to understand data structure
+   - **Action**: If types don't match, suggest data transformation or alternative modules
+
+4. **Value Ranges and Distributions**:
+   - Inspect sample values to understand data ranges (e.g., 0-100 scale vs 0-1 binary)
+   - Check for missing values or sparse data
+   - **Action**: Choose modules appropriate for the data distribution
+
+**Best Practice Workflow**:
+1. Discover datasets with `tealflow_discover_datasets`
+2. Inspect each dataset with `tealflow_get_dataset_info`
+3. Document available variables and their characteristics
+4. Select modules that match actual data structure
+5. Generate configuration using verified variable names
+6. Validate app startup and adjust based on errors
+
 ## Important Module Notes and Special Cases
+
+### tm_a_gee (Generalized Estimating Equations)
+
+**Data requirements**:
+- Default regression type is logistic, requiring binary (0/1) outcome in AVAL
+- For continuous outcomes, use linear regression type
+- Check AVAL data type and range before using this module
+- **Alternative**: Use `tm_a_mmrm` for continuous repeated measures data
+
+### tm_a_mmrm (Mixed Model for Repeated Measures)
+
+**Data requirements**:
+- Designed for continuous outcome variables
+- Suitable for questionnaire scores, lab values, etc.
+- AVAL should contain numeric continuous values
+- Good alternative to GEE when data is continuous
 
 ### tm_g_forest_tte
 
@@ -412,16 +495,19 @@ When providing R code or guidance to users:
 3. User: Provides path "/home/user/project/data"
 4. Agent: Use `tealflow_discover_datasets` with the provided path
 5. Agent: Show discovered datasets (e.g., ADSL, ADTTE found)
-6. Agent: Use `tealflow_generate_data_loading` with discovered datasets
-7. Agent: Provide data loading code to save as `data.R` in project root
-8. Agent: Use `tealflow_get_app_template` to get base app
-9. Agent: Use `tealflow_search_modules_by_analysis` with "survival" to find relevant modules
-10. Agent: Use `tealflow_check_dataset_requirements` for each survival module
-11. Agent: Present compatible options: tm_g_km, tm_t_tte, tm_t_coxreg, tm_g_forest_tte
-12. User: "Add Kaplan-Meier plot and Cox regression"
-13. Agent: Use `tealflow_generate_module_code` for tm_g_km
-14. Agent: Use `tealflow_generate_module_code` for tm_t_coxreg
-15. Agent: Provide both code snippets with clear instructions for adding to app.R
+6. Agent: Use `tealflow_get_dataset_info` on ADSL and ADTTE to inspect structure
+7. Agent: Note available variables (ARM, ARMCD, PARAMCD, AVAL, CNSR, etc.) and their types
+8. Agent: Use `tealflow_generate_data_loading` with discovered datasets
+9. Agent: Provide data loading code to save as `data.R` in project root
+10. Agent: Use `tealflow_get_app_template` to get base app
+11. Agent: Use `tealflow_search_modules_by_analysis` with "survival" to find relevant modules
+12. Agent: Use `tealflow_check_dataset_requirements` for each survival module
+13. Agent: Present compatible options: tm_g_km, tm_t_tte, tm_t_coxreg, tm_g_forest_tte
+14. User: "Add Kaplan-Meier plot and Cox regression"
+15. Agent: Verify ADTTE has required variables (AVAL, CNSR, PARAMCD) from earlier inspection
+16. Agent: Use `tealflow_generate_module_code` for tm_g_km
+17. Agent: Use `tealflow_generate_module_code` for tm_t_coxreg
+18. Agent: Provide both code snippets with clear instructions, noting any variable name adjustments needed
 
 ### Example 2: Understanding Module Options
 
@@ -447,21 +533,40 @@ When providing R code or guidance to users:
 8. Agent: Note that standard ADaM datasets have automatic join keys configured
 9. Agent: If non-standard datasets detected, explain that manual join_keys configuration may be needed
 
-### Example 4: Working with SAP
+### Example 4: Handling Data Incompatibility (GEE with Continuous Data)
+
+1. User: "Add a GEE analysis module for ADQS questionnaire data"
+2. Agent: Use `tealflow_get_dataset_info` on ADQS dataset
+3. Agent: Notice AVAL column contains continuous values (range ~40-70), not binary 0/1
+4. Agent: Check module details for tm_a_gee and see it defaults to logistic regression (requires binary)
+5. Agent: Explain to user: "The tm_a_gee module with logistic regression requires binary 0/1 outcomes, but your ADQS AVAL contains continuous questionnaire scores (40-70 range)"
+6. Agent: Suggest alternatives:
+   - Option 1: Use `tm_a_mmrm` (Mixed Model for Repeated Measures) designed for continuous data
+   - Option 2: If you need GEE, change regression type to linear (not logistic)
+   - Option 3: Create a binary variable from continuous data if appropriate
+7. User: "Use MMRM instead"
+8. Agent: Generate code for tm_a_mmrm
+9. Agent: Verify configuration variables (AVAL, USUBJID, AVISIT) exist in ADQS
+10. Agent: Provide code with appropriate variable configuration
+
+### Example 5: Working with SAP
 
 1. User: "I have a Statistical Analysis Plan (SAP), help me implement it"
 2. Agent: Ask for absolute path to datasets directory
 3. User: Provides path
 4. Agent: Use `tealflow_discover_datasets` to find available datasets
-5. Agent: Use `tealflow_generate_data_loading` to create data loading code
-6. Agent: Provide data loading code to save as `data.R` in project root
-7. Agent: Read SAP_001.txt content
-8. Agent: Analyze and explain what analyses are required
-9. Agent: For each required analysis type, use `tealflow_search_modules_by_analysis`
-10. Agent: Create todo list for implementing each analysis
-11. Agent: Verify dataset compatibility for all proposed modules
-12. Agent: Generate code for each module incrementally
-13. Agent: Guide user through adding each module to the app
+5. Agent: Use `tealflow_get_dataset_info` on each discovered dataset to understand structure
+6. Agent: Document available variables, types, and value ranges for later reference
+7. Agent: Use `tealflow_generate_data_loading` to create data loading code
+8. Agent: Provide data loading code to save as `data.R` in project root
+9. Agent: Read SAP_001.txt content
+10. Agent: Analyze and explain what analyses are required
+11. Agent: For each required analysis type, use `tealflow_search_modules_by_analysis`
+12. Agent: Cross-reference proposed modules with dataset inspection results to verify compatibility
+13. Agent: Create todo list for implementing each analysis
+14. Agent: Verify dataset compatibility for all proposed modules (both datasets present and data characteristics appropriate)
+15. Agent: Generate code for each module incrementally, adjusting configuration based on actual variable names
+16. Agent: Guide user through adding each module to the app with specific variable adjustments if needed
 
 ## References and Additional Information
 
