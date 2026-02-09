@@ -721,6 +721,16 @@ async def generate_module_code_tool(
     It includes all required parameters with sensible defaults based on the module's
     specifications and Flow's available datasets.
 
+    IMPORTANT - Check data compatibility first:
+        Before generating code, use tealflow_get_dataset_info to verify:
+        - Required variables exist in datasets (ARM, PARAMCD, AVAL, etc.)
+        - Data types match module requirements (binary vs continuous, numeric vs categorical)
+        - Variable names match expected configuration (ACTARM vs ARM, AVISITN vs AVISIT)
+        - Value ranges are appropriate for the module (0/1 binary vs continuous scale)
+
+        This prevents runtime errors and enables suggesting appropriate alternatives
+        when standard variables are missing or incompatible.
+
     Args:
         module_name (str, required): Name of the module to generate code for (e.g., 'tm_g_km', 'tm_t_coxreg', 'tm_g_scatterplot').
         parameters (dict[str, Any], optional): Optional parameter overrides as JSON object. Defaults to None. (Not yet implemented)
@@ -741,9 +751,17 @@ async def generate_module_code_tool(
         - Generate Cox regression code: module_name="tm_t_coxreg"
         - Generate without comments: module_name="tm_g_km", include_comments=False
 
+    Recommended workflow:
+        1. Use tealflow_get_dataset_info on relevant datasets
+        2. Verify variable availability and data types
+        3. Generate module code with this tool
+        4. Adjust configuration variables based on dataset inspection results
+        5. Validate with tealflow_check_shiny_startup
+
     Note:
         Generated code uses Flow's standard dataset configuration.
-        You may need to adjust parameters for your specific use case.
+        You may need to adjust parameters for your specific use case based on
+        actual dataset structure discovered through tealflow_get_dataset_info.
     """
     params = GenerateModuleCodeInput(
         module_name=module_name,
