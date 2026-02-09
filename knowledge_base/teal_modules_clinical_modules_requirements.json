@@ -17,7 +17,8 @@
     "modules": {
       "tm_g_ci": {
         "description": "Confidence Interval Plot",
-        "required_datasets": ["ADSL", "ADLB"],
+        "required_datasets": ["ADSL", "BDS_DATASET"],
+        "typical_datasets": ["ADLB", "ADVS", "ADQS"],
         "function_parameters": {
           "required_params": {
             "label": {
@@ -156,7 +157,8 @@
       },
       "tm_g_ipp": {
         "description": "Individual Patient Plot",
-        "required_datasets": ["ADSL", "ADLB"],
+        "required_datasets": ["ADSL", "BDS_DATASET"],
+        "typical_datasets": ["ADLB", "ADVS", "ADQS"],
         "function_parameters": {
           "required_params": {
             "label": {
@@ -240,7 +242,8 @@
       },
       "tm_g_lineplot": {
         "description": "Line Plot",
-        "required_datasets": ["ADSL", "ADLB"],
+        "required_datasets": ["ADSL", "BDS_DATASET"],
+        "typical_datasets": ["ADLB", "ADVS", "ADQS"],
         "function_parameters": {
           "required_params": {
             "label": {
@@ -456,7 +459,8 @@
       },
       "tm_t_ancova": {
         "description": "ANCOVA Table",
-        "required_datasets": ["ADSL", "ADQS"],
+        "required_datasets": ["ADSL", "BDS_CONTINUOUS"],
+        "typical_datasets": ["ADLB", "ADVS", "ADQS"],
         "function_parameters": {
           "required_params": {
             "label": {
@@ -1100,7 +1104,8 @@
       },
       "tm_t_summary": {
         "description": "Summary Table",
-        "required_datasets": ["ADSL", "ADLB"],
+        "required_datasets": ["ADSL", "BDS_DATASET"],
+        "typical_datasets": ["ADLB", "ADVS", "ADQS"],
         "function_parameters": {
           "required_params": {
             "label": {
@@ -1134,7 +1139,8 @@
       },
       "tm_t_summary_by": {
         "description": "Summary Table by Group",
-        "required_datasets": ["ADSL", "ADLB"],
+        "required_datasets": ["ADSL", "BDS_DATASET"],
+        "typical_datasets": ["ADLB", "ADVS", "ADQS"],
         "function_parameters": {
           "required_params": {
             "label": {
@@ -1218,7 +1224,9 @@
       },
       "tm_a_gee": {
         "description": "Generalized Estimating Equations",
-        "required_datasets": ["ADSL", "ADQS"],
+        "required_datasets": ["ADSL", "BDS_DATASET"],
+        "typical_datasets": ["ADLB", "ADVS", "ADQS"],
+        "notes": "Default regression type is logistic (requires binary AVAL). Can use linear regression for continuous AVAL.",
         "function_parameters": {
           "required_params": {
             "label": {
@@ -1268,7 +1276,8 @@
       },
       "tm_a_mmrm": {
         "description": "Mixed Model for Repeated Measures",
-        "required_datasets": ["ADSL", "ADQS"],
+        "required_datasets": ["ADSL", "BDS_CONTINUOUS"],
+        "typical_datasets": ["ADLB", "ADVS", "ADQS"],
         "function_parameters": {
           "required_params": {
             "label": {

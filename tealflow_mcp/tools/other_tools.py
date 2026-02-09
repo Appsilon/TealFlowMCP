@@ -258,6 +258,12 @@ async def tealflow_check_dataset_requirements(params: CheckDatasetRequirementsIn
     Compares module's required datasets against available datasets list
     (defaults to Flow's standard datasets if not specified). Returns
     compatibility status and lists any missing datasets.
+
+    Supports flexible dataset types:
+    - BDS_DATASET: Matches any BDS dataset (ADLB, ADVS, ADQS, etc.)
+    - BDS_CONTINUOUS: Matches BDS datasets typically containing continuous data
+    - BDS_BINARY: Matches BDS datasets that can have binary outcomes
+    - Specific names: ADSL, ADTTE, ADAE, etc.
     """
     try:
         # Validate module exists
@@ -278,6 +284,9 @@ async def tealflow_check_dataset_requirements(params: CheckDatasetRequirementsIn
             module_info = general_data.get("modules", {}).get(params.module_name, {})
 
         required_datasets = module_info.get("required_datasets", [])
+        typical_datasets = module_info.get("typical_datasets", [])
+        dataset_requirements = module_info.get("dataset_requirements", {})
+        notes = module_info.get("notes", "")
         available = params.available_datasets or _get_default_datasets()
 
         # Check compatibility
@@ -299,7 +308,44 @@ async def tealflow_check_dataset_requirements(params: CheckDatasetRequirementsIn
                 indent=2,
             )
 
-        missing = [ds for ds in required_datasets if ds not in available]
+        # Define BDS datasets (Basic Data Structure)
+        BDS_DATASETS = ["ADLB", "ADVS", "ADQS", "ADEG", "ADEX"]
+        BDS_CONTINUOUS_TYPICAL = ["ADLB", "ADVS", "ADQS"]
+        BDS_BINARY_TYPICAL = ["ADRS"]
+
+        # Check each required dataset
+        missing = []
+        matched_datasets = {}
+
+        for req_ds in required_datasets:
+            if req_ds == "BDS_DATASET":
+                # Check if any BDS dataset is available
+                matches = [ds for ds in available if ds in BDS_DATASETS]
+                if matches:
+                    matched_datasets[req_ds] = matches
+                else:
+                    missing.append(req_ds)
+            elif req_ds == "BDS_CONTINUOUS":
+                # Check if any BDS dataset that typically has continuous data is available
+                matches = [ds for ds in available if ds in BDS_CONTINUOUS_TYPICAL or ds in BDS_DATASETS]
+                if matches:
+                    matched_datasets[req_ds] = matches
+                else:
+                    missing.append(req_ds)
+            elif req_ds == "BDS_BINARY":
+                # Check if any BDS dataset that can have binary data is available
+                matches = [ds for ds in available if ds in BDS_BINARY_TYPICAL or ds in BDS_DATASETS]
+                if matches:
+                    matched_datasets[req_ds] = matches
+                else:
+                    missing.append(req_ds)
+            else:
+                # Specific dataset name
+                if req_ds in available:
+                    matched_datasets[req_ds] = [req_ds]
+                else:
+                    missing.append(req_ds)
+
         compatible = len(missing) == 0
 
         # Format response
@@ -313,15 +359,64 @@ async def tealflow_check_dataset_requirements(params: CheckDatasetRequirementsIn
 
             lines.append("")
             lines.append(f"**Required Datasets**: {', '.join(required_datasets)}")
+
+            if typical_datasets:
+                lines.append(f"**Typical Datasets**: {', '.join(typical_datasets)}")
+
             lines.append(f"**Available Datasets**: {', '.join(available)}")
+
+            # Show matched flexible datasets
+            for req_ds, matches in matched_datasets.items():
+                if req_ds in ["BDS_DATASET", "BDS_CONTINUOUS", "BDS_BINARY"]:
+                    lines.append(f"**Matched {req_ds}**: {', '.join(matches)}")
 
             if missing:
                 lines.append(f"**Missing Datasets**: {', '.join(missing)}")
                 lines.append("")
+
+                # Provide specific guidance for flexible dataset types
+                for miss in missing:
+                    if miss == "BDS_DATASET":
+                        lines.append(
+                            f"**{miss}**: This module needs a BDS (Basic Data Structure) dataset. "
+                            "Typical options: ADLB, ADVS, ADQS. Use tealflow_get_dataset_info to verify "
+                            "your dataset has BDS structure (PARAMCD, AVAL, USUBJID, AVISIT)."
+                        )
+                    elif miss == "BDS_CONTINUOUS":
+                        lines.append(
+                            f"**{miss}**: This module needs a BDS dataset with continuous AVAL. "
+                            "Typical options: ADLB (lab values), ADVS (vitals), ADQS (questionnaire scores). "
+                            "Use tealflow_get_dataset_info to verify AVAL contains numeric continuous values."
+                        )
+                    elif miss == "BDS_BINARY":
+                        lines.append(
+                            f"**{miss}**: This module needs a BDS dataset with binary AVAL (0/1). "
+                            "Typical options: ADRS (response data) or derived binary variables. "
+                            "Use tealflow_get_dataset_info to verify AVAL is binary."
+                        )
+                    else:
+                        lines.append(
+                            f"**{miss}**: Specific dataset required. Ensure this dataset is loaded "
+                            "before using this module."
+                        )
+
+                lines.append("")
                 lines.append(
-                    "**Suggestion**: Ensure these datasets are loaded before using this "
-                    "module, or choose a different module."
+                    "**Suggestion**: Use tealflow_get_dataset_info on your available datasets to verify "
+                    "they meet the module's requirements, or choose a different module."
                 )
+
+            # Add dataset requirements details if available
+            if dataset_requirements:
+                lines.append("")
+                lines.append("## Dataset Requirements Details")
+                for ds, req in dataset_requirements.items():
+                    lines.append(f"- **{ds}**: {req}")
+
+            # Add notes if available
+            if notes:
+                lines.append("")
+                lines.append(f"**Note**: {notes}")
 
             response = "\n".join(lines)
         else:
@@ -330,8 +425,12 @@ async def tealflow_check_dataset_requirements(params: CheckDatasetRequirementsIn
                     "module_name": params.module_name,
                     "compatible": compatible,
                     "required_datasets": required_datasets,
+                    "typical_datasets": typical_datasets,
                     "available_datasets": available,
                     "missing_datasets": missing,
+                    "matched_datasets": matched_datasets,
+                    "dataset_requirements": dataset_requirements,
+                    "notes": notes,
                 },
                 indent=2,
             )
