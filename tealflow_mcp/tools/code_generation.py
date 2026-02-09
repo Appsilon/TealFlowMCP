@@ -178,91 +178,13 @@ async def tealflow_generate_module_code(params: GenerateModuleCodeInput) -> str:
 
         param_lines = []
 
-        # Track the actual dataset name for use in paramcd
-        datasets = basic_info.get("required_datasets", [])
-        actual_dataname = datasets[1] if len(datasets) > 1 else datasets[0] if datasets else "ADSL"
-        parent_dataname = datasets[0] if datasets else "ADSL"  # Usually ADSL
-
-        # Check if this is a patient profile module (only label required, special handling)
-        is_patient_profile = params.module_name.startswith(
-            "tm_g_pp_"
-        ) or params.module_name.startswith("tm_t_pp_")
-
-        if is_patient_profile and len(req_params) == 1 and "label" in req_params:
-            # Patient profile modules need dataname and parentname explicitly
-            param_lines.append(f'  label = "{basic_info.get("description", params.module_name)}",')
-            param_lines.append(f'  dataname = "{actual_dataname}",')
-            if len(datasets) > 1:
-                param_lines.append(f'  parentname = "{parent_dataname}",')
-            # Don't process other params for patient profiles with minimal required params
-            req_params = {}  # Clear to skip loop
-
         if req_params:
             for param_name, param_info in req_params.items():
                 if params.include_comments:
                     param_lines.append(f"  # {param_info.get('description', '')}")
 
-                # Generate sensible defaults based on common patterns
-                if param_name == "label":
-                    param_lines.append(
-                        f'  label = "{basic_info.get("description", params.module_name)}",'
-                    )
-                elif param_name == "dataname":
-                    # Get first required dataset
-                    datasets = basic_info.get("required_datasets", [])
-                    actual_dataname = (
-                        datasets[1] if len(datasets) > 1 else datasets[0] if datasets else "ADSL"
-                    )
-                    param_lines.append(f'  dataname = "{actual_dataname}",')
-                elif "arm_var" in param_name:
-                    param_lines.append(
-                        '  arm_var = choices_selected(variable_choices(ADSL, subset = arm_vars), selected = "ARM"),'
-                    )
-                elif param_name == "paramcd":
-                    # Use the actual dataset variable, not the string "dataname"
-                    param_lines.append(
-                        f"  paramcd = choices_selected(value_choices({actual_dataname}, "
-                        f'"PARAMCD", "PARAM"), selected = NULL),'
-                    )
-                elif param_name == "strata_var":
-                    param_lines.append(
-                        "  strata_var = choices_selected(variable_choices(ADSL, "
-                        'subset = strata_vars), selected = "STRATA1"),'
-                    )
-                elif param_name == "facet_var":
-                    param_lines.append(
-                        "  facet_var = choices_selected(variable_choices(ADSL, subset = facet_vars), selected = NULL),"
-                    )
-                elif "subgroup_var" in param_name:
-                    # Limit to categorical variables (facet_vars) to avoid character type errors
-                    param_lines.append(
-                        "  subgroup_var = choices_selected(variable_choices(ADSL, "
-                        "subset = facet_vars), selected = NULL),"
-                    )
-                elif param_name == "time_points":
-                    # Common time points for survival analysis (days)
-                    param_lines.append("  time_points = choices_selected(c(182, 365, 547), 182),")
-                elif param_name == "hlt":
-                    # High Level Term variable selection for adverse events (MedDRA hierarchy)
-                    param_lines.append(
-                        f"  hlt = choices_selected(variable_choices({actual_dataname}, "
-                        f'c("AEBODSYS", "AEHLT")), selected = "AEBODSYS"),'
-                    )
-                elif param_name == "llt":
-                    # Low Level Term variable selection for adverse events
-                    param_lines.append(
-                        f"  llt = choices_selected(variable_choices({actual_dataname}, "
-                        f'c("AEDECOD", "AELLT")), selected = "AEDECOD"),'
-                    )
-                elif param_name == "grade":
-                    # Grade/severity variable for AE
-                    param_lines.append(
-                        f"  grade = choices_selected(variable_choices({actual_dataname}, "
-                        f'"AETOXGR"), selected = "AETOXGR"),'
-                    )
-                else:
-                    # Generic placeholder
-                    param_lines.append(f"  {param_name} = # TODO: Configure {param_name},")
+                # Generic placeholder
+                param_lines.append(f"  {param_name} = # TODO: Configure {param_name},")
 
         # Add some common optional parameters
         if params.include_comments:
