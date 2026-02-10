@@ -168,20 +168,26 @@ async def list_modules_tool(
     Returns:
         str: List of modules with names, descriptions, and required datasets
 
+        Dataset requirements may include flexible types:
+        - BDS_DATASET: Works with any BDS-structured dataset
+        - BDS_CONTINUOUS: Works with BDS datasets containing continuous data
+        - BDS_BINARY: Works with BDS datasets containing binary outcomes
+        - Specific names (ADSL, ADTTE, ADAE): Require exact dataset match
+
         Markdown format:
             # Teal Modules (Package Name)
 
             ## module_name
             **Description**: Module description
-            **Required Datasets**: ADSL, ADTTE (or "None")
+            **Required Datasets**: ADSL, BDS_CONTINUOUS (or "None")
 
         JSON format:
             {
                 "modules": [
                     {
-                        "name": "tm_g_km",
-                        "description": "Kaplan-Meier Plot",
-                        "required_datasets": ["ADSL", "ADTTE"]
+                        "name": "tm_t_ancova",
+                        "description": "ANCOVA Table",
+                        "required_datasets": ["ADSL", "BDS_CONTINUOUS"]
                     }
                 ],
                 "count": 10
@@ -191,6 +197,10 @@ async def list_modules_tool(
         - List all clinical modules: package="clinical"
         - List graphics modules: category="graphics"
         - Get machine-readable list: response_format="json"
+
+    Note:
+        Use tealflow_get_module_details to see typical datasets and detailed requirements
+        for modules with flexible dataset types.
     """
     params = ListModulesInput(
         package=PackageFilter(package),
@@ -230,12 +240,21 @@ async def get_module_details_tool(
 
         Includes:
         - Module description
-        - Required datasets
+        - Required datasets (may include flexible types: BDS_DATASET, BDS_CONTINUOUS, BDS_BINARY)
+        - Typical datasets (examples of datasets that satisfy flexible requirements)
+        - Dataset requirements (detailed descriptions of what each dataset needs)
+        - Notes (special considerations like regression type for tm_a_gee)
         - Required parameters (no defaults)
         - Optional parameters (with defaults)
         - Parameter types and constraints
         - R help documentation (complete help text from R's help system)
         - Usage examples from R documentation
+
+    Flexible Dataset Types:
+        - BDS_DATASET: Any BDS-structured dataset (ADLB, ADVS, ADQS, ADEG, ADEX)
+        - BDS_CONTINUOUS: BDS dataset with continuous AVAL (typically ADLB, ADVS, ADQS)
+        - BDS_BINARY: BDS dataset with binary AVAL 0/1 (typically ADRS)
+        - Specific names (ADSL, ADTTE, ADAE): Require exact dataset match
 
     Error Handling:
         - Returns error if module not found
@@ -246,6 +265,7 @@ async def get_module_details_tool(
     Examples:
         - Get details for KM plot: module_name="tm_g_km"
         - Get Cox regression info: module_name="tm_t_coxreg"
+        - Get ANCOVA details (shows BDS_CONTINUOUS): module_name="tm_t_ancova"
         - Get JSON format: response_format="json"
     """
     params = GetModuleDetailsInput(
@@ -286,8 +306,11 @@ async def search_modules_tool(
         Includes:
         - Analysis category matches (structured)
         - Module names and descriptions
-        - Required datasets
+        - Required datasets (may include flexible types: BDS_DATASET, BDS_CONTINUOUS, BDS_BINARY)
         - Category descriptions
+
+        Note: Dataset requirements may use flexible types. Use tealflow_get_module_details
+        to see typical datasets and tealflow_check_dataset_requirements to verify compatibility.
 
     Predefined Analysis Categories:
         Clinical: survival_analysis, safety_analysis, efficacy_analysis,
@@ -299,6 +322,7 @@ async def search_modules_tool(
         - Find survival analysis modules: analysis_type="survival"
         - Find safety modules: analysis_type="safety"
         - Find visualization modules: analysis_type="visualization"
+        - Find efficacy modules: analysis_type="efficacy"
     """
     params = SearchModulesInput(
         analysis_type=analysis_type,
@@ -319,7 +343,7 @@ async def search_modules_tool(
 )
 async def check_dataset_requirements_tool(
     module_name: str,
-    available_datasets: list[str] | None = None,
+    available_datasets: list[str],
     response_format: str = "markdown"
 ) -> str:
     """
@@ -327,25 +351,49 @@ async def check_dataset_requirements_tool(
 
     This tool validates whether you have all necessary datasets before attempting
     to use a module. It compares the module's dataset requirements against your
-    available datasets and provides clear feedback.
+    available datasets and provides clear feedback. Supports flexible dataset types
+    that match multiple dataset names.
+
+    **IMPORTANT**: Before checking compatibility, use tealflow_get_dataset_info to verify
+    that your datasets have the correct structure and data types for the module:
+    - For BDS_CONTINUOUS modules (ANCOVA, MMRM): Verify AVAL is continuous numeric
+    - For BDS_BINARY modules (logistic GEE): Verify AVAL is binary 0/1
+    - For all BDS modules: Verify required columns exist (PARAMCD, AVISIT, USUBJID, etc.)
 
     Args:
         module_name (str, required): Name of the module to check dataset requirements for.
-        available_datasets (list[str], optional): List of available dataset names. Defaults to Flow's standard datasets: ['ADSL', 'ADTTE', 'ADRS', 'ADQS', 'ADAE'].
+        available_datasets (list[str], required): List of available dataset names (e.g., ['ADSL', 'ADLB', 'ADVS']).
         response_format (str, optional): Output format - 'markdown' for human-readable or 'json' for machine-readable. Defaults to 'markdown'.
 
     Returns:
-        str: Compatibility report with status and missing datasets
+        str: Compatibility report with status and missing/matched datasets
 
         Includes:
         - Compatibility status (compatible/incompatible)
-        - List of required datasets
+        - List of required datasets (with flexible types if applicable)
+        - Matched datasets (which available datasets satisfy flexible requirements)
+        - Typical datasets (examples for flexible types)
+        - Dataset requirements (detailed descriptions)
+        - Notes (special considerations)
         - List of missing datasets (if any)
-        - Suggestions for alternatives
+        - Suggestions for alternatives and guidance
+
+    Flexible Dataset Type Matching:
+        - BDS_DATASET: Matches ADLB, ADVS, ADQS, ADEG, ADEX (any BDS structure)
+        - BDS_CONTINUOUS: Matches ADLB, ADVS, ADQS (BDS with continuous data)
+        - BDS_BINARY: Matches ADRS (BDS with binary outcomes)
+        - Specific names: Must match exactly (ADSL matches ADSL, ADTTE matches ADTTE)
 
     Examples:
-        - Check with defaults: module_name="tm_g_km"
+        - Check KM plot (specific dataset): module_name="tm_g_km", available_datasets=["ADSL", "ADTTE"]
+        - Check ANCOVA (flexible BDS_CONTINUOUS): module_name="tm_t_ancova", available_datasets=["ADSL", "ADLB"]
         - Check with custom datasets: module_name="tm_g_km", available_datasets=["ADSL", "ADTTE", "ADLB"]
+
+    Recommended Workflow:
+        1. Call tealflow_discover_datasets to find available datasets
+        2. Call tealflow_get_dataset_info to verify structure and data types
+        3. Call this tool to check compatibility
+        4. If compatible and data types verified, proceed with module generation
     """
     params = CheckDatasetRequirementsInput(
         module_name=module_name,

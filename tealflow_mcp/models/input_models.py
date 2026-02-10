@@ -84,9 +84,10 @@ class CheckDatasetRequirementsInput(BaseModel):
     module_name: str = Field(
         ..., description="Name of the module to check", min_length=3, max_length=100
     )
-    available_datasets: list[str] | None = Field(
-        default=None,
-        description="List of available datasets (defaults to Flow's standard: ADSL, ADTTE, ADRS, ADQS, ADAE)",
+    available_datasets: list[str] = Field(
+        ...,
+        description="List of available datasets",
+        min_length=1,
     )
     response_format: ResponseFormat = Field(
         default=ResponseFormat.MARKDOWN,

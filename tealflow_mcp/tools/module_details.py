@@ -66,6 +66,24 @@ async def tealflow_get_module_details(params: GetModuleDetailsInput) -> str:
                 lines.append(f"**Required Datasets**: {', '.join(datasets)}")
             else:
                 lines.append("**Required Datasets**: None (works with any data.frame)")
+
+            # Typical datasets (for flexible modules)
+            typical = basic_info.get("typical_datasets", [])
+            if typical:
+                lines.append(f"**Typical Datasets**: {', '.join(typical)}")
+
+            # Dataset requirements details
+            ds_reqs = basic_info.get("dataset_requirements", {})
+            if ds_reqs:
+                lines.append("**Dataset Requirements**:")
+                for ds_name, req_desc in ds_reqs.items():
+                    lines.append(f"  - {ds_name}: {req_desc}")
+
+            # Notes (for special requirements)
+            notes = basic_info.get("notes", "")
+            if notes:
+                lines.append(f"**Note**: {notes}")
+
             lines.append("")
 
             # Function parameters
@@ -117,6 +135,9 @@ async def tealflow_get_module_details(params: GetModuleDetailsInput) -> str:
                     "package": f"teal.modules.{package}",
                     "description": basic_info.get("description", ""),
                     "required_datasets": basic_info.get("required_datasets", []),
+                    "typical_datasets": basic_info.get("typical_datasets", []),
+                    "dataset_requirements": basic_info.get("dataset_requirements", {}),
+                    "notes": basic_info.get("notes", ""),
                     "parameters": module_info.get("function_parameters", {}),
                     "r_help": r_help,
                 },

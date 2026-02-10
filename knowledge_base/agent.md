@@ -357,6 +357,15 @@ These datasets follow CDISC standards and include standard variables like:
 - Suitable for questionnaire scores, lab values, etc.
 - AVAL should contain numeric continuous values
 - Good alternative to GEE when data is continuous
+- **Works with**: ADLB (lab values), ADVS (vitals), ADQS (questionnaires), or any BDS dataset with continuous AVAL
+
+### tm_t_ancova (ANCOVA)
+
+**Data requirements**:
+- Requires continuous outcome variable (AVAL)
+- Needs covariates for adjustment
+- Visit variable (AVISIT) for repeated measures
+- **Works with**: ADLB (lab efficacy endpoints like glucose, HbA1c), ADVS (vital signs), ADQS (questionnaire scores), or any BDS dataset with continuous AVAL
 
 ### tm_g_forest_tte
 
@@ -548,6 +557,19 @@ When providing R code or guidance to users:
 8. Agent: Generate code for tm_a_mmrm
 9. Agent: Verify configuration variables (AVAL, USUBJID, AVISIT) exist in ADQS
 10. Agent: Provide code with appropriate variable configuration
+
+### Example 6: Using Statistical Modules with Lab Data (ADLB)
+
+1. User: "I want to analyze glucose levels over time with ANCOVA"
+2. Agent: Use `tealflow_discover_datasets` to find available datasets
+3. Agent: User has ADSL and ADLB datasets
+4. Agent: Use `tealflow_get_dataset_info` on ADLB
+5. Agent: Verify ADLB has required variables: PARAMCD (includes glucose), AVAL (continuous lab values), AVISIT
+6. Agent: Use `tealflow_check_dataset_requirements` for tm_t_ancova
+7. Agent: Explain: "tm_t_ancova requires BDS_CONTINUOUS dataset. Your ADLB matches - it has continuous AVAL for lab values."
+8. Agent: Generate tm_t_ancova code configured for ADLB
+9. Agent: Include parameter filter for glucose: `paramcd = choices_selected(value_choices(ADLB, "PARAMCD"), "GLUC")`
+10. Agent: User successfully analyzes glucose efficacy with ANCOVA
 
 ### Example 5: Working with SAP
 
