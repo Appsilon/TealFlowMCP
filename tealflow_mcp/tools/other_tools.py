@@ -367,8 +367,8 @@ async def tealflow_check_dataset_requirements(params: CheckDatasetRequirementsIn
                 # For each flexible dataset type, show options
                 for _, options in flexible_options:
                     for opt in options:
-                        combo = [*specific_datasets, opt]
-                        compatible_combinations.append(" + ".join(combo))
+                        combo_list = [*specific_datasets, opt]
+                        compatible_combinations.append(" + ".join(combo_list))
             else:
                 # Only specific datasets
                 if specific_datasets:
