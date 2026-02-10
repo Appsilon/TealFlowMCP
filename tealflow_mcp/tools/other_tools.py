@@ -9,7 +9,6 @@ from ..core.enums import ResponseFormat
 from ..data import (
     _get_clinical_by_analysis_type,
     _get_clinical_modules,
-    _get_default_datasets,
     _get_general_by_analysis_type,
     _get_general_modules,
 )
@@ -255,9 +254,8 @@ async def tealflow_check_dataset_requirements(params: CheckDatasetRequirementsIn
     """
     Validate dataset availability for a specific module.
 
-    Compares module's required datasets against available datasets list
-    (defaults to Flow's standard datasets if not specified). Returns
-    compatibility status and lists any missing datasets.
+    Compares module's required datasets against available datasets list.
+    Returns compatibility status and lists any missing datasets.
 
     Supports flexible dataset types:
     - BDS_DATASET: Matches any BDS dataset (ADLB, ADVS, ADQS, etc.)
@@ -287,7 +285,7 @@ async def tealflow_check_dataset_requirements(params: CheckDatasetRequirementsIn
         typical_datasets = module_info.get("typical_datasets", [])
         dataset_requirements = module_info.get("dataset_requirements", {})
         notes = module_info.get("notes", "")
-        available = params.available_datasets or _get_default_datasets()
+        available = params.available_datasets
 
         # Check compatibility
         if not required_datasets:
@@ -348,6 +346,34 @@ async def tealflow_check_dataset_requirements(params: CheckDatasetRequirementsIn
 
         compatible = len(missing) == 0
 
+        # Build compatible combinations for markdown output
+        compatible_combinations = []
+        if compatible:
+            # Build all possible dataset combinations
+            specific_datasets = []
+            flexible_options = []
+
+            for req_ds in required_datasets:
+                matches = matched_datasets.get(req_ds, [])
+                if req_ds in ["BDS_DATASET", "BDS_CONTINUOUS", "BDS_BINARY"]:
+                    # Flexible type - can use any of the matches
+                    flexible_options.append((req_ds, matches))
+                else:
+                    # Specific dataset
+                    specific_datasets.extend(matches)
+
+            # Generate combinations
+            if flexible_options:
+                # For each flexible dataset type, show options
+                for _, options in flexible_options:
+                    for opt in options:
+                        combo = [*specific_datasets, opt]
+                        compatible_combinations.append(" + ".join(combo))
+            else:
+                # Only specific datasets
+                if specific_datasets:
+                    compatible_combinations.append(" + ".join(specific_datasets))
+
         # Format response
         if params.response_format == ResponseFormat.MARKDOWN:
             lines = [f"# Dataset Compatibility: {params.module_name}", ""]
@@ -357,6 +383,18 @@ async def tealflow_check_dataset_requirements(params: CheckDatasetRequirementsIn
             else:
                 lines.append("❌ **Incompatible** - Missing required datasets")
 
+            lines.append("")
+
+            # Show compatible combinations first (most important info)
+            if compatible and compatible_combinations:
+                lines.append("## Compatible Dataset Combinations")
+                lines.append("")
+                lines.append("You can use this module with any of these dataset combinations:")
+                for combo in compatible_combinations:
+                    lines.append(f"- **{combo}**")
+                lines.append("")
+
+            lines.append("## Details")
             lines.append("")
             lines.append(f"**Required Datasets**: {', '.join(required_datasets)}")
 
@@ -424,6 +462,7 @@ async def tealflow_check_dataset_requirements(params: CheckDatasetRequirementsIn
                 {
                     "module_name": params.module_name,
                     "compatible": compatible,
+                    "compatible_combinations": compatible_combinations,
                     "required_datasets": required_datasets,
                     "typical_datasets": typical_datasets,
                     "available_datasets": available,

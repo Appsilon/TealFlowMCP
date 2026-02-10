@@ -83,7 +83,10 @@ async def test_mcp_server():
     print("\n✅ Test 4: Check dataset requirements for tm_g_km")
     print("-" * 70)
     result = await tealflow_check_dataset_requirements(
-        CheckDatasetRequirementsInput(module_name="tm_g_km")
+        CheckDatasetRequirementsInput(
+            module_name="tm_g_km",
+            available_datasets=["ADSL", "ADTTE"]
+        )
     )
     print("Compatibility:", result[:300] + "...")
 

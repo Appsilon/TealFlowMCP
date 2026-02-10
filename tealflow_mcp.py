@@ -343,7 +343,7 @@ async def search_modules_tool(
 )
 async def check_dataset_requirements_tool(
     module_name: str,
-    available_datasets: list[str] | None = None,
+    available_datasets: list[str],
     response_format: str = "markdown"
 ) -> str:
     """
@@ -362,7 +362,7 @@ async def check_dataset_requirements_tool(
 
     Args:
         module_name (str, required): Name of the module to check dataset requirements for.
-        available_datasets (list[str], optional): List of available dataset names. Defaults to Flow's standard datasets: ['ADSL', 'ADTTE', 'ADRS', 'ADQS', 'ADAE'].
+        available_datasets (list[str], required): List of available dataset names (e.g., ['ADSL', 'ADLB', 'ADVS']).
         response_format (str, optional): Output format - 'markdown' for human-readable or 'json' for machine-readable. Defaults to 'markdown'.
 
     Returns:
@@ -385,7 +385,7 @@ async def check_dataset_requirements_tool(
         - Specific names: Must match exactly (ADSL matches ADSL, ADTTE matches ADTTE)
 
     Examples:
-        - Check KM plot (specific dataset): module_name="tm_g_km"
+        - Check KM plot (specific dataset): module_name="tm_g_km", available_datasets=["ADSL", "ADTTE"]
         - Check ANCOVA (flexible BDS_CONTINUOUS): module_name="tm_t_ancova", available_datasets=["ADSL", "ADLB"]
         - Check with custom datasets: module_name="tm_g_km", available_datasets=["ADSL", "ADTTE", "ADLB"]
 
