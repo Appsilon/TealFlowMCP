@@ -307,9 +307,9 @@ async def tealflow_check_dataset_requirements(params: CheckDatasetRequirementsIn
             )
 
         # Define BDS datasets (Basic Data Structure)
-        BDS_DATASETS = ["ADLB", "ADVS", "ADQS", "ADEG", "ADEX"]
-        BDS_CONTINUOUS_TYPICAL = ["ADLB", "ADVS", "ADQS"]
-        BDS_BINARY_TYPICAL = ["ADRS"]
+        bds_datasets = ["ADLB", "ADVS", "ADQS", "ADEG", "ADEX"]
+        bds_continuous_typical = ["ADLB", "ADVS", "ADQS"]
+        bds_binary_typical = ["ADRS"]
 
         # Check each required dataset
         missing = []
@@ -318,21 +318,23 @@ async def tealflow_check_dataset_requirements(params: CheckDatasetRequirementsIn
         for req_ds in required_datasets:
             if req_ds == "BDS_DATASET":
                 # Check if any BDS dataset is available
-                matches = [ds for ds in available if ds in BDS_DATASETS]
+                matches = [ds for ds in available if ds in bds_datasets]
                 if matches:
                     matched_datasets[req_ds] = matches
                 else:
                     missing.append(req_ds)
             elif req_ds == "BDS_CONTINUOUS":
                 # Check if any BDS dataset that typically has continuous data is available
-                matches = [ds for ds in available if ds in BDS_CONTINUOUS_TYPICAL or ds in BDS_DATASETS]
+                matches = [
+                    ds for ds in available if ds in bds_continuous_typical or ds in bds_datasets
+                ]
                 if matches:
                     matched_datasets[req_ds] = matches
                 else:
                     missing.append(req_ds)
             elif req_ds == "BDS_BINARY":
                 # Check if any BDS dataset that can have binary data is available
-                matches = [ds for ds in available if ds in BDS_BINARY_TYPICAL or ds in BDS_DATASETS]
+                matches = [ds for ds in available if ds in bds_binary_typical or ds in bds_datasets]
                 if matches:
                     matched_datasets[req_ds] = matches
                 else:
