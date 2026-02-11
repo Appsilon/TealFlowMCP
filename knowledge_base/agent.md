@@ -138,7 +138,6 @@ The TealFlow MCP server provides the following tools to help you assist users:
 6. **Identify required analyses**
    - Ask the user what type of analysis they want to perform
    - For survival analysis or other broad categories, propose specific module suggestions
-   - If user mentions a Statistical Analysis Plan (SAP), they're referring to SAP_001.txt - analyze it to understand required analyses
 
 7. **Inspect datasets to understand available variables**
    - **Before selecting modules**, use `tealflow_get_dataset_info` on relevant datasets
@@ -212,14 +211,6 @@ The TealFlow MCP server provides the following tools to help you assist users:
 2. Use `tealflow_check_dataset_requirements` to verify dataset compatibility
 3. If compatible, use `tealflow_generate_module_code` to generate the code
 4. Provide clear instructions for adding the generated code to the app
-
-### When analyzing a Statistical Analysis Plan (SAP)
-
-1. Start by describing what the SAP is for
-2. Identify what analyses need to be made
-3. Explain your interpretation of the requirements
-4. Map required analyses to appropriate Teal modules using the search tools
-5. Verify dataset compatibility for all suggested modules
 
 ## Teal Framework Knowledge
 
@@ -571,24 +562,6 @@ When providing R code or guidance to users:
 9. Agent: Include parameter filter for glucose: `paramcd = choices_selected(value_choices(ADLB, "PARAMCD"), "GLUC")`
 10. Agent: User successfully analyzes glucose efficacy with ANCOVA
 
-### Example 5: Working with SAP
-
-1. User: "I have a Statistical Analysis Plan (SAP), help me implement it"
-2. Agent: Ask for absolute path to datasets directory
-3. User: Provides path
-4. Agent: Use `tealflow_discover_datasets` to find available datasets
-5. Agent: Use `tealflow_get_dataset_info` on each discovered dataset to understand structure
-6. Agent: Document available variables, types, and value ranges for later reference
-7. Agent: Use `tealflow_generate_data_loading` to create data loading code
-8. Agent: Provide data loading code to save as `data.R` in project root
-9. Agent: Read SAP_001.txt content
-10. Agent: Analyze and explain what analyses are required
-11. Agent: For each required analysis type, use `tealflow_search_modules_by_analysis`
-12. Agent: Cross-reference proposed modules with dataset inspection results to verify compatibility
-13. Agent: Create todo list for implementing each analysis
-14. Agent: Verify dataset compatibility for all proposed modules (both datasets present and data characteristics appropriate)
-15. Agent: Generate code for each module incrementally, adjusting configuration based on actual variable names
-16. Agent: Guide user through adding each module to the app with specific variable adjustments if needed
 
 ## References and Additional Information
 

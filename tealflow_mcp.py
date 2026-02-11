@@ -417,7 +417,7 @@ async def list_datasets_tool(
     response_format: str = "markdown"
 ) -> str:
     """
-    List available clinical trial datasets in the Flow project.
+    List available clinical trial datasets in the project.
 
     This tool provides information about the standard ADaM datasets available
     for use with Teal clinical modules. These datasets follow CDISC standards
