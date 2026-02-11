@@ -33,6 +33,23 @@ This server implements the **Model Context Protocol (MCP)** standard and works w
 
 The server is LLM-agnostic—it provides tools that any LLM can use to build Teal applications.
 
+### Adding to Your Editor/IDE
+
+Add this configuration to your editor's MCP settings file:
+
+```json
+{
+  "tealflow-mcp": {
+    "command": "uv",
+    "args": ["--directory", "/absolute/path/to/TealFlowMCP", "run", "tealflow_mcp.py"]
+  }
+}
+```
+
+**Important:** Replace `/absolute/path/to/TealFlowMCP` with the actual absolute path to your cloned repository.
+
+Consult your editor's documentation for the exact location of the MCP configuration file. See the [Quickstart Guide](docs/QUICKSTART.md) and [Configuration Guide](docs/CONFIGURATION.md) for detailed setup instructions.
+
 ## Architecture
 
 The MCP server is organized as a modular Python package for maintainability and extensibility:
