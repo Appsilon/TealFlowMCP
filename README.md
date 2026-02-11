@@ -260,3 +260,9 @@ The LLM will automatically:
 - Generate complete app code
 
 **[View usage examples and FAQs →](docs/CONFIGURATION.md)**
+
+## About Appsilon
+
+TealFlowMCP is developed by [Appsilon](https://appsilon.com), a trusted technology partner for pharmaceutical and life sciences companies specializing in accelerating drug development through open-source solutions. Appsilon helps organizations transition from legacy systems to modern, validated open-source analytics while maintaining strict regulatory compliance.
+
+Learn more at [appsilon.com](https://appsilon.com)
