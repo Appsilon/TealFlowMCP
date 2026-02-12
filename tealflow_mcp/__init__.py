@@ -13,6 +13,8 @@ The server helps with:
 - Generating R code for Teal apps
 """
 
+__version__ = "0.1.0"
+
 from .core import PackageFilter, ResponseFormat
 from .models import (
     CheckDatasetRequirementsInput,
@@ -48,6 +50,7 @@ from .tools import (
 )
 
 __all__ = [
+    "__version__",
     "CheckDatasetRequirementsInput",
     "CheckShinyStartupInput",
     "DiscoverDatasetsInput",

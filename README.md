@@ -1,5 +1,10 @@
 # TealFlowMCP
 
+[![PyPI version](https://badge.fury.io/py/tealflow-mcp.svg)](https://badge.fury.io/py/tealflow-mcp)
+[![Python versions](https://img.shields.io/pypi/pyversions/tealflow-mcp.svg)](https://pypi.org/project/tealflow-mcp/)
+[![License: LGPL v3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
+[![Downloads](https://pepy.tech/badge/tealflow-mcp)](https://pepy.tech/project/tealflow-mcp)
+
 An MCP (Model Context Protocol) server that enables LLMs to discover, understand, and generate [Teal](https://insightsengineering.github.io/teal/) R Shiny applications for clinical trial data analysis.
 
 Currently supports two Teal module packages:
@@ -19,8 +24,8 @@ Currently supports two Teal module packages:
 ## Prerequisites
 
 * Python 3.10+
-
-* uv (Python project manager) installed and available in your PATH.
+* uv (Python project manager) installed and available in your PATH
+* R (required for running generated Teal applications)
 
 ## MCP Compatibility
 
@@ -75,16 +80,30 @@ TealFlowMCP/
 
 ## Installation
 
-### Install Dependencies
+### Option 1: Install from PyPI (Recommended)
 
-Install dependencies with uv:
-
+```bash
+pip install tealflow-mcp
 ```
+
+### Option 2: Install from Source (Development)
+
+Clone the repository and install dependencies:
+
+```bash
+git clone https://github.com/Appsilon/TealFlowMCP.git
+cd TealFlowMCP
 uv sync
 ```
 
 ### Verify Installation
 
+For pip installation:
+```bash
+tealflow-mcp --version
+```
+
+For source installation:
 ```bash
 uv run python tests/test_mcp_server.py
 ```

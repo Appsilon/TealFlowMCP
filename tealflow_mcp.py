@@ -1024,6 +1024,12 @@ async def snapshot_renv_environment_tool(
 # Main Entry Point
 # ============================================================================
 
+
+def main() -> None:
+    """Entry point for the tealflow-mcp console command."""
+    mcp.run()
+
+
 if __name__ == "__main__":
     # Run the MCP server
-    mcp.run()
+    main()
