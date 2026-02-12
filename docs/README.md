@@ -1,6 +1,55 @@
 # TealFlowMCP Documentation
 
+This directory contains the source files for the TealFlowMCP documentation website, built with [MkDocs Material](https://squidfunk.github.io/mkdocs-material/).
+
 Complete documentation for TealFlowMCP - an MCP server for building Teal R Shiny applications.
+
+## 📚 View Documentation Online
+
+**Live Documentation**: [https://appsilon.github.io/TealFlowMCP/](https://appsilon.github.io/TealFlowMCP/)
+
+## Local Development
+
+### Prerequisites
+
+Install documentation dependencies:
+
+```bash
+# Install using uv
+uv sync --group docs
+
+# Or install directly with pip
+pip install mkdocs-material mkdocstrings[python] mkdocs-minify-plugin mkdocs-git-revision-date-localized-plugin
+```
+
+### Build and Serve Locally
+
+```bash
+# Serve documentation locally with live reload
+mkdocs serve
+
+# Open browser to http://127.0.0.1:8000/
+```
+
+### Build Static Site
+
+```bash
+# Build static HTML files to site/ directory
+mkdocs build
+
+# Build with strict mode (fails on warnings)
+mkdocs build --strict
+```
+
+## Deployment
+
+Documentation is automatically deployed to GitHub Pages when changes are pushed to the `main` branch via the [docs workflow](../.github/workflows/docs.yml).
+
+### Manual Deployment
+
+```bash
+mkdocs gh-deploy
+```
 
 ## Documentation Files
 

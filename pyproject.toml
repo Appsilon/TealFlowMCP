@@ -66,6 +66,13 @@ dev = [
     "mypy>=1.0.0",
     "pandas-stubs>=2.0.0",
 ]
+docs = [
+    "mkdocs-material>=9.0.0",
+    "mkdocstrings[python]>=0.24.0",
+    "mkdocs-minify-plugin>=0.8.0",
+    "mkdocs-git-revision-date-localized-plugin>=1.2.0",
+    "mkdocs-include-markdown-plugin>=6.0.0",
+]
 
 [tool.ruff]
 # Set the maximum line length to 100

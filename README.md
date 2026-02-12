@@ -4,6 +4,7 @@
 [![Python versions](https://img.shields.io/pypi/pyversions/tealflow-mcp.svg)](https://pypi.org/project/tealflow-mcp/)
 [![License: LGPL v3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
 [![Downloads](https://pepy.tech/badge/tealflow-mcp)](https://pepy.tech/project/tealflow-mcp)
+[![Documentation](https://img.shields.io/badge/docs-mkdocs-blue.svg)](https://appsilon.github.io/TealFlowMCP/)
 
 An MCP (Model Context Protocol) server that enables LLMs to discover, understand, and generate [Teal](https://insightsengineering.github.io/teal/) R Shiny applications for clinical trial data analysis.
 
