@@ -50,7 +50,6 @@ from .tools import (
 )
 
 __all__ = [
-    "__version__",
     "CheckDatasetRequirementsInput",
     "CheckShinyStartupInput",
     "DiscoverDatasetsInput",
@@ -66,6 +65,7 @@ __all__ = [
     "SearchModulesInput",
     "SetupRenvEnvironmentInput",
     "SnapshotRenvEnvironmentInput",
+    "__version__",
     "tealflow_check_dataset_requirements",
     "tealflow_check_shiny_startup",
     "tealflow_discover_datasets",
