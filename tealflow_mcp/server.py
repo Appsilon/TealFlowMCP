@@ -5,6 +5,8 @@ This module contains the MCP server setup and tool registration.
 It should be imported and run via the main() function in __init__.py.
 """
 
+from typing import Any
+
 from mcp.server.fastmcp import FastMCP
 
 from .core import PackageFilter, ResponseFormat
@@ -40,6 +42,10 @@ from .tools import (
     tealflow_snapshot_renv_environment,
 )
 
+# Type alias for MCP tool annotations to satisfy mypy
+# FastMCP expects a ToolAnnotations type that's not publicly exported
+ToolAnnotations = dict[str, Any]
+
 # Initialize the MCP server
 mcp = FastMCP(
     "tealflow_mcp",
@@ -60,7 +66,7 @@ mcp = FastMCP(
 
 @mcp.tool(
     name="tealflow_agent_guidance",
-    annotations={
+    annotations={  # type: ignore[arg-type]
         "title": "Get Agent Guidance",
         "readOnlyHint": True,
         "destructiveHint": False,
@@ -130,7 +136,7 @@ async def get_agent_guidance_tool() -> str:
 
 @mcp.tool(
     name="tealflow_list_modules",
-    annotations={
+    annotations={  # type: ignore[arg-type]
         "title": "List Teal Modules",
         "readOnlyHint": True,
         "destructiveHint": False,
@@ -202,7 +208,7 @@ async def list_modules_tool(
 
 @mcp.tool(
     name="tealflow_get_module_details",
-    annotations={
+    annotations={  # type: ignore[arg-type]
         "title": "Get Module Details",
         "readOnlyHint": True,
         "destructiveHint": False,
@@ -263,7 +269,7 @@ async def get_module_details_tool(module_name: str, response_format: str = "mark
 
 @mcp.tool(
     name="tealflow_search_modules_by_analysis",
-    annotations={
+    annotations={  # type: ignore[arg-type]
         "title": "Search Modules by Analysis Type",
         "readOnlyHint": True,
         "destructiveHint": False,
@@ -315,7 +321,7 @@ async def search_modules_tool(analysis_type: str, response_format: str = "markdo
 
 @mcp.tool(
     name="tealflow_check_dataset_requirements",
-    annotations={
+    annotations={  # type: ignore[arg-type]
         "title": "Check Dataset Requirements",
         "readOnlyHint": True,
         "destructiveHint": False,
@@ -385,7 +391,7 @@ async def check_dataset_requirements_tool(
 
 @mcp.tool(
     name="tealflow_list_datasets",
-    annotations={
+    annotations={  # type: ignore[arg-type]
         "title": "List Available Datasets",
         "readOnlyHint": True,
         "destructiveHint": False,
@@ -423,7 +429,7 @@ async def list_datasets_tool(response_format: str = "markdown") -> str:
 
 @mcp.tool(
     name="tealflow_discover_datasets",
-    annotations={
+    annotations={  # type: ignore[arg-type]
         "title": "Discover ADaM Datasets",
         "readOnlyHint": True,
         "destructiveHint": False,
@@ -494,7 +500,7 @@ async def discover_datasets_tool(
 
 @mcp.tool(
     name="tealflow_get_dataset_info",
-    annotations={
+    annotations={  # type: ignore[arg-type]
         "title": "Get Dataset Information",
         "readOnlyHint": True,
         "destructiveHint": False,
@@ -580,7 +586,7 @@ async def get_dataset_info_tool(
 
 @mcp.tool(
     name="tealflow_generate_data_loading",
-    annotations={
+    annotations={  # type: ignore[arg-type]
         "title": "Generate Data Loading Code",
         "readOnlyHint": True,
         "destructiveHint": False,
@@ -666,7 +672,7 @@ async def generate_data_loading_tool(
 
 @mcp.tool(
     name="tealflow_get_app_template",
-    annotations={
+    annotations={  # type: ignore[arg-type]
         "title": "Get Teal App Template",
         "readOnlyHint": True,
         "destructiveHint": False,
@@ -717,7 +723,7 @@ async def get_app_template_tool(response_format: str = "markdown") -> str:
 
 @mcp.tool(
     name="tealflow_generate_module_code",
-    annotations={
+    annotations={  # type: ignore[arg-type]
         "title": "Generate Teal Module Code",
         "readOnlyHint": True,
         "destructiveHint": False,
@@ -785,7 +791,7 @@ async def generate_module_code_tool(
 
 @mcp.tool(
     name="tealflow_check_shiny_startup",
-    annotations={
+    annotations={  # type: ignore[arg-type]
         "title": "Check Shiny App Startup",
         "readOnlyHint": True,
         "destructiveHint": False,
@@ -859,7 +865,7 @@ async def check_shiny_startup_tool(
 
 @mcp.tool(
     name="tealflow_setup_renv_environment",
-    annotations={
+    annotations={  # type: ignore[arg-type]
         "title": "Setup Renv Environment",
         "readOnlyHint": False,
         "destructiveHint": False,
@@ -915,7 +921,7 @@ async def setup_renv_environment_tool(
 
 @mcp.tool(
     name="tealflow_snapshot_renv_environment",
-    annotations={
+    annotations={  # type: ignore[arg-type]
         "title": "Snapshot Renv Environment",
         "readOnlyHint": False,
         "destructiveHint": False,
