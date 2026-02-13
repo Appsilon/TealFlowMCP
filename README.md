@@ -25,8 +25,10 @@ Currently supports two Teal module packages:
 ## Prerequisites
 
 * Python 3.10+
-* uv (Python project manager) installed and available in your PATH
 * R (required for running generated Teal applications)
+
+**For development/source installation only:**
+* uv (Python project manager) - [Installation guide](https://docs.astral.sh/uv/getting-started/installation/)
 
 ## MCP Compatibility
 
@@ -229,7 +231,13 @@ print(f'Found {result[\"count\"]} datasets')
 
 ## Running the MCP
 
-The MCP can be run with a command:
+**For PyPI installation:**
+
+```bash
+tealflow-mcp
+```
+
+**For source installation:**
 
 ```bash
 uv --directory /absolute/path/to/TealFlowMCP/ run tealflow_mcp.py
@@ -237,6 +245,12 @@ uv --directory /absolute/path/to/TealFlowMCP/ run tealflow_mcp.py
 
 You can also test the MCP using the MCP inspector:
 
+**PyPI installation:**
+```bash
+npx @modelcontextprotocol/inspector tealflow-mcp
+```
+
+**Source installation:**
 ```bash
 npx @modelcontextprotocol/inspector uv --directory /absolute/path/to/TealFlowMCP/ run tealflow_mcp.py
 ```
