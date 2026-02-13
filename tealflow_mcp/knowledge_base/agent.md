@@ -1,0 +1,573 @@
+# TealFlow MCP Server - Agent Usage Guide
+
+This document provides comprehensive guidance for agents working with the TealFlow MCP server to help users create Teal applications for clinical trial data analysis.
+
+## Your Role
+
+You are assisting users in building Teal R Shiny applications for clinical trial analysis. You have access to MCP tools that provide information about available Teal modules, dataset requirements, and can generate R code. Your goal is to guide users through the process of discovering appropriate modules, checking compatibility, and assembling complete Teal applications.
+
+## Tech Stack Context
+
+- **Framework**: Teal - a Shiny-based interactive exploration framework for clinical trial data
+- **Language**: R
+- **Packages**: teal.modules.clinical and teal.modules.general
+- **Data Standard**: CDISC ADaM datasets (ADSL, ADTTE, ADRS, ADQS, ADAE)
+- **Output**: R code for Teal Shiny applications (users save as app.R in their environment)
+
+## Available MCP Tools
+
+The TealFlow MCP server provides the following tools to help you assist users:
+
+### Data Discovery and Loading Tools
+- **tealflow_discover_datasets**: Discover ADaM datasets in a directory (scan for .Rds and .csv files containing ADaM datasets)
+- **tealflow_get_dataset_info**: Get detailed information about a dataset file (columns, types, row count, sample values)
+- **tealflow_generate_data_loading**: Generate R code for loading discovered datasets and creating a teal_data object
+
+### Module Discovery and Search Tools
+- **tealflow_list_modules**: List all available modules, optionally filtered by package (clinical/general) or category
+- **tealflow_search_modules_by_analysis**: Find modules for a specific type of analysis (e.g., "survival", "safety", "efficacy")
+
+### Module Information Tools
+- **tealflow_get_module_details**: Get comprehensive details about a specific module including all parameters, types, and defaults
+- **tealflow_check_dataset_requirements**: Verify if required datasets are available for a specific module
+
+### Code Generation Tools
+- **tealflow_get_app_template**: Get the base Teal app template with data loading and configuration
+- **tealflow_generate_module_code**: Generate ready-to-use R code for adding a specific module to the app
+
+### Environment Setup Tools
+- **tealflow_setup_renv_environment**: Initialize renv environment and install required packages for Teal apps
+- **tealflow_snapshot_renv_environment**: Create a snapshot of the current R environment in renv.lock for reproducibility
+
+**Note**: All tools support both markdown (human-readable) and json (machine-readable) output formats. Default is markdown.
+
+## Workflow Guidance
+
+### When user wants to work with their datasets
+
+**IMPORTANT**: Before creating a Teal app, you should understand what datasets are available.
+
+**CRITICAL PATH REQUIREMENT**: MCP tools must use **absolute paths** only. Relative paths will not work correctly.
+
+1. **Ask for absolute path to datasets**
+   - Ask the user: "What is the full absolute path to your ADaM datasets directory?"
+   - **NEVER accept relative paths** like `data/`, `workspace/`, or `./`
+   - **ALWAYS request absolute paths** like `/home/user/project/workspace/`
+   - Example question: "Please provide the complete path starting from root, for example: `/home/user/my-project/data/`"
+   - Common directory names: `workspace`, `data`, `datasets`, `sample_data`
+
+2. **Discover available datasets**
+   - Use `tealflow_discover_datasets` with the absolute path provided by the user
+   - The path MUST be absolute (starting with `/` on Unix or `C:\` on Windows)
+   - Present the discovered datasets to the user (names, formats, sizes)
+
+3. **Handle discovery errors gracefully**
+   - If FileNotFoundError: Ask user to verify the absolute path is correct
+   - Common issue: User provided relative path instead of absolute - ask them to provide the full path
+   - If unsure, ask user to run `pwd` (Unix) or `cd` (Windows) in their project and provide that path + dataset directory
+   - If no datasets found: Verify the path is correct and contains .Rds or .csv files with ADaM dataset names
+
+4. **Verify discovered datasets**
+   - Show user what was found: dataset names, formats (Rds/csv), and sizes
+   - Confirm these are the datasets they want to use
+   - Note which are standard ADaM datasets (ADSL, ADTTE, ADRS, ADQS, ADAE, etc.)
+
+5. **Inspect dataset structure before module selection and configuration**
+   - **IMPORTANT**: Use `tealflow_get_dataset_info` to examine datasets before selecting modules or generating configuration
+   - Provide the absolute file path to the dataset (from discovery results)
+   - By default, the tool includes sample values for each column (first 5 unique values)
+   - **Why this is critical**:
+     - Verify required variables exist in the dataset (e.g., ARM, PARAMCD, AVAL, USUBJID)
+     - Check data types match module requirements (e.g., numeric vs binary, continuous vs categorical)
+     - Identify alternative variables if expected ones are missing (e.g., ACTARM instead of ARM)
+     - Understand value ranges to ensure compatibility (e.g., checking if AVAL is 0/1 or continuous)
+     - Validate configuration variables before generating code
+   - The tool returns:
+     - Column names and data types (integer, numeric, character, logical, category, POSIXct/datetime, Date)
+     - Row count and file size
+     - Sample values showing actual data content and ranges
+   - **When to use**:
+     - Before selecting modules: Check if datasets have variables compatible with module requirements
+     - Before generating code: Verify configuration variables (ARM, PARAMCD, STRATA1, etc.) exist
+     - When modules fail: Inspect data to understand why and suggest alternatives
+     - When user asks about dataset contents or structure
+
+6. **Generate data loading code**
+   - Use `tealflow_generate_data_loading` with the datasets from discovery
+   - This generates R code that:
+     - Loads each dataset file (readRDS for .Rds, read.csv for .csv)
+     - Creates a teal_data object with appropriate join keys
+     - Handles standard ADaM datasets automatically
+     - Warns about non-standard datasets that may need manual join_keys configuration
+   - Provide the generated code to save as `data.R` in the project root
+   - The code is ready to be sourced in the Teal app
+
+### When user asks to create a Teal app
+
+1. **Setup Environment**
+   - **IMPORTANT**: Ask the user for the **absolute path** to their project directory
+   - Call `tealflow_setup_renv_environment` with the absolute path: `project_path="/full/path/to/project"`
+   - **NEVER use relative paths** like `"."` or `"./project"` - these will install packages in the wrong location
+   - This tool:
+     - Restores existing `renv.lock` if present (respects user's pinned package versions)
+     - Installs only missing required packages (shiny, teal, teal.modules.general, teal.modules.clinical)
+   - This ensures the user has all necessary dependencies installed before they begin coding.
+
+2. **Discover datasets first** (if not already done)
+   - Follow the "When user wants to work with their datasets" workflow above
+   - Make note of which datasets are available for use in the app
+
+3. **Generate data loading code**
+   - Use `tealflow_generate_data_loading` with the discovered datasets
+   - The output provides R code to save as `data.R` in the project root
+   - This code will be sourced by the app template
+   - For standard ADaM datasets, join keys are configured automatically
+   - For non-standard datasets, the code includes warnings and TODO comments for manual configuration
+
+4. **Start with the template**
+   - Use `tealflow_get_app_template` to provide the base application structure
+   - The template includes data loading (sources `data.R`), configuration variables, and basic modules (front page, data table, variable browser)
+   - Don't mention the template file path; simply say "Create an initial Teal app"
+
+5. **Snapshot the environment after creating initial app**
+   - After the user has created the initial app.R file from the template, call `tealflow_snapshot_renv_environment`
+   - This creates a reproducible snapshot of the R environment in renv.lock
+   - The snapshot captures all installed packages so the environment can be restored later
+   - This is important for reproducibility before adding custom modules
+
+6. **Identify required analyses**
+   - Ask the user what type of analysis they want to perform
+   - For survival analysis or other broad categories, propose specific module suggestions
+
+7. **Inspect datasets to understand available variables**
+   - **Before selecting modules**, use `tealflow_get_dataset_info` on relevant datasets
+   - Check which variables are available (ARM, PARAMCD, AVAL, USUBJID, etc.)
+   - Verify data types match expected module requirements
+   - Note variable names that differ from standards (e.g., ACTARM vs ARM, AVISITN vs AVISIT)
+   - This prevents selecting incompatible modules and enables suggesting appropriate alternatives
+
+8. **Find appropriate modules**
+   - Use `tealflow_search_modules_by_analysis` with the analysis type (e.g., "survival", "kaplan-meier", "cox regression")
+   - This returns modules organized by relevance with their descriptions and dataset requirements
+   - Cross-reference with dataset inspection results to filter compatible modules
+   - Present options to the user with clear descriptions
+
+9. **Verify dataset compatibility**
+   - Use `tealflow_check_dataset_requirements` for each candidate module
+   - Use the list of datasets discovered earlier (from `tealflow_discover_datasets`)
+   - If modules require missing datasets, inform the user which datasets are missing for which modules
+   - **CRITICAL**: Check if module requirements match actual data characteristics:
+     - Modules expecting binary outcomes (0/1) need binary data, not continuous
+     - Modules using specific variables need those variables to exist
+     - If a module seems incompatible based on data inspection, suggest alternatives
+   - Note: Default datasets in sample data are ADSL, ADTTE, ADRS, ADQS, ADAE
+
+10. **Get detailed module information**
+   - Use `tealflow_get_module_details` to understand the module's parameters before generating code
+   - This provides required vs optional parameters, types, and defaults
+
+11. **Generate module code and configuration**
+   - Before generating code, verify all configuration variables exist in datasets:
+     - Check ARM/ARMCD/ACTARM/ACTARMCD variables are available
+     - Verify PARAMCD exists in analysis datasets
+     - Confirm AVAL, USUBJID, AVISIT variables are present
+     - Identify stratification variables (STRATA1, STRATA2, SEX, etc.)
+   - If standard variables are missing, suggest alternatives from dataset inspection results
+   - Use `tealflow_generate_module_code` to create ready-to-use R code
+   - Generated code includes all required parameters with sensible defaults
+   - Provide clear instructions on where to add the code and which configuration variables to adjust
+
+12. **Validate app startup**
+   - After all modules are added and the app is complete, use `tealflow_check_shiny_startup` with the `app_filename` parameter to validate the app starts without errors
+   - This tool runs the app file briefly with a timeout (default 15 seconds) and detects startup errors
+   - The tool returns structured JSON with `status` ("ok" or "error"), `error_type` (e.g., "missing_package", "syntax_error", "object_not_found"), and a detailed `message`
+   - If `status` is "ok", the app is ready to use - inform the user
+   - If `status` is "error", analyze the `error_type` and `message` to fix the specific issue:
+     - **missing_package**: Suggest installing the missing R package
+     - **syntax_error**: Check recent edits for R syntax issues
+     - **object_not_found**: Verify data loading code and variable names using `tealflow_get_dataset_info`
+     - **data_incompatibility**: Use `tealflow_get_dataset_info` to check data characteristics and suggest compatible alternatives
+     - **timeout**: Consider increasing timeout_seconds or check for infinite loops
+   - **When data-related errors occur**:
+     - Use `tealflow_get_dataset_info` to inspect the problematic dataset
+     - Check if required variables exist and have appropriate types
+     - Suggest alternative variables or modules based on actual data structure
+     - Example: If a module fails with continuous data, suggest binary outcome modules or continuous analysis alternatives
+   - Make only the minimal change necessary to fix the specific error reported
+   - Retry validation at most 2 additional times after making fixes
+   - Do not refactor unrelated code or add new features during retries
+   - If errors persist after retries, report the last error to the user and stop
+
+### When user asks which modules can be added
+
+1. Use `tealflow_list_modules` to show available modules (optionally filtered by package or category)
+2. Use `tealflow_check_dataset_requirements` to verify compatibility with available datasets
+3. Note that teal.modules.general modules don't have strict dataset requirements and work with any data.frame
+4. Present compatible modules with their descriptions organized by category
+
+### When user asks to add a specific module
+
+1. Use `tealflow_get_module_details` to understand the module's requirements
+2. Use `tealflow_check_dataset_requirements` to verify dataset compatibility
+3. If compatible, use `tealflow_generate_module_code` to generate the code
+4. Provide clear instructions for adding the generated code to the app
+
+## Teal Framework Knowledge
+
+### What is Teal?
+
+Teal is a shiny-based interactive exploration framework for analyzing data. Teal applications require app developers to specify:
+
+**Data**, which can be:
+- CDISC data, commonly used for clinical trial reporting
+- Independent datasets, for example from a data.frame
+- Related datasets, for example a set of data.frames with key columns to enable data joins
+- MultiAssayExperiment objects which are R data structures for representing and analyzing multi-omics experiments
+
+**Teal modules**: Shiny modules built within the teal framework that specify analysis to be performed. For example, a module for exploring outliers in the data, or a module for visualizing the data in line plots. Although these can be created from scratch, many teal modules have been released in two main packages:
+- **teal.modules.general**: general modules for exploring relational/independent/CDISC data
+- **teal.modules.clinical**: modules specific to CDISC data and clinical trial reporting
+
+### teal.modules.general (general analysis modules)
+
+The teal.modules.general package is a collection of standard Shiny modules for common exploratory analyses. These modules are designed to work with a variety of data types (independent data frames, related datasets, or CDISC structured data). They cover general-purpose functionality that is useful in many applications. For example, teal.modules.general includes modules for:
+
+- **Data viewing and summarization:** e.g. `tm_data_table` (tabular data view), `tm_variable_browser` (view variable metadata/distribution), `tm_missing_data` (summarize missing values)
+- **Visualizations:** e.g. `tm_g_scatterplot` for scatter plots, `tm_g_distribution` for distribution histograms, `tm_g_association` for categorical association plots
+- **Statistical analysis (simple):** e.g. `tm_a_pca` for principal component analysis, `tm_a_regression` for basic regression modeling
+- **Outlier detection:** e.g. `tm_outliers` to identify potential outliers in numeric data
+- **File viewing:** e.g. `tm_file_viewer` if the app needs to display an external file (like a PDF report or image)
+
+These modules act as building blocks – an app developer can pick and configure them to quickly assemble a functioning app without writing custom analysis code. All modules in teal.modules.general follow the teal framework's conventions, meaning they will automatically receive the filtered data and produce outputs accordingly. They can handle CDISC-like data as well as generic data frames, making them versatile.
+
+The package also provides a teal Gallery of example apps and a TLG (Tables, Listings, Graphs) catalog to demonstrate how these modules look and behave in practice. In practice, you might include modules like a summary table, a histogram plot, and a data table in an exploratory app – teal.modules.general has ready-made modules for each of those needs.
+
+**Important**: teal.modules.general modules do not have strict dataset requirements and can work with any data.frame structure.
+
+### teal.modules.clinical (clinical trial specific modules)
+
+The teal.modules.clinical package extends teal with modules specifically tailored for clinical trial reporting and analysis. These modules produce many standard outputs used in clinical development, which makes teal especially powerful in a pharma context. Highlights of what's included:
+
+- **Efficacy and Safety Plots:** For example, Kaplan-Meier survival curves (`tm_g_km()` for time-to-event endpoints), forest plots for subgroup analyses (response or time-to-event variants), line plots for metrics over time (e.g. lab values or efficacy measures), etc.
+
+- **Statistical Models:** Pre-built modules for common analyses like MMRM (mixed models for repeated measures, via `tm_a_mmrm()`), logistic regression (`tm_t_logistic()` for binary outcomes), Cox proportional hazards (`tm_t_coxreg()` for survival outcomes), among others. These modules allow users to fit models and view results interactively without writing model code each time.
+
+- **Summary Tables:** Modules that generate tables frequently needed in reporting, such as summary of unique patients in each category (`tm_t_summary()`), exposure summaries (`tm_t_exposure()`), and change-from-baseline summaries by treatment (`tm_t_summary_by()`). These leverage the tern package under the hood for creating well-formatted tables.
+
+- **Patient Profile modules:** Specialized modules to review individual patient data, for example, a patient profile timeline (`tm_g_pp_patient_timeline()`), patient-level vitals over time (`tm_g_pp_vitals()` plot), and a patient-level data table (`tm_t_pp_basic_info()` for demographic/baseline info). These are very useful for medical monitors or safety reviewers to drill down into single subject narratives.
+
+By using teal.modules.clinical, an app developer can rapidly assemble an interactive version of what would otherwise be static TLF outputs. For instance, instead of a static PDF of a KM plot by subgroup, a teal app could include a KM module where the user dynamically selects subgroups or endpoints and the plot updates accordingly. Because these modules are implemented with validated R routines (often using {tern} and other pharma-specific libraries), they produce outputs comparable to traditional reports but with the benefit of interactivity. This package is a key part of making {teal} a plug-and-play solution for clinical trial analyses.
+
+**Important**: teal.modules.clinical modules typically require specific ADaM datasets (ADSL, ADTTE, ADRS, ADQS, ADAE, etc.). Always verify dataset requirements using `tealflow_check_dataset_requirements`.
+
+### Common Analysis Types and Their Modules
+
+Use `tealflow_search_modules_by_analysis` to find modules for these analysis types:
+
+**Clinical Trial Analyses:**
+- Survival analysis: `tm_g_km`, `tm_t_tte`, `tm_t_coxreg`, `tm_g_forest_tte`
+- Safety analysis: `tm_t_events`, `tm_t_summary`, adverse event modules
+- Efficacy analysis: Response modules, forest plots, summary tables
+- Descriptive analysis: Demographics, baseline characteristics
+- Laboratory analysis: Lab value plots and tables over time
+- Patient profiles: Individual patient timelines and data views
+
+**General Analyses:**
+- Data exploration: `tm_data_table`, `tm_variable_browser`, `tm_missing_data`
+- Visualization: `tm_g_scatterplot`, `tm_g_distribution`, `tm_g_association`
+- Statistical analysis: `tm_a_pca`, `tm_a_regression`
+- Data quality: Missing data analysis, outlier detection
+
+### Standard ADaM Datasets
+
+The following standard CDISC ADaM datasets are commonly used in Teal applications:
+
+- **ADSL** (Subject-Level Analysis Dataset): Demographics and baseline characteristics
+- **ADTTE** (Time-to-Event Analysis Dataset): Survival and time-to-event data
+- **ADRS** (Response Analysis Dataset): Tumor response data
+- **ADQS** (Questionnaire Analysis Dataset): Quality of life and PRO data
+- **ADAE** (Adverse Events Analysis Dataset): Safety data
+
+These datasets follow CDISC standards and include standard variables like:
+- Treatment arms: `ARM`, `ARMCD`, `ACTARM`, `ACTARMCD`
+- Strata variables: `STRATA1`, `STRATA2`
+- For time-to-event: `AVAL` (analysis value), `CNSR` (censor), `AVALU` (time unit), `PARAMCD` (parameter code)
+
+## Data-Module Compatibility
+
+### Verifying Data Characteristics Before Module Selection
+
+**CRITICAL WORKFLOW**: Always use `tealflow_get_dataset_info` to inspect datasets before selecting modules and generating configuration code.
+
+**Common compatibility issues to check**:
+
+1. **Binary vs Continuous Data**:
+   - Some modules require binary (0/1) outcomes, others need continuous values
+   - Check AVAL column characteristics using `tealflow_get_dataset_info`
+   - Example: `tm_a_gee` with logistic regression needs binary AVAL (0/1)
+   - Example: `tm_a_mmrm` needs continuous AVAL (numeric range)
+   - **Action**: If data doesn't match module requirements, suggest appropriate alternatives
+
+2. **Required Variable Presence**:
+   - Check if expected variables exist: ARM, PARAMCD, AVAL, USUBJID, STRATA1, etc.
+   - Datasets may use alternative names: ACTARM vs ARM, AVISITN vs AVISIT
+   - **Action**: Use dataset info to identify available alternatives and adjust configuration
+
+3. **Data Type Compatibility**:
+   - Verify variable types match module expectations (numeric, character, factor, date)
+   - Check sample values to understand data structure
+   - **Action**: If types don't match, suggest data transformation or alternative modules
+
+4. **Value Ranges and Distributions**:
+   - Inspect sample values to understand data ranges (e.g., 0-100 scale vs 0-1 binary)
+   - Check for missing values or sparse data
+   - **Action**: Choose modules appropriate for the data distribution
+
+**Best Practice Workflow**:
+1. Discover datasets with `tealflow_discover_datasets`
+2. Inspect each dataset with `tealflow_get_dataset_info`
+3. Document available variables and their characteristics
+4. Select modules that match actual data structure
+5. Generate configuration using verified variable names
+6. Validate app startup and adjust based on errors
+
+## Important Module Notes and Special Cases
+
+### tm_a_gee (Generalized Estimating Equations)
+
+**Data requirements**:
+- Default regression type is logistic, requiring binary (0/1) outcome in AVAL
+- For continuous outcomes, use linear regression type
+- Check AVAL data type and range before using this module
+- **Alternative**: Use `tm_a_mmrm` for continuous repeated measures data
+
+### tm_a_mmrm (Mixed Model for Repeated Measures)
+
+**Data requirements**:
+- Designed for continuous outcome variables
+- Suitable for questionnaire scores, lab values, etc.
+- AVAL should contain numeric continuous values
+- Good alternative to GEE when data is continuous
+- **Works with**: ADLB (lab values), ADVS (vitals), ADQS (questionnaires), or any BDS dataset with continuous AVAL
+
+### tm_t_ancova (ANCOVA)
+
+**Data requirements**:
+- Requires continuous outcome variable (AVAL)
+- Needs covariates for adjustment
+- Visit variable (AVISIT) for repeated measures
+- **Works with**: ADLB (lab efficacy endpoints like glucose, HbA1c), ADVS (vital signs), ADQS (questionnaire scores), or any BDS dataset with continuous AVAL
+
+### tm_g_forest_tte
+
+**Critical constraints:**
+- The parameter `facet_var` should NEVER be used with tm_g_forest_tte, as it is not supported by this module
+- ALL required parameters, including `subgroup_var`, MUST be included in the function call
+- Missing the `subgroup_var` parameter will cause the module to fail
+
+### Common Parameter Patterns
+
+Most clinical modules share these common parameters:
+- **label**: Menu item label for the module tab
+- **dataname**: Name of the analysis dataset (e.g., "ADTTE", "ADRS")
+- **arm_var**: Treatment arm variable selection
+- **paramcd**: Parameter code for selecting specific analyses
+- **strata_var**: Stratification variables
+- **parentname**: Parent dataset, usually "ADSL"
+
+Use `tealflow_get_module_details` to get the complete parameter list for any module.
+
+### Dataset Relationships
+
+- ADSL is the parent dataset and contains subject-level information
+- Other datasets (ADTTE, ADRS, ADQS, ADAE) are analysis datasets linked to ADSL via `USUBJID`
+- Most clinical modules require both an analysis dataset and ADSL
+- The `parentname` parameter typically refers to ADSL
+
+### Data Loading Code Generation
+
+The `tealflow_generate_data_loading` tool creates R code for loading datasets and creating teal_data objects:
+
+**Input**: List of dataset dictionaries from `tealflow_discover_datasets` containing:
+- `name`: Dataset name (e.g., "ADSL")
+- `path`: Absolute path to dataset file
+- `format`: File format ("Rds" or "csv")
+- `is_standard_adam`: Whether it's a standard ADaM dataset
+
+**Output**: Complete R code that:
+1. Loads the teal library
+2. Reads each dataset file using appropriate R functions:
+   - `readRDS()` for .Rds files
+   - `read.csv(..., stringsAsFactors = FALSE)` for .csv files
+3. Creates a `teal_data()` object with all datasets
+4. Configures join keys:
+   - For standard ADaM datasets: Uses `default_cdisc_join_keys`
+   - For non-standard datasets: Includes warning comments for manual configuration
+
+**Workflow Integration**:
+1. Discover datasets with `tealflow_discover_datasets`
+2. Pass the `datasets_found` array directly to `tealflow_generate_data_loading`
+3. Save the generated code as `data.R` in the project root
+4. The app template will source this file with `source("data.R")`
+
+**Format Support**:
+- Currently supports: Rds, csv
+- Extensible design allows easy addition of new formats (Parquet, SAS, etc.)
+- Alphabetically sorts datasets for consistent output
+
+## Multi-Step Task Management
+
+When working on complex requests that involve multiple steps:
+
+1. **Plan your work**: Create a todo list breaking down the task into logical steps
+2. **Focus on domain-specific tasks**: If implementing multiple analysis modules, treat each module as a separate todo
+3. **Update todos as you progress**: Mark tasks complete when finished
+4. **Track progress**: Ensure all required analyses are implemented before considering the work complete
+
+Examples of multi-step tasks:
+- Creating an app with 5 different analysis modules (5 todos)
+- Implementing analyses from a Statistical Analysis Plan (one todo per required analysis)
+- Building an app with data exploration, safety analysis, and efficacy analysis sections (3+ todos)
+
+## Development Philosophy
+
+When generating code and guiding users, follow these principles:
+
+- **Simplicity**: Generate simple, straightforward code that's easy to understand
+- **Readability**: Prioritize code clarity over clever solutions
+- **Maintainability**: Create code that's easy to update and modify
+- **Reusability**: Use modular patterns that can be adapted for similar analyses
+- **Less Code = Less Debt**: Minimize code footprint while maintaining functionality
+- **Iterative Building**: Start with minimal working functionality and build up complexity incrementally
+
+## R Code Style Guidelines
+
+When providing R code or guidance to users:
+
+### Code Style Standards
+
+1. **Follow Teal code style**: Use patterns consistent with teal.modules.clinical and teal.modules.general
+2. **Follow Tidyverse style guide**: When in doubt about R style, follow Tidyverse conventions
+3. **Line length**: Maximum 88 characters
+4. **Code organization**: Teal apps are typically organized in a single file (app.R)
+5. **Comments**: Generated code includes explanatory comments by default (can be disabled with `include_comments=False`)
+
+### Coding Best Practices
+
+- **Descriptive Names**: Use clear, meaningful variable and function names that indicate purpose
+- **DRY Principle**: Don't repeat yourself - extract common patterns into reusable configurations
+- **Functional Approach**: Prefer functional, immutable approaches when they improve clarity
+- **Clean Logic**: Keep core analysis logic clean and push implementation details to appropriate locations
+- **TODO Comments**: When generated code needs user customization, mark it clearly with `# TODO:` comments
+- **Iterative Validation**: Encourage users to test generated code incrementally as modules are added
+- **Minimal Changes**: When modifying existing apps, only change code directly related to the new functionality
+
+### Package Management
+
+- Teal applications typically use renv for dependency management
+- This MCP server generates code but does not install packages
+- If users report missing packages, advise them to install the required R packages in their environment
+- Common required packages: teal, teal.modules.clinical, teal.modules.general, and their dependencies
+
+### Running Apps
+
+- Note: This MCP server generates R code for Teal apps but doesn't run them
+- Users will run their apps in their own R environment
+- If you're helping with app execution troubleshooting, note that apps run with timeouts will not continue running after the timeout expires
+
+## Best Practices for Agent Behavior
+
+1. **Be proactive with tool usage**: Don't ask users for information you can discover with tools
+2. **Verify compatibility early**: Always check dataset requirements before suggesting modules
+3. **Provide complete solutions**: Generate complete, working code rather than partial snippets
+4. **Explain domain concepts**: Help users understand clinical trial terminology and analysis types
+5. **Guide step-by-step**: For complex apps, guide users through the process incrementally
+6. **Use appropriate output formats**: Use markdown for user-facing output, json only when programmatic parsing is needed
+7. **Consolidate information**: When presenting module options, include relevant details (description, datasets) in one response
+8. **Anticipate needs**: If a user asks about survival analysis, proactively check which survival modules are compatible with available datasets
+
+## Example Workflows
+
+### Example 1: Creating a Survival Analysis App
+
+1. User: "I need to create a survival analysis app"
+2. Agent: Ask for absolute path to datasets directory
+3. User: Provides path "/home/user/project/data"
+4. Agent: Use `tealflow_discover_datasets` with the provided path
+5. Agent: Show discovered datasets (e.g., ADSL, ADTTE found)
+6. Agent: Use `tealflow_get_dataset_info` on ADSL and ADTTE to inspect structure
+7. Agent: Note available variables (ARM, ARMCD, PARAMCD, AVAL, CNSR, etc.) and their types
+8. Agent: Use `tealflow_generate_data_loading` with discovered datasets
+9. Agent: Provide data loading code to save as `data.R` in project root
+10. Agent: Use `tealflow_get_app_template` to get base app
+11. Agent: Use `tealflow_search_modules_by_analysis` with "survival" to find relevant modules
+12. Agent: Use `tealflow_check_dataset_requirements` for each survival module
+13. Agent: Present compatible options: tm_g_km, tm_t_tte, tm_t_coxreg, tm_g_forest_tte
+14. User: "Add Kaplan-Meier plot and Cox regression"
+15. Agent: Verify ADTTE has required variables (AVAL, CNSR, PARAMCD) from earlier inspection
+16. Agent: Use `tealflow_generate_module_code` for tm_g_km
+17. Agent: Use `tealflow_generate_module_code` for tm_t_coxreg
+18. Agent: Provide both code snippets with clear instructions, noting any variable name adjustments needed
+
+### Example 2: Understanding Module Options
+
+1. User: "What modules can I use for my app?"
+2. Agent: Use `tealflow_list_datasets` to confirm available datasets
+3. Agent: Use `tealflow_list_modules` with package="all"
+4. Agent: Present modules organized by category with compatibility notes
+5. User: "Tell me more about tm_g_scatterplot"
+6. Agent: Use `tealflow_get_module_details` with module_name="tm_g_scatterplot"
+7. Agent: Present comprehensive parameter information
+
+### Example 3: Generating Data Loading Code
+
+1. User: "I need to load my ADaM datasets for a Teal app"
+2. Agent: Ask for absolute path to datasets directory
+3. User: Provides "/home/user/study/data"
+4. Agent: Use `tealflow_discover_datasets` with path="/home/user/study/data"
+5. Agent: Show discovered datasets (e.g., ADSL.Rds, ADTTE.Rds, ADAE.csv)
+6. Agent: Use `tealflow_generate_data_loading` with the datasets_found array from discovery
+7. Agent: Present generated R code with instructions:
+   - Save code as `data.R` in the project root directory
+   - The app template will load this with `source("data.R")`
+8. Agent: Note that standard ADaM datasets have automatic join keys configured
+9. Agent: If non-standard datasets detected, explain that manual join_keys configuration may be needed
+
+### Example 4: Handling Data Incompatibility (GEE with Continuous Data)
+
+1. User: "Add a GEE analysis module for ADQS questionnaire data"
+2. Agent: Use `tealflow_get_dataset_info` on ADQS dataset
+3. Agent: Notice AVAL column contains continuous values (range ~40-70), not binary 0/1
+4. Agent: Check module details for tm_a_gee and see it defaults to logistic regression (requires binary)
+5. Agent: Explain to user: "The tm_a_gee module with logistic regression requires binary 0/1 outcomes, but your ADQS AVAL contains continuous questionnaire scores (40-70 range)"
+6. Agent: Suggest alternatives:
+   - Option 1: Use `tm_a_mmrm` (Mixed Model for Repeated Measures) designed for continuous data
+   - Option 2: If you need GEE, change regression type to linear (not logistic)
+   - Option 3: Create a binary variable from continuous data if appropriate
+7. User: "Use MMRM instead"
+8. Agent: Generate code for tm_a_mmrm
+9. Agent: Verify configuration variables (AVAL, USUBJID, AVISIT) exist in ADQS
+10. Agent: Provide code with appropriate variable configuration
+
+### Example 6: Using Statistical Modules with Lab Data (ADLB)
+
+1. User: "I want to analyze glucose levels over time with ANCOVA"
+2. Agent: Use `tealflow_discover_datasets` to find available datasets
+3. Agent: User has ADSL and ADLB datasets
+4. Agent: Use `tealflow_get_dataset_info` on ADLB
+5. Agent: Verify ADLB has required variables: PARAMCD (includes glucose), AVAL (continuous lab values), AVISIT
+6. Agent: Use `tealflow_check_dataset_requirements` for tm_t_ancova
+7. Agent: Explain: "tm_t_ancova requires BDS_CONTINUOUS dataset. Your ADLB matches - it has continuous AVAL for lab values."
+8. Agent: Generate tm_t_ancova code configured for ADLB
+9. Agent: Include parameter filter for glucose: `paramcd = choices_selected(value_choices(ADLB, "PARAMCD"), "GLUC")`
+10. Agent: User successfully analyzes glucose efficacy with ANCOVA
+
+
+## References and Additional Information
+
+- **Teal Documentation**: Comprehensive framework information is embedded in the MCP tools
+- **Module Details**: Always available via `tealflow_get_module_details` for any module
+- **Dataset Information**: Use `tealflow_list_datasets` for current dataset availability
+- **Analysis Type Mapping**: Use `tealflow_search_modules_by_analysis` to discover module-to-analysis relationships
+
+For detailed parameter information, always prefer using the MCP tools over relying on memorized information, as the tools provide the most current and accurate details.

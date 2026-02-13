@@ -1,5 +1,11 @@
 # TealFlowMCP
 
+[![PyPI version](https://badge.fury.io/py/tealflow-mcp.svg)](https://badge.fury.io/py/tealflow-mcp)
+[![Python versions](https://img.shields.io/pypi/pyversions/tealflow-mcp.svg)](https://pypi.org/project/tealflow-mcp/)
+[![License: LGPL v3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
+[![Downloads](https://pepy.tech/badge/tealflow-mcp)](https://pepy.tech/project/tealflow-mcp)
+[![Documentation](https://img.shields.io/badge/docs-mkdocs-blue.svg)](https://appsilon.github.io/TealFlowMCP/)
+
 An MCP (Model Context Protocol) server that enables LLMs to discover, understand, and generate [Teal](https://insightsengineering.github.io/teal/) R Shiny applications for clinical trial data analysis.
 
 Currently supports two Teal module packages:
@@ -19,8 +25,8 @@ Currently supports two Teal module packages:
 ## Prerequisites
 
 * Python 3.10+
-
-* uv (Python project manager) installed and available in your PATH.
+* uv (Python project manager) installed and available in your PATH
+* R (required for running generated Teal applications)
 
 ## MCP Compatibility
 
@@ -56,14 +62,15 @@ The MCP server is organized as a modular Python package for maintainability and 
 
 ```
 TealFlowMCP/
-├── tealflow_mcp.py            # MCP server entrypoint
-├── tealflow_mcp/              # Source package
-│   ├── core/
-│   ├── data/
-│   ├── models/
-│   ├── tools/
-│   └── utils/
-├── knowledge_base/            # Metadata and dataset files
+├── tealflow_mcp.py            # Backward-compatibility wrapper
+├── tealflow_mcp/              # Main package
+│   ├── core/                  # Constants and enums
+│   ├── data/                  # Data loaders
+│   ├── knowledge_base/        # Metadata and templates
+│   ├── models/                # Pydantic input models
+│   ├── server.py              # MCP server implementation
+│   ├── tools/                 # MCP tool implementations
+│   └── utils/                 # Utilities and formatters
 ├── docs/                      # Documentation
 ├── tests/                     # Automated tests
 ├── sample_data/               # Sample ADaM datasets
@@ -75,18 +82,32 @@ TealFlowMCP/
 
 ## Installation
 
-### Install Dependencies
+### Option 1: Install from PyPI (Recommended)
 
-Install dependencies with uv:
-
+```bash
+pip install tealflow-mcp
 ```
+
+### Option 2: Install from Source (Development)
+
+Clone the repository and install dependencies:
+
+```bash
+git clone https://github.com/Appsilon/TealFlowMCP.git
+cd TealFlowMCP
 uv sync
 ```
 
 ### Verify Installation
 
+For pip installation, verify the package is installed:
 ```bash
-uv run python tests/test_mcp_server.py
+python -c "import tealflow_mcp; print(f'TealFlowMCP version {tealflow_mcp.__version__}')"
+```
+
+For source installation, run the test suite:
+```bash
+uv run python -m pytest tests/test_mcp_server.py -v
 ```
 
 ## Testing
