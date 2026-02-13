@@ -1362,18 +1362,19 @@
 - <a href="https://insightsengineering.github.io/teal.modules.clinical/">teal.modules.clinical</a> - Clinical trial-specific modules</p>
 <h2 id="documentation">Documentation<a class="headerlink" href="#documentation" title="Permanent link">&para;</a></h2>
 <ul>
-<li><strong><a href="QUICKSTART/">Quickstart Guide</a></strong> - Get started with VSCode and GitHub Copilot</li>
-<li><strong><a href="TOOLS/">Tool Reference</a></strong> - Complete reference for all 14 MCP tools</li>
-<li><strong><a href="CONFIGURATION/">Configuration Guide</a></strong> - Setup, usage examples, and FAQs</li>
+<li><strong><a href="https://appsilon.github.io/TealFlowMCP/QUICKSTART/">Quickstart Guide</a></strong> - Get started with VSCode and GitHub Copilot</li>
+<li><strong><a href="https://appsilon.github.io/TealFlowMCP/TOOLS/">Tool Reference</a></strong> - Complete reference for all 14 MCP tools</li>
+<li><strong><a href="https://appsilon.github.io/TealFlowMCP/CONFIGURATION/">Configuration Guide</a></strong> - Setup, usage examples, and FAQs</li>
 </ul>
 <h2 id="quick-start">Quick Start<a class="headerlink" href="#quick-start" title="Permanent link">&para;</a></h2>
-<p><strong>New to TealFlowMCP?</strong> Check out the <a href="QUICKSTART/">Quickstart Guide</a> for step-by-step instructions to get up and running with VSCode and GitHub Copilot.</p>
+<p><strong>New to TealFlowMCP?</strong> Check out the <a href="https://appsilon.github.io/TealFlowMCP/QUICKSTART/">Quickstart Guide</a> for step-by-step instructions to get up and running with VSCode and GitHub Copilot.</p>
 <h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Python 3.10+</li>
-<li>uv (Python project manager) installed and available in your PATH</li>
 <li>R (required for running generated Teal applications)</li>
 </ul>
+<p><strong>For development/source installation only:</strong>
+* uv (Python project manager) - <a href="https://docs.astral.sh/uv/getting-started/installation/">Installation guide</a></p>
 <h2 id="mcp-compatibility">MCP Compatibility<a class="headerlink" href="#mcp-compatibility" title="Permanent link">&para;</a></h2>
 <p>This server implements the <strong>Model Context Protocol (MCP)</strong> standard and works with any MCP-compatible LLM client, including:</p>
 <ul>
@@ -1400,7 +1401,7 @@
 </span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="p">}</span>
 </span></code></pre></div>
 <p>Replace <code>/absolute/path/to/TealFlowMCP</code> with the actual absolute path to your cloned repository.</p>
-<p>Consult your editor's documentation for the exact location of the MCP configuration file. See the <a href="QUICKSTART/">Quickstart Guide</a> and <a href="CONFIGURATION/">Configuration Guide</a> for detailed setup instructions.</p>
+<p>Consult your editor's documentation for the exact location of the MCP configuration file. See the <a href="https://appsilon.github.io/TealFlowMCP/QUICKSTART/">Quickstart Guide</a> and <a href="https://appsilon.github.io/TealFlowMCP/CONFIGURATION/">Configuration Guide</a> for detailed setup instructions.</p>
 <h2 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h2>
 <p>The MCP server is organized as a modular Python package for maintainability and extensibility:</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>TealFlowMCP/
@@ -1504,12 +1505,19 @@
 </span><span id="__span-16-10"><a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a><span class="s2">&quot;</span>
 </span></code></pre></div>
 <h2 id="running-the-mcp">Running the MCP<a class="headerlink" href="#running-the-mcp" title="Permanent link">&para;</a></h2>
-<p>The MCP can be run with a command:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>uv<span class="w"> </span>--directory<span class="w"> </span>/absolute/path/to/TealFlowMCP/<span class="w"> </span>run<span class="w"> </span>tealflow_mcp.py
+<p><strong>For PyPI installation:</strong></p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>tealflow-mcp
+</span></code></pre></div>
+<p><strong>For source installation:</strong></p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>uv<span class="w"> </span>--directory<span class="w"> </span>/absolute/path/to/TealFlowMCP/<span class="w"> </span>run<span class="w"> </span>tealflow_mcp.py
 </span></code></pre></div>
 <p>You can also test the MCP using the MCP inspector:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>npx<span class="w"> </span>@modelcontextprotocol/inspector<span class="w"> </span>uv<span class="w"> </span>--directory<span class="w"> </span>/absolute/path/to/TealFlowMCP/<span class="w"> </span>run<span class="w"> </span>tealflow_mcp.py
-</span></code></pre></div>
+<p><strong>PyPI installation:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>npx<span class="w"> </span>@modelcontextprotocol/inspector<span class="w"> </span>tealflow-mcp
+</span></code></pre></div></p>
+<p><strong>Source installation:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>npx<span class="w"> </span>@modelcontextprotocol/inspector<span class="w"> </span>uv<span class="w"> </span>--directory<span class="w"> </span>/absolute/path/to/TealFlowMCP/<span class="w"> </span>run<span class="w"> </span>tealflow_mcp.py
+</span></code></pre></div></p>
 <h2 id="available-tools">Available Tools<a class="headerlink" href="#available-tools" title="Permanent link">&para;</a></h2>
 <p>TealFlowMCP provides 14 tools for building Teal applications:</p>
 <p><strong>Agent Guidance:</strong>
@@ -1531,25 +1539,25 @@
 - <code>tealflow_setup_renv_environment</code> - Initialize R environment with renv
 - <code>tealflow_snapshot_renv_environment</code> - Snapshot current R environment state
 - <code>tealflow_check_shiny_startup</code> - Validate app startup</p>
-<p><strong><a href="TOOLS/">View complete tool reference →</a></strong></p>
+<p><strong><a href="https://appsilon.github.io/TealFlowMCP/TOOLS/">View complete tool reference →</a></strong></p>
 <h2 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h2>
 <p>TealFlowMCP works with any MCP-compatible client (Claude Desktop, Claude Code, GitHub Copilot, Cursor, etc.).</p>
 <p><strong>Basic Configuration:</strong>
-<div class="language-json highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="p">{</span>
-</span><span id="__span-19-2"><a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="w">  </span><span class="nt">&quot;servers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-19-3"><a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a><span class="w">    </span><span class="nt">&quot;tealflow-mcp&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-19-4"><a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a><span class="w">      </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;uv&quot;</span><span class="p">,</span>
-</span><span id="__span-19-5"><a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a><span class="w">      </span><span class="nt">&quot;args&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-</span><span id="__span-19-6"><a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a><span class="w">        </span><span class="s2">&quot;--directory&quot;</span><span class="p">,</span>
-</span><span id="__span-19-7"><a id="__codelineno-19-7" name="__codelineno-19-7" href="#__codelineno-19-7"></a><span class="w">        </span><span class="s2">&quot;/absolute/path/to/TealFlowMCP&quot;</span><span class="p">,</span>
-</span><span id="__span-19-8"><a id="__codelineno-19-8" name="__codelineno-19-8" href="#__codelineno-19-8"></a><span class="w">        </span><span class="s2">&quot;run&quot;</span><span class="p">,</span>
-</span><span id="__span-19-9"><a id="__codelineno-19-9" name="__codelineno-19-9" href="#__codelineno-19-9"></a><span class="w">        </span><span class="s2">&quot;tealflow_mcp.py&quot;</span>
-</span><span id="__span-19-10"><a id="__codelineno-19-10" name="__codelineno-19-10" href="#__codelineno-19-10"></a><span class="w">      </span><span class="p">]</span>
-</span><span id="__span-19-11"><a id="__codelineno-19-11" name="__codelineno-19-11" href="#__codelineno-19-11"></a><span class="w">    </span><span class="p">}</span>
-</span><span id="__span-19-12"><a id="__codelineno-19-12" name="__codelineno-19-12" href="#__codelineno-19-12"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-19-13"><a id="__codelineno-19-13" name="__codelineno-19-13" href="#__codelineno-19-13"></a><span class="p">}</span>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="p">{</span>
+</span><span id="__span-21-2"><a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a><span class="w">  </span><span class="nt">&quot;servers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-21-3"><a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a><span class="w">    </span><span class="nt">&quot;tealflow-mcp&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-21-4"><a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a><span class="w">      </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;uv&quot;</span><span class="p">,</span>
+</span><span id="__span-21-5"><a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a><span class="w">      </span><span class="nt">&quot;args&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-21-6"><a id="__codelineno-21-6" name="__codelineno-21-6" href="#__codelineno-21-6"></a><span class="w">        </span><span class="s2">&quot;--directory&quot;</span><span class="p">,</span>
+</span><span id="__span-21-7"><a id="__codelineno-21-7" name="__codelineno-21-7" href="#__codelineno-21-7"></a><span class="w">        </span><span class="s2">&quot;/absolute/path/to/TealFlowMCP&quot;</span><span class="p">,</span>
+</span><span id="__span-21-8"><a id="__codelineno-21-8" name="__codelineno-21-8" href="#__codelineno-21-8"></a><span class="w">        </span><span class="s2">&quot;run&quot;</span><span class="p">,</span>
+</span><span id="__span-21-9"><a id="__codelineno-21-9" name="__codelineno-21-9" href="#__codelineno-21-9"></a><span class="w">        </span><span class="s2">&quot;tealflow_mcp.py&quot;</span>
+</span><span id="__span-21-10"><a id="__codelineno-21-10" name="__codelineno-21-10" href="#__codelineno-21-10"></a><span class="w">      </span><span class="p">]</span>
+</span><span id="__span-21-11"><a id="__codelineno-21-11" name="__codelineno-21-11" href="#__codelineno-21-11"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-21-12"><a id="__codelineno-21-12" name="__codelineno-21-12" href="#__codelineno-21-12"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-21-13"><a id="__codelineno-21-13" name="__codelineno-21-13" href="#__codelineno-21-13"></a><span class="p">}</span>
 </span></code></pre></div></p>
-<p><strong><a href="CONFIGURATION/">View complete configuration guide →</a></strong></p>
+<p><strong><a href="https://appsilon.github.io/TealFlowMCP/CONFIGURATION/">View complete configuration guide →</a></strong></p>
 <h2 id="quick-start_1">Quick Start<a class="headerlink" href="#quick-start_1" title="Permanent link">&para;</a></h2>
 <p>Once configured, you can use natural language to build Teal apps:</p>
 <p><strong>Example:</strong></p>
@@ -1561,7 +1569,7 @@
 - Search for relevant modules
 - Validate dataset compatibility
 - Generate complete app code</p>
-<p><strong><a href="CONFIGURATION/">View usage examples and FAQs →</a></strong></p>
+<p><strong><a href="https://appsilon.github.io/TealFlowMCP/CONFIGURATION/">View usage examples and FAQs →</a></strong></p>
 <h2 id="about-appsilon">About Appsilon<a class="headerlink" href="#about-appsilon" title="Permanent link">&para;</a></h2>
 <p>TealFlowMCP is developed by <a href="https://appsilon.com">Appsilon</a>, a trusted technology partner for pharmaceutical and life sciences companies specializing in accelerating drug development through open-source solutions. Appsilon helps organizations transition from legacy systems to modern, validated open-source analytics while maintaining strict regulatory compliance.</p>
 <p>Learn more at <a href="https://appsilon.com">appsilon.com</a></p>
