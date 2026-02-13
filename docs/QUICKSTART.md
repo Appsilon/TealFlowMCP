@@ -7,9 +7,53 @@ Get started with TealFlowMCP in VSCode in just a few minutes! This guide walks y
 - **VSCode** with GitHub Copilot extension installed
 - **Python 3.10 or higher**
 - **R** installed with required packages (see [R Setup](#r-setup) below)
-- **Git** (to clone the repository)
 
-## Step 1: Install uv
+## Installation Options
+
+Choose one of the following installation methods:
+
+### Option A: Install from PyPI (Recommended)
+
+This is the easiest way to get started.
+
+#### Step 1: Install the Package
+
+```bash
+pip install tealflow-mcp
+```
+
+Or using pipx for isolated installation:
+
+```bash
+pipx install tealflow-mcp
+```
+
+#### Step 2: Verify Installation
+
+```bash
+python -c "import tealflow_mcp; print(f'TealFlowMCP version {tealflow_mcp.__version__}')"
+```
+
+#### Step 3: Configure VSCode
+
+1. Open the Command Palette (`Ctrl+Shift+P` or `Cmd+Shift+P` on macOS)
+2. Type **"MCP: Add Server"** and select it
+3. Choose **"Command"** as the server type
+4. Enter the command: `tealflow-mcp`
+
+Or manually add this configuration:
+
+```json
+"tealflow-mcp": {
+  "command": "tealflow-mcp"
+}
+```
+
+### Option B: Install from Source (Development)
+
+Use this if you want to modify the code or contribute to development.
+
+#### Step 1: Install uv
 
 `uv` is a fast Python package manager that TealFlowMCP uses to manage dependencies.
 
@@ -21,7 +65,7 @@ After installation, verify it's working:
 uv --version
 ```
 
-## Step 2: Download the Repository
+#### Step 2: Download the Repository
 
 Clone the TealFlowMCP repository to your local machine:
 
@@ -36,7 +80,7 @@ cd TealFlowMCP
 pwd
 ```
 
-## Step 3: Install Dependencies
+#### Step 3: Install Dependencies
 
 Install all Python dependencies using uv:
 
@@ -46,11 +90,9 @@ uv sync
 
 This creates a virtual environment and installs all required packages based on the `pyproject.toml` file.
 
-## Step 4: Configure VSCode
+#### Step 4: Configure VSCode
 
 Now configure VSCode to use the TealFlowMCP server with GitHub Copilot.
-
-### Option 1: Quick Setup (Recommended)
 
 1. Open the Command Palette (`Ctrl+Shift+P` or `Cmd+Shift+P` on macOS)
 2. Type **"MCP: Add Server"** and select it
@@ -59,11 +101,7 @@ Now configure VSCode to use the TealFlowMCP server with GitHub Copilot.
 
    **Replace `/absolute/path/to/TealFlowMCP` with the actual path from Step 2**
 
-### Option 2: Manual Configuration
-
-1. Open the Command Palette (`Ctrl+Shift+P` or `Cmd+Shift+P` on macOS)
-2. Type **"MCP: Open User Configuration"** and select it
-3. Add the following configuration:
+Or manually add this configuration:
 
 ```json
 "tealflow-mcp": {
@@ -79,11 +117,11 @@ Now configure VSCode to use the TealFlowMCP server with GitHub Copilot.
 
 **Replace `/absolute/path/to/TealFlowMCP` with the actual path from Step 2**
 
-### Restart VSCode
+#### Step 5: Restart VSCode
 
 After saving the configuration, restart VSCode completely for the changes to take effect.
 
-## Step 5: Set Up Your Project
+## Set Up Your Project
 
 Create a new project directory where you'll build your Teal application:
 

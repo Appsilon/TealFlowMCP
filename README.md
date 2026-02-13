@@ -62,14 +62,15 @@ The MCP server is organized as a modular Python package for maintainability and 
 
 ```
 TealFlowMCP/
-├── tealflow_mcp.py            # MCP server entrypoint
-├── tealflow_mcp/              # Source package
-│   ├── core/
-│   ├── data/
-│   ├── models/
-│   ├── tools/
-│   └── utils/
-├── knowledge_base/            # Metadata and dataset files
+├── tealflow_mcp.py            # Backward-compatibility wrapper
+├── tealflow_mcp/              # Main package
+│   ├── core/                  # Constants and enums
+│   ├── data/                  # Data loaders
+│   ├── knowledge_base/        # Metadata and templates
+│   ├── models/                # Pydantic input models
+│   ├── server.py              # MCP server implementation
+│   ├── tools/                 # MCP tool implementations
+│   └── utils/                 # Utilities and formatters
 ├── docs/                      # Documentation
 ├── tests/                     # Automated tests
 ├── sample_data/               # Sample ADaM datasets
@@ -99,14 +100,14 @@ uv sync
 
 ### Verify Installation
 
-For pip installation:
+For pip installation, verify the package is installed:
 ```bash
-tealflow-mcp --version
+python -c "import tealflow_mcp; print(f'TealFlowMCP version {tealflow_mcp.__version__}')"
 ```
 
-For source installation:
+For source installation, run the test suite:
 ```bash
-uv run python tests/test_mcp_server.py
+uv run python -m pytest tests/test_mcp_server.py -v
 ```
 
 ## Testing

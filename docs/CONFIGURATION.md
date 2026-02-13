@@ -11,11 +11,43 @@ TealFlowMCP works with any MCP-compatible client:
 - **Cursor**
 - **Other MCP-compatible tools** that support the MCP stdio protocol
 
+## Installation
+
+Before configuration, install TealFlowMCP:
+
+**PyPI Installation (Recommended):**
+```bash
+pip install tealflow-mcp
+# or
+pipx install tealflow-mcp
+```
+
+**Source Installation (Development):**
+```bash
+git clone https://github.com/Appsilon/TealFlowMCP.git
+cd TealFlowMCP
+uv sync
+```
+
 ## Basic Configuration
 
-### Configuration Format
+### PyPI Installation
 
-Add TealFlowMCP to your MCP client's configuration file:
+If you installed from PyPI, use this simple configuration:
+
+```json
+{
+  "servers": {
+    "tealflow-mcp": {
+      "command": "tealflow-mcp"
+    }
+  }
+}
+```
+
+### Source Installation
+
+If you're running from source, use this configuration:
 
 ```json
 {
@@ -33,7 +65,7 @@ Add TealFlowMCP to your MCP client's configuration file:
 }
 ```
 
-**Important:** Use the **absolute path** to your TealFlowMCP directory, not a relative path.
+**Important:** Replace `/absolute/path/to/TealFlowMCP` with the actual absolute path to your cloned repository.
 
 ### Finding Configuration Files
 
