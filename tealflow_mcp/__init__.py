@@ -13,7 +13,7 @@ The server helps with:
 - Generating R code for Teal apps
 """
 
-__version__ = "0.1.3"
+__version__ = "0.1.3.post1"
 
 from .core import PackageFilter, ResponseFormat
 from .models import (
