@@ -132,7 +132,9 @@ cd my-teal-app
 
 ### Copy Sample Data
 
-Copy the sample clinical trial datasets from TealFlowMCP to your project:
+**For PyPI installation:** The sample datasets are included in the package and can be accessed programmatically, or you can download them from the [GitHub repository](https://github.com/Appsilon/TealFlowMCP/tree/main/sample_data).
+
+**For source installation:** Copy the sample clinical trial datasets from TealFlowMCP to your project:
 
 ```bash
 cp -r /path/to/TealFlowMCP/sample_data ./
@@ -199,14 +201,28 @@ If Copilot isn't using the TealFlowMCP tools:
    - Close all VSCode windows
    - Reopen VSCode
 
-3. **Verify uv is in PATH:**
+3. **Verify installation:**
+
+   For PyPI installation:
+   ```bash
+   python -c "import tealflow_mcp; print(f'TealFlowMCP version {tealflow_mcp.__version__}')"
+   ```
+
+   For source installation (verify uv is in PATH):
    ```bash
    which uv  # Linux/macOS
    where uv  # Windows
    ```
 
 4. **Test the MCP server manually:**
+
+   For PyPI installation:
+   ```bash
+   tealflow-mcp
+   ```
+
+   For source installation:
    ```bash
    cd /path/to/TealFlowMCP
-   uv run python tealflow_mcp.py
+   uv run tealflow_mcp.py
    ```

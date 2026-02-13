@@ -41,7 +41,17 @@ The server is LLM-agnostic—it provides tools that any LLM can use to build Tea
 
 ### Adding to Your Editor/IDE
 
-Add this configuration to your editor's MCP settings file:
+**For PyPI installation:**
+
+```json
+{
+  "tealflow-mcp": {
+    "command": "tealflow-mcp"
+  }
+}
+```
+
+**For source installation:**
 
 ```json
 {
@@ -52,7 +62,7 @@ Add this configuration to your editor's MCP settings file:
 }
 ```
 
-**Important:** Replace `/absolute/path/to/TealFlowMCP` with the actual absolute path to your cloned repository.
+Replace `/absolute/path/to/TealFlowMCP` with the actual absolute path to your cloned repository.
 
 Consult your editor's documentation for the exact location of the MCP configuration file. See the [Quickstart Guide](docs/QUICKSTART.md) and [Configuration Guide](docs/CONFIGURATION.md) for detailed setup instructions.
 
