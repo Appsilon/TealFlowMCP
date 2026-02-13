@@ -13,7 +13,7 @@ The server helps with:
 - Generating R code for Teal apps
 """
 
-__version__ = "0.1.0"
+__version__ = "0.1.3"
 
 from .core import PackageFilter, ResponseFormat
 from .models import (
@@ -49,6 +49,18 @@ from .tools import (
     tealflow_snapshot_renv_environment,
 )
 
+
+def main() -> None:
+    """Entry point for the tealflow-mcp console command.
+
+    This function is called when running `tealflow-mcp` from the command line.
+    It imports and runs the MCP server.
+    """
+    from .server import run_server
+
+    run_server()
+
+
 __all__ = [
     "CheckDatasetRequirementsInput",
     "CheckShinyStartupInput",
@@ -66,6 +78,7 @@ __all__ = [
     "SetupRenvEnvironmentInput",
     "SnapshotRenvEnvironmentInput",
     "__version__",
+    "main",
     "tealflow_check_dataset_requirements",
     "tealflow_check_shiny_startup",
     "tealflow_discover_datasets",
