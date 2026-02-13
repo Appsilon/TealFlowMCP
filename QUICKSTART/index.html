@@ -1310,7 +1310,8 @@
 </span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="nb">cd</span><span class="w"> </span>my-teal-app
 </span></code></pre></div>
 <h3 id="copy-sample-data">Copy Sample Data<a class="headerlink" href="#copy-sample-data" title="Permanent link">&para;</a></h3>
-<p>Copy the sample clinical trial datasets from TealFlowMCP to your project:</p>
+<p><strong>For PyPI installation:</strong> The sample datasets are included in the package and can be accessed programmatically, or you can download them from the <a href="https://github.com/Appsilon/TealFlowMCP/tree/main/sample_data">GitHub repository</a>.</p>
+<p><strong>For source installation:</strong> Copy the sample clinical trial datasets from TealFlowMCP to your project:</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>cp<span class="w"> </span>-r<span class="w"> </span>/path/to/TealFlowMCP/sample_data<span class="w"> </span>./
 </span></code></pre></div>
 <p>The sample data includes:
@@ -1364,18 +1365,26 @@
 <p>Reopen VSCode</p>
 </li>
 <li>
-<p><strong>Verify uv is in PATH:</strong>
-   <div class="language-bash highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>which<span class="w"> </span>uv<span class="w">  </span><span class="c1"># Linux/macOS</span>
-</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>where<span class="w"> </span>uv<span class="w">  </span><span class="c1"># Windows</span>
-</span></code></pre></div></p>
-</li>
-<li>
-<p><strong>Test the MCP server manually:</strong>
-   <div class="language-bash highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="nb">cd</span><span class="w"> </span>/path/to/TealFlowMCP
-</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>tealflow_mcp.py
-</span></code></pre></div></p>
+<p><strong>Verify installation:</strong></p>
 </li>
 </ol>
+<p>For PyPI installation:
+   <div class="language-bash highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import tealflow_mcp; print(f&#39;TealFlowMCP version {tealflow_mcp.__version__}&#39;)&quot;</span>
+</span></code></pre></div></p>
+<p>For source installation (verify uv is in PATH):
+   <div class="language-bash highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>which<span class="w"> </span>uv<span class="w">  </span><span class="c1"># Linux/macOS</span>
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>where<span class="w"> </span>uv<span class="w">  </span><span class="c1"># Windows</span>
+</span></code></pre></div></p>
+<ol>
+<li><strong>Test the MCP server manually:</strong></li>
+</ol>
+<p>For PyPI installation:
+   <div class="language-bash highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>tealflow-mcp
+</span></code></pre></div></p>
+<p>For source installation:
+   <div class="language-bash highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="nb">cd</span><span class="w"> </span>/path/to/TealFlowMCP
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>uv<span class="w"> </span>run<span class="w"> </span>tealflow_mcp.py
+</span></code></pre></div></p>
 
 
 
