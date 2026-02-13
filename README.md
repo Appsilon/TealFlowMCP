@@ -14,19 +14,21 @@ Currently supports two Teal module packages:
 
 ## Documentation
 
-- **[Quickstart Guide](docs/QUICKSTART.md)** - Get started with VSCode and GitHub Copilot
-- **[Tool Reference](docs/TOOLS.md)** - Complete reference for all 14 MCP tools
-- **[Configuration Guide](docs/CONFIGURATION.md)** - Setup, usage examples, and FAQs
+- **[Quickstart Guide](https://appsilon.github.io/TealFlowMCP/QUICKSTART/)** - Get started with VSCode and GitHub Copilot
+- **[Tool Reference](https://appsilon.github.io/TealFlowMCP/TOOLS/)** - Complete reference for all 14 MCP tools
+- **[Configuration Guide](https://appsilon.github.io/TealFlowMCP/CONFIGURATION/)** - Setup, usage examples, and FAQs
 
 ## Quick Start
 
-**New to TealFlowMCP?** Check out the [Quickstart Guide](docs/QUICKSTART.md) for step-by-step instructions to get up and running with VSCode and GitHub Copilot.
+**New to TealFlowMCP?** Check out the [Quickstart Guide](https://appsilon.github.io/TealFlowMCP/QUICKSTART/) for step-by-step instructions to get up and running with VSCode and GitHub Copilot.
 
 ## Prerequisites
 
 * Python 3.10+
-* uv (Python project manager) installed and available in your PATH
 * R (required for running generated Teal applications)
+
+**For development/source installation only:**
+* uv (Python project manager) - [Installation guide](https://docs.astral.sh/uv/getting-started/installation/)
 
 ## MCP Compatibility
 
@@ -64,7 +66,7 @@ The server is LLM-agnostic—it provides tools that any LLM can use to build Tea
 
 Replace `/absolute/path/to/TealFlowMCP` with the actual absolute path to your cloned repository.
 
-Consult your editor's documentation for the exact location of the MCP configuration file. See the [Quickstart Guide](docs/QUICKSTART.md) and [Configuration Guide](docs/CONFIGURATION.md) for detailed setup instructions.
+Consult your editor's documentation for the exact location of the MCP configuration file. See the [Quickstart Guide](https://appsilon.github.io/TealFlowMCP/QUICKSTART/) and [Configuration Guide](https://appsilon.github.io/TealFlowMCP/CONFIGURATION/) for detailed setup instructions.
 
 ## Architecture
 
@@ -229,7 +231,13 @@ print(f'Found {result[\"count\"]} datasets')
 
 ## Running the MCP
 
-The MCP can be run with a command:
+**For PyPI installation:**
+
+```bash
+tealflow-mcp
+```
+
+**For source installation:**
 
 ```bash
 uv --directory /absolute/path/to/TealFlowMCP/ run tealflow_mcp.py
@@ -237,6 +245,12 @@ uv --directory /absolute/path/to/TealFlowMCP/ run tealflow_mcp.py
 
 You can also test the MCP using the MCP inspector:
 
+**PyPI installation:**
+```bash
+npx @modelcontextprotocol/inspector tealflow-mcp
+```
+
+**Source installation:**
 ```bash
 npx @modelcontextprotocol/inspector uv --directory /absolute/path/to/TealFlowMCP/ run tealflow_mcp.py
 ```
@@ -269,7 +283,7 @@ TealFlowMCP provides 14 tools for building Teal applications:
 - `tealflow_snapshot_renv_environment` - Snapshot current R environment state
 - `tealflow_check_shiny_startup` - Validate app startup
 
-**[View complete tool reference →](docs/TOOLS.md)**
+**[View complete tool reference →](https://appsilon.github.io/TealFlowMCP/TOOLS/)**
 
 ## Configuration
 
@@ -292,7 +306,7 @@ TealFlowMCP works with any MCP-compatible client (Claude Desktop, Claude Code, G
 }
 ```
 
-**[View complete configuration guide →](docs/CONFIGURATION.md)**
+**[View complete configuration guide →](https://appsilon.github.io/TealFlowMCP/CONFIGURATION/)**
 
 ## Quick Start
 
@@ -307,7 +321,7 @@ The LLM will automatically:
 - Validate dataset compatibility
 - Generate complete app code
 
-**[View usage examples and FAQs →](docs/CONFIGURATION.md)**
+**[View usage examples and FAQs →](https://appsilon.github.io/TealFlowMCP/CONFIGURATION/)**
 
 ## About Appsilon
 
