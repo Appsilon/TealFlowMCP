@@ -2,7 +2,7 @@
 
 [![PyPI version](https://badge.fury.io/py/tealflow-mcp.svg)](https://badge.fury.io/py/tealflow-mcp)
 [![Python versions](https://img.shields.io/pypi/pyversions/tealflow-mcp.svg)](https://pypi.org/project/tealflow-mcp/)
-[![License: LGPL v3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 [![Downloads](https://pepy.tech/badge/tealflow-mcp)](https://pepy.tech/project/tealflow-mcp)
 [![Documentation](https://img.shields.io/badge/docs-mkdocs-blue.svg)](https://appsilon.github.io/TealFlowMCP/)
 
@@ -327,4 +327,9 @@ The LLM will automatically:
 
 TealFlowMCP is developed by [Appsilon](https://appsilon.com), a trusted technology partner for pharmaceutical and life sciences companies specializing in accelerating drug development through open-source solutions. Appsilon helps organizations transition from legacy systems to modern, validated open-source analytics while maintaining strict regulatory compliance.
 
+
 Learn more at [appsilon.com](https://appsilon.com)
+
+## License
+
+This project is licensed under the GNU Affero General Public License v3.0 (AGPL-3.0). See the LICENSE file for details.
