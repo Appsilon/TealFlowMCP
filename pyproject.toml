@@ -7,7 +7,7 @@ name = "tealflow-mcp"
 version = "0.2.0.dev1"
 description = "MCP server for discovering, understanding, and generating Teal R Shiny applications for clinical trial data analysis"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 license = { text = "AGPL-3.0-only" }
 authors = [
     { name = "Jakub Nowicki", email = "kuba@appsilon.com" },
@@ -35,9 +35,9 @@ classifiers = [
     "Intended Audience :: Science/Research",
     "License :: OSI Approved :: GNU Affero General Public License v3",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Topic :: Scientific/Engineering",
 ]
@@ -45,7 +45,7 @@ dependencies = [
     "mcp>=1.0.0",
     "pydantic>=2.0.0",
     "pandas>=2.0.0",
-    "pyreadr>=0.5.0",
+    "rdata>=1.0.0",
 ]
 
 [project.urls]
@@ -78,7 +78,7 @@ docs = [
 [tool.ruff]
 # Set the maximum line length to 100
 line-length = 100
-target-version = "py310"
+target-version = "py311"
 
 # Exclude common directories
 exclude = [
@@ -135,7 +135,7 @@ skip-magic-trailing-comma = false
 line-ending = "auto"
 
 [tool.mypy]
-python_version = "3.10"
+python_version = "3.11"
 warn_unused_configs = true
 disallow_untyped_defs = false
 disallow_incomplete_defs = false
@@ -152,7 +152,7 @@ strict_optional = false
 module = [
     "mcp.*",
     "fastmcp.*",
-    "pyreadr.*",
+    "rdata.*",
     "pandas.*",
 ]
 ignore_missing_imports = true

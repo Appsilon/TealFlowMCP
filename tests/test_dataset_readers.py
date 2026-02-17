@@ -10,6 +10,7 @@ import pytest
 
 from tealflow_mcp.utils import ColumnInfo, DatasetInfo, read_dataset_info
 from tealflow_mcp.utils.dataset_readers import (
+    _infer_datetime_type,
     _infer_object_type,
     _read_csv_dataset,
     _read_rds_dataset,
@@ -403,6 +404,70 @@ class TestInferObjectType:
         series = pd.Series([None, None, None], dtype=object)
         result = _infer_object_type(series)
         assert result == "character"
+
+
+class TestInferDatetimeType:
+    """Test _infer_datetime_type function for distinguishing Date vs POSIXct."""
+
+    def test_date_only_returns_date(self):
+        """Test that datetime values with only date (midnight) return 'date'."""
+        series = pd.Series(pd.to_datetime(["2024-01-01", "2024-01-02", "2024-01-03"]))
+        result = _infer_datetime_type(series)
+        assert result == "date"
+
+    def test_datetime_with_time_returns_posixct(self):
+        """Test that datetime values with time component return 'POSIXct'."""
+        series = pd.Series(
+            pd.to_datetime(["2024-01-01 10:30:00", "2024-01-02 15:45:30", "2024-01-03 08:00:00"])
+        )
+        result = _infer_datetime_type(series)
+        assert result == "POSIXct"
+
+    def test_mixed_midnight_and_time_returns_posixct(self):
+        """Test that mix of midnight and non-midnight times returns 'POSIXct'."""
+        series = pd.Series(
+            pd.to_datetime(["2024-01-01 00:00:00", "2024-01-02 15:45:30", "2024-01-03 00:00:00"])
+        )
+        result = _infer_datetime_type(series)
+        assert result == "POSIXct"
+
+    def test_empty_series_returns_posixct(self):
+        """Test that empty series defaults to 'POSIXct'."""
+        series = pd.Series([], dtype="datetime64[ns]")
+        result = _infer_datetime_type(series)
+        assert result == "POSIXct"
+
+    def test_all_null_returns_posixct(self):
+        """Test that all-null series defaults to 'POSIXct'."""
+        series = pd.Series([pd.NaT, pd.NaT, pd.NaT])
+        result = _infer_datetime_type(series)
+        assert result == "POSIXct"
+
+    def test_date_with_some_nulls(self):
+        """Test that date series with some nulls returns 'date'."""
+        series = pd.Series(pd.to_datetime(["2024-01-01", None, "2024-01-03", None]))
+        result = _infer_datetime_type(series)
+        assert result == "date"
+
+    def test_datetime_with_microseconds_returns_posixct(self):
+        """Test that datetime with microseconds returns 'POSIXct'."""
+        series = pd.Series(
+            pd.to_datetime(["2024-01-01 00:00:00.000001", "2024-01-02 00:00:00.000002"])
+        )
+        result = _infer_datetime_type(series)
+        assert result == "POSIXct"
+
+    def test_single_midnight_value_returns_date(self):
+        """Test that single midnight value returns 'date'."""
+        series = pd.Series(pd.to_datetime(["2024-01-01"]))
+        result = _infer_datetime_type(series)
+        assert result == "date"
+
+    def test_single_non_midnight_value_returns_posixct(self):
+        """Test that single non-midnight value returns 'POSIXct'."""
+        series = pd.Series(pd.to_datetime(["2024-01-01 12:00:00"]))
+        result = _infer_datetime_type(series)
+        assert result == "POSIXct"
 
 
 class TestTypeInferenceInRdsFiles:
