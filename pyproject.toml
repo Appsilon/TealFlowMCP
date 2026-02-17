@@ -4,11 +4,12 @@ build-backend = "hatchling.build"
 
 [project]
 name = "tealflow-mcp"
-version = "0.1.3.post2"
+
+version = "0.1.4"
 description = "MCP server for discovering, understanding, and generating Teal R Shiny applications for clinical trial data analysis"
 readme = "README.md"
 requires-python = ">=3.10"
-license = { text = "LGPL-3.0" }
+license = { text = "AGPL-3.0-only" }
 authors = [
     { name = "Jakub Nowicki", email = "kuba@appsilon.com" },
     { name = "Julian Guillo", email = "julian.guillo@appsilon.com" },
@@ -33,7 +34,7 @@ classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: GNU Lesser General Public License v3 or later (LGPLv3+)",
+    "License :: OSI Approved :: GNU Affero General Public License v3",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
