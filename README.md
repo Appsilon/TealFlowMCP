@@ -327,7 +327,7 @@ The LLM will automatically:
 
 We welcome contributions to TealFlowMCP! Whether you're fixing bugs, adding features, or improving documentation, your help is appreciated.
 
-Please see [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines on our development workflow, branching strategy, and version management.
+Please see the [Contributing Guide](https://appsilon.github.io/TealFlowMCP/CONTRIBUTING/) for detailed guidelines on our development workflow, branching strategy, and version management.
 
 ## About Appsilon
 

@@ -75,6 +75,9 @@ nav:
       - Quick Start: QUICKSTART.md
       - Configuration: CONFIGURATION.md
       - Tool Reference: TOOLS.md
+  - Development:
+      - Contributing Guide: CONTRIBUTING.md
+      - Changelog: CHANGELOG.md
   - About:
       - License: license.md
 
