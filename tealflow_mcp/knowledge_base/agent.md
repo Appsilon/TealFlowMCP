@@ -462,6 +462,407 @@ When providing R code or guidance to users:
 - **Iterative Validation**: Encourage users to test generated code incrementally as modules are added
 - **Minimal Changes**: When modifying existing apps, only change code directly related to the new functionality
 
+### Understanding teal.transform Helper Functions
+
+The `teal.transform` package provides essential helper functions for configuring module parameters. Understanding when to use `variable_choices()` vs `value_choices()` is critical for generating correct code.
+
+#### The Three Core Functions
+
+##### 1. variable_choices() - Column Selection
+
+**Function Signature:**
+```r
+variable_choices(data, subset = NULL, fill = FALSE, key = NULL)
+```
+
+**Purpose:** Extract **column names** (variables) from a dataset to let users select which columns to analyze.
+
+**When to Use:** When users need to **SELECT which COLUMN** contains the information they want to analyze.
+
+**Returns:** Named character vector of column names with their labels (from variable labels in data).
+
+**Parameters:**
+- `data` - Dataset or dataset name (e.g., "ADSL", ADSL object)
+- `subset` - Character vector limiting which columns to include
+- `fill` - If TRUE, returns variable names for columns without labels
+- `key` - Character vector of primary key variable names
+
+**Common Use Cases:**
+- Selecting which column contains treatment arm information (`arm_var`)
+- Selecting which column contains stratification variable (`strata_var`)
+- Selecting X/Y axis variables for plots (`x_var`, `y_var`)
+- Selecting faceting variables for multi-panel plots (`facet_var`)
+- Specifying required analysis columns like "AVAL", "CNSR" (with `fixed=TRUE`)
+
+##### 2. value_choices() - Value Filtering
+
+**Function Signature:**
+```r
+value_choices(data, var_choices, var_label = NULL, subset = NULL, sep = " - ")
+```
+
+**Purpose:** Extract **unique values** from specific columns, with optional labels from related columns, to let users filter the dataset.
+
+**When to Use:** When users need to **FILTER data by specific VALUES** within a column.
+
+**Returns:** Named character vector where names are values and labels combine value + optional label column(s).
+
+**Parameters:**
+- `data` - Dataset or dataset name
+- `var_choices` - Column name(s) containing the values to extract
+- `var_label` - Optional column name(s) containing descriptive labels
+- `subset` - Function or character vector to filter which values to include
+- `sep` - Separator for combining multiple columns (default: " - ")
+
+**Common Use Cases:**
+- Filtering by parameter codes in lab data (`paramcd` with ADLB)
+- Filtering by visit values (`avisit` selections)
+- Filtering by specific response categories
+- Any scenario where users select from categorical values within a column
+
+##### 3. choices_selected() - Wrapper Function
+
+**Function Signature:**
+```r
+choices_selected(choices, selected = NULL, keep_order = FALSE, fixed = FALSE)
+```
+
+**Purpose:** Wrapper that combines available choices (from `variable_choices()` or `value_choices()`) with default selections and UI behavior.
+
+**Parameters:**
+- `choices` - Output from `variable_choices()` or `value_choices()`
+- `selected` - Default/pre-selected value(s)
+- `keep_order` - If FALSE, selected items appear first; if TRUE, preserve original order
+- `fixed` - If TRUE, user cannot change the selection (read-only)
+
+**Usage:** Almost always wraps `variable_choices()` or `value_choices()` calls.
+
+#### Critical Distinction: Column vs Value
+
+**Think of it this way:**
+- `variable_choices()` = "Which **COLUMN** do you want?" (AGE, SEX, RACE, ARM)
+- `value_choices()` = "Which **VALUE** in this column?" (GLUC, ALT, BILI within PARAMCD)
+
+**Rule of Thumb:**
+- If the parameter name ends in `_var` → usually `variable_choices()`
+- If the parameter is about filtering (like `paramcd`, `avisit`) → usually `value_choices()`
+- If it's selecting a required analysis column → `variable_choices()` with `fixed=TRUE`
+
+#### Decision Guide Table
+
+| Scenario | Function to Use | Typical Parameters |
+|----------|----------------|-------------------|
+| User selects which **COLUMN** to analyze | `variable_choices()` | arm_var, strata_var, x_var, y_var, color_var, facet_var |
+| User filters by **VALUES** in a column | `value_choices()` | paramcd, avisit |
+| Fixed to specific column name (required) | `variable_choices(data, "COL")` + fixed=TRUE | aval_var="AVAL", cnsr_var="CNSR", time_unit_var="AVALU" |
+| Dynamic column selection (any column) | `variable_choices(data)` | Flexible variable selection |
+| Filter with descriptive labels | `value_choices(data, "VAR", "LABEL")` | paramcd with PARAM labels |
+| Multiple specific column options | `variable_choices(data, c("A", "B", "C"))` | arm_var with ARM/ARMCD/ACTARM choices |
+
+#### Common Patterns with ADaM Datasets
+
+##### Pattern 1: Treatment Arm Variable Selection
+
+**Scenario:** Let user select which column contains treatment arm information.
+
+```r
+arm_var = teal.transform::choices_selected(
+  teal.transform::variable_choices(ADSL, c("ARM", "ARMCD", "ACTARM")),
+  selected = "ARM",
+  fixed = FALSE
+)
+```
+
+**Explanation:**
+- Uses `variable_choices()` because we're selecting which **COLUMN** contains arm data
+- Provides 3 column options: ARM, ARMCD, ACTARM
+- Pre-selects "ARM" but user can change it
+- User sees column labels in UI: "ARM - Description of Planned Arm"
+
+##### Pattern 2: Parameter Code Filtering (Lab Data)
+
+**Scenario:** Filter lab data (ADLB) to specific parameter codes like glucose or ALT.
+
+```r
+paramcd = teal.transform::choices_selected(
+  teal.transform::value_choices(ADLB, "PARAMCD", "PARAM"),
+  selected = "GLUC",
+  fixed = FALSE
+)
+```
+
+**Explanation:**
+- Uses `value_choices()` because we're filtering by **VALUES** in the PARAMCD column
+- Extracts unique values from PARAMCD column (GLUC, ALT, BILI, etc.)
+- Labels come from PARAM column: "GLUC - Glucose (Fasting)"
+- Pre-selects "GLUC" but user can select other parameters
+- This is the most common pattern for lab/biomarker analyses
+
+##### Pattern 3: Fixed Analysis Variable
+
+**Scenario:** Require a specific column for analysis (e.g., AVAL for analysis value).
+
+```r
+aval_var = teal.transform::choices_selected(
+  teal.transform::variable_choices(ADTTE, "AVAL"),
+  selected = "AVAL",
+  fixed = TRUE
+)
+```
+
+**Explanation:**
+- Uses `variable_choices()` to specify the **COLUMN** name
+- Subset to only "AVAL" column
+- `fixed = TRUE` means user cannot change this (required for analysis)
+- Common for: aval_var, cnsr_var, time_unit_var in time-to-event analyses
+
+##### Pattern 4: Stratification Variable Selection
+
+**Scenario:** Let user select which column to use for stratifying Kaplan-Meier curves.
+
+```r
+strata_var = teal.transform::choices_selected(
+  teal.transform::variable_choices(ADSL, c("SEX", "RACE", "STRATA1", "STRATA2")),
+  selected = "SEX",
+  fixed = FALSE
+)
+```
+
+**Explanation:**
+- Uses `variable_choices()` to select stratification **COLUMN**
+- Provides multiple demographic/stratification column options
+- Pre-selects "SEX" as default stratification variable
+- User can switch to RACE or other stratification variables
+
+##### Pattern 5: Visit Filtering
+
+**Scenario:** Filter data to specific analysis visits.
+
+```r
+avisit = teal.transform::choices_selected(
+  teal.transform::value_choices(ADLB, "AVISIT"),
+  selected = c("BASELINE", "WEEK 8", "WEEK 16")
+)
+```
+
+**Explanation:**
+- Uses `value_choices()` to filter by visit **VALUES**
+- Extracts unique visits from AVISIT column
+- Pre-selects multiple visits
+- User can select different visit combinations
+
+##### Pattern 6: Dynamic Numeric Variable Selection
+
+**Scenario:** Let user freely select any numeric variable for X-axis.
+
+```r
+x_var = teal.transform::variable_choices(ADSL)
+```
+
+**Explanation:**
+- Uses `variable_choices()` without subset (all columns available)
+- User can select from any column in ADSL
+- Useful for exploratory scatter plots or flexible analyses
+- UI will show all columns with their labels
+
+##### Pattern 7: Faceting Variable with Optional Selection
+
+**Scenario:** Optionally split plots into panels by a categorical variable.
+
+```r
+facet_var = teal.transform::choices_selected(
+  teal.transform::variable_choices(
+    ADSL,
+    c("SEX", "RACE", "AGEGR1", "COUNTRY")
+  ),
+  selected = NULL  # No default selection
+)
+```
+
+**Explanation:**
+- Uses `variable_choices()` to select faceting **COLUMN**
+- selected = NULL means faceting is optional (not applied by default)
+- User can choose to facet or leave it empty
+
+##### Pattern 8: Multiple Parameter Filtering with Labels
+
+**Scenario:** Filter to multiple related parameters with full descriptive labels.
+
+```r
+paramcd = teal.transform::choices_selected(
+  teal.transform::value_choices(ADLB, "PARAMCD", "PARAM"),
+  selected = c("ALT", "AST", "BILI"),
+  keep_order = TRUE
+)
+```
+
+**Explanation:**
+- Uses `value_choices()` for parameter **VALUE** filtering
+- Pre-selects liver function tests (ALT, AST, BILI)
+- `keep_order = TRUE` maintains original ordering instead of moving selected to top
+- User sees: "ALT - Alanine Aminotransferase", "AST - Aspartate Aminotransferase"
+
+#### Common Mistakes and How to Avoid Them
+
+##### Mistake 1: Using value_choices() for Column Selection
+
+**WRONG:**
+```r
+arm_var = choices_selected(
+  value_choices(ADSL, "ARM"),  # ❌ WRONG - extracts VALUES from ARM column
+  selected = "ARM"
+)
+```
+
+**RIGHT:**
+```r
+arm_var = choices_selected(
+  variable_choices(ADSL, c("ARM", "ARMCD")),  # ✓ Correct - selects COLUMN name
+  selected = "ARM"
+)
+```
+
+**Why Wrong:** arm_var should let users choose which COLUMN contains arm info (ARM vs ARMCD), not filter by specific arm values.
+
+##### Mistake 2: Using variable_choices() for Parameter Filtering
+
+**WRONG:**
+```r
+paramcd = choices_selected(
+  variable_choices(ADLB, "PARAMCD"),  # ❌ WRONG - selects PARAMCD as column
+  selected = "GLUC"
+)
+```
+
+**RIGHT:**
+```r
+paramcd = choices_selected(
+  value_choices(ADLB, "PARAMCD", "PARAM"),  # ✓ Correct - filters by VALUES
+  selected = "GLUC"
+)
+```
+
+**Why Wrong:** paramcd should filter data to specific parameter codes (GLUC, ALT), not select the PARAMCD column itself.
+
+##### Mistake 3: Forgetting Labels in value_choices()
+
+**SUBOPTIMAL:**
+```r
+paramcd = choices_selected(
+  value_choices(ADLB, "PARAMCD"),  # Works but no descriptive labels
+  selected = "GLUC"
+)
+# User sees: "GLUC" (not very descriptive)
+```
+
+**BETTER:**
+```r
+paramcd = choices_selected(
+  value_choices(ADLB, "PARAMCD", "PARAM"),  # ✓ Includes descriptive labels
+  selected = "GLUC"
+)
+# User sees: "GLUC - Glucose (Fasting)" (much clearer)
+```
+
+**Why Better:** Including the label column (PARAM) provides context for users selecting parameters.
+
+##### Mistake 4: Not Using fixed=TRUE for Required Variables
+
+**SUBOPTIMAL:**
+```r
+aval_var = choices_selected(
+  variable_choices(ADTTE, "AVAL"),
+  selected = "AVAL"
+  # Missing: fixed = TRUE
+)
+```
+
+**BETTER:**
+```r
+aval_var = choices_selected(
+  variable_choices(ADTTE, "AVAL"),
+  selected = "AVAL",
+  fixed = TRUE  # ✓ User cannot change this required variable
+)
+```
+
+**Why Better:** Analysis requires AVAL specifically; letting users change it would break the analysis.
+
+##### Mistake 5: Mixing Up Dataset Context
+
+**WRONG:**
+```r
+# In a module using ADTTE (time-to-event data)
+arm_var = choices_selected(
+  variable_choices(ADSL, c("ARM", "ARMCD")),  # References ADSL
+  selected = "ARM"
+)
+```
+
+**RIGHT (if ADTTE is primary dataset):**
+```r
+# Option 1: Use data_extract_spec to properly link to ADSL
+arm_var = data_extract_spec(
+  dataname = "ADSL",
+  select = select_spec(
+    choices = variable_choices(ADSL, c("ARM", "ARMCD")),
+    selected = "ARM"
+  )
+)
+
+# Option 2: If module expects choices_selected directly, ensure ARM exists in ADTTE
+arm_var = choices_selected(
+  variable_choices(ADTTE, c("ARM", "ARMCD")),  # ✓ Correct dataset
+  selected = "ARM"
+)
+```
+
+**Why Wrong:** Dataset reference must match the module's context and data structure.
+
+#### Quick Reference: Function Selection Decision Tree
+
+```
+Question: What does this parameter do?
+│
+├─ Does it select which COLUMN to analyze?
+│  └─ YES → Use variable_choices()
+│     Examples: arm_var, strata_var, x_var, y_var
+│
+├─ Does it filter data by VALUES within a column?
+│  └─ YES → Use value_choices()
+│     Examples: paramcd="GLUC", avisit="BASELINE"
+│
+├─ Is it a required, fixed analysis column?
+│  └─ YES → Use variable_choices(data, "COLUMN") + fixed=TRUE
+│     Examples: aval_var="AVAL", cnsr_var="CNSR"
+│
+└─ Is it a simple configuration value (not data-driven)?
+   └─ YES → Use direct value or simple vector
+      Examples: conf_level=0.95, font_size=12
+```
+
+#### When to Reference This Section
+
+**Always reference this section when:**
+- Generating code for module parameters of type `choices_selected`
+- User asks about differences between `variable_choices()` and `value_choices()`
+- Debugging incorrect parameter configurations
+- Explaining why generated code uses a specific function
+
+**Key Principle:**
+If you're uncertain which function to use, ask yourself: "Is the user selecting a COLUMN or filtering by VALUES in a column?" This single question resolves 95% of cases.
+
+#### Additional Resources
+
+**Official Documentation:**
+- [variable_choices() reference](https://insightsengineering.github.io/teal.transform/latest-tag/reference/variable_choices.html)
+- [value_choices() reference](https://insightsengineering.github.io/teal.transform/latest-tag/reference/value_choices.html)
+- [choices_selected() reference](https://insightsengineering.github.io/teal.transform/latest-tag/reference/choices_selected.html)
+
+**Related MCP Tools:**
+- Use `tealflow_get_module_details` to see recommended functions for specific module parameters
+- Use `tealflow_generate_module_code` with `include_comments=true` for inline guidance
+
 ### Package Management
 
 - Teal applications typically use renv for dependency management
