@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Branching workflow documentation (CONTRIBUTING.md)
 - Changelog file
 - Comprehensive unit tests for R Date/POSIXct type inference with Series.attrs
+- Comprehensive documentation for `teal.transform` helper functions (`variable_choices()`, `value_choices()`, `choices_selected()`) in agent guidance
 
 ### Changed
 - Replaced `pyreadr` (AGPL-3.0) with `rdata` (MIT) for reading RDS files
