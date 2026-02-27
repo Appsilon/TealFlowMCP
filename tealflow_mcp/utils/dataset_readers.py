@@ -12,6 +12,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+import numpy as np
 import pandas as pd
 import rdata
 from rdata.conversion import DEFAULT_CLASS_MAP, SimpleConverter
@@ -23,12 +24,20 @@ def _date_constructor(obj: Any, attrs: Mapping[str, Any]) -> Any:
 
     R Date stores dates as days since 1970-01-01.
     Converts to pandas datetime64[ns] with date precision.
+    Handles NaN values without triggering RuntimeWarning.
     """
-    # Convert days since epoch to datetime
-    # Using pandas Timestamp for proper NA handling
-    origin = pd.Timestamp("1970-01-01")
-    dates = pd.to_datetime(obj, unit="D", origin=origin, errors="coerce")
-    return dates
+    obj_array = np.asarray(obj, dtype=float)
+    mask = ~np.isnan(obj_array)
+
+    # Create result series with NaT for all positions
+    result = pd.Series(pd.NaT, index=range(len(obj_array)), dtype="datetime64[ns]")
+
+    # Convert only non-NaN values
+    if mask.any():
+        origin = pd.Timestamp("1970-01-01")
+        result[mask] = pd.to_datetime(obj_array[mask], unit="D", origin=origin, errors="coerce")
+
+    return result
 
 
 def _posixct_constructor(obj: Any, attrs: Mapping[str, Any]) -> Any:
@@ -37,10 +46,19 @@ def _posixct_constructor(obj: Any, attrs: Mapping[str, Any]) -> Any:
 
     R POSIXct stores datetimes as seconds since 1970-01-01 UTC.
     Converts to pandas datetime64[ns].
+    Handles NaN values without triggering RuntimeWarning.
     """
-    # Convert seconds since epoch to datetime
-    datetimes = pd.to_datetime(obj, unit="s", errors="coerce")
-    return datetimes
+    obj_array = np.asarray(obj, dtype=float)
+    mask = ~np.isnan(obj_array)
+
+    # Create result series with NaT for all positions
+    result = pd.Series(pd.NaT, index=range(len(obj_array)), dtype="datetime64[ns]")
+
+    # Convert only non-NaN values
+    if mask.any():
+        result[mask] = pd.to_datetime(obj_array[mask], unit="s", errors="coerce")
+
+    return result
 
 
 # Custom class map with Date and POSIXct support

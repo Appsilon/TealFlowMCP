@@ -10,8 +10,10 @@ import pytest
 
 from tealflow_mcp.utils import ColumnInfo, DatasetInfo, read_dataset_info
 from tealflow_mcp.utils.dataset_readers import (
+    _date_constructor,
     _infer_datetime_type,
     _infer_object_type,
+    _posixct_constructor,
     _read_csv_dataset,
     _read_rds_dataset,
 )
@@ -404,6 +406,119 @@ class TestInferObjectType:
         series = pd.Series([None, None, None], dtype=object)
         result = _infer_object_type(series)
         assert result == "character"
+
+
+class TestNaNAwareDateConstructors:
+    """Test _date_constructor and _posixct_constructor with NaN handling."""
+
+    def test_date_constructor_all_valid(self):
+        """Test Date constructor with all valid values (no NaN)."""
+        import warnings
+
+        import numpy as np
+
+        # Days since 1970-01-01: 0, 1, 2
+        obj = np.array([0.0, 1.0, 2.0])
+
+        with warnings.catch_warnings():
+            warnings.simplefilter("error", RuntimeWarning)
+            result = _date_constructor(obj, {})
+
+        assert result.dtype == "datetime64[ns]"
+        assert len(result) == 3
+        assert pd.notna(result[0])
+        assert result[0] == pd.Timestamp("1970-01-01")
+        assert result[1] == pd.Timestamp("1970-01-02")
+
+    def test_date_constructor_with_nan(self):
+        """Test Date constructor with some NaN values."""
+        import warnings
+
+        import numpy as np
+
+        obj = np.array([0.0, np.nan, 2.0, np.nan, 4.0])
+
+        with warnings.catch_warnings():
+            warnings.simplefilter("error", RuntimeWarning)
+            result = _date_constructor(obj, {})
+
+        assert result.dtype == "datetime64[ns]"
+        assert len(result) == 5
+        assert pd.notna(result[0])
+        assert pd.isna(result[1])
+        assert pd.notna(result[2])
+        assert pd.isna(result[3])
+        assert pd.notna(result[4])
+
+    def test_date_constructor_all_nan(self):
+        """Test Date constructor with all NaN values."""
+        import warnings
+
+        import numpy as np
+
+        obj = np.array([np.nan, np.nan, np.nan])
+
+        with warnings.catch_warnings():
+            warnings.simplefilter("error", RuntimeWarning)
+            result = _date_constructor(obj, {})
+
+        assert result.dtype == "datetime64[ns]"
+        assert len(result) == 3
+        assert pd.isna(result).all()
+
+    def test_posixct_constructor_all_valid(self):
+        """Test POSIXct constructor with all valid values (no NaN)."""
+        import warnings
+
+        import numpy as np
+
+        # Seconds since epoch
+        obj = np.array([0.0, 3600.0, 7200.0])
+
+        with warnings.catch_warnings():
+            warnings.simplefilter("error", RuntimeWarning)
+            result = _posixct_constructor(obj, {})
+
+        assert result.dtype == "datetime64[ns]"
+        assert len(result) == 3
+        assert pd.notna(result[0])
+        assert result[0] == pd.Timestamp("1970-01-01 00:00:00")
+        assert result[1] == pd.Timestamp("1970-01-01 01:00:00")
+
+    def test_posixct_constructor_with_nan(self):
+        """Test POSIXct constructor with some NaN values."""
+        import warnings
+
+        import numpy as np
+
+        obj = np.array([0.0, np.nan, 7200.0, np.nan])
+
+        with warnings.catch_warnings():
+            warnings.simplefilter("error", RuntimeWarning)
+            result = _posixct_constructor(obj, {})
+
+        assert result.dtype == "datetime64[ns]"
+        assert len(result) == 4
+        assert pd.notna(result[0])
+        assert pd.isna(result[1])
+        assert pd.notna(result[2])
+        assert pd.isna(result[3])
+
+    def test_posixct_constructor_all_nan(self):
+        """Test POSIXct constructor with all NaN values."""
+        import warnings
+
+        import numpy as np
+
+        obj = np.array([np.nan, np.nan, np.nan])
+
+        with warnings.catch_warnings():
+            warnings.simplefilter("error", RuntimeWarning)
+            result = _posixct_constructor(obj, {})
+
+        assert result.dtype == "datetime64[ns]"
+        assert len(result) == 3
+        assert pd.isna(result).all()
 
 
 class TestInferDatetimeType:
