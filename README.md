@@ -323,6 +323,12 @@ The LLM will automatically:
 
 **[View usage examples and FAQs →](https://appsilon.github.io/TealFlowMCP/CONFIGURATION/)**
 
+## Contributing
+
+We welcome contributions to TealFlowMCP! Whether you're fixing bugs, adding features, or improving documentation, your help is appreciated.
+
+Please see the [Contributing Guide](https://appsilon.github.io/TealFlowMCP/CONTRIBUTING/) for detailed guidelines on our development workflow, branching strategy, and version management.
+
 ## About Appsilon
 
 TealFlowMCP is developed by [Appsilon](https://appsilon.com), a trusted technology partner for pharmaceutical and life sciences companies specializing in accelerating drug development through open-source solutions. Appsilon helps organizations transition from legacy systems to modern, validated open-source analytics while maintaining strict regulatory compliance.

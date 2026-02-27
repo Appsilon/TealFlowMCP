@@ -19,7 +19,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: '3.11'
 
       - name: Install uv
         uses: astral-sh/setup-uv@v4
@@ -46,7 +46,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: '3.11'
 
       - name: Install uv
         uses: astral-sh/setup-uv@v4
@@ -65,7 +65,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.10', '3.11', '3.12']
+        python-version: ['3.11', '3.12', '3.13']
 
     steps:
       - name: Checkout code
@@ -95,8 +95,8 @@ jobs:
 
       - name: Run tests
         run: |
-          if [ "${{ matrix.python-version }}" == "3.10" ]; then
-            # Run with coverage on Python 3.10
+          if [ "${{ matrix.python-version }}" == "3.11" ]; then
+            # Run with coverage on Python 3.11
             uv run python -m pytest tests/ --cov=tealflow_mcp --cov-report=xml --cov-report=term-missing -v
           else
             # Run without coverage on other versions
