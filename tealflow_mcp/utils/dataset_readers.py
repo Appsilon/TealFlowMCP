@@ -25,6 +25,7 @@ def _date_constructor(obj: Any, attrs: Mapping[str, Any]) -> Any:
     R Date stores dates as days since 1970-01-01.
     Converts to pandas datetime64[ns] with date precision.
     Handles NaN values without triggering RuntimeWarning.
+    Stores original R class in Series.attrs for accurate type inference.
     """
     obj_array = np.asarray(obj, dtype=float)
     mask = ~np.isnan(obj_array)
@@ -37,6 +38,10 @@ def _date_constructor(obj: Any, attrs: Mapping[str, Any]) -> Any:
         origin = pd.Timestamp("1970-01-01")
         result[mask] = pd.to_datetime(obj_array[mask], unit="D", origin=origin, errors="coerce")
 
+    # Store original R class in attrs for accurate type inference
+    # This prevents misclassification of POSIXct columns that happen to have all midnight values
+    result.attrs["r_class"] = "Date"
+
     return result
 
 
@@ -47,6 +52,7 @@ def _posixct_constructor(obj: Any, attrs: Mapping[str, Any]) -> Any:
     R POSIXct stores datetimes as seconds since 1970-01-01 UTC.
     Converts to pandas datetime64[ns].
     Handles NaN values without triggering RuntimeWarning.
+    Stores original R class in Series.attrs for accurate type inference.
     """
     obj_array = np.asarray(obj, dtype=float)
     mask = ~np.isnan(obj_array)
@@ -57,6 +63,10 @@ def _posixct_constructor(obj: Any, attrs: Mapping[str, Any]) -> Any:
     # Convert only non-NaN values
     if mask.any():
         result[mask] = pd.to_datetime(obj_array[mask], unit="s", errors="coerce")
+
+    # Store original R class in attrs for accurate type inference
+    # This prevents misclassification of POSIXct columns that happen to have all midnight values
+    result.attrs["r_class"] = "POSIXct"
 
     return result
 
@@ -148,8 +158,12 @@ def _infer_datetime_type(col_data: pd.Series) -> str:
     """
     Infer whether a datetime column is R Date or POSIXct.
 
-    R Date columns have no time component (all times are midnight 00:00:00).
-    R POSIXct columns have actual time components.
+    First checks Series.attrs for the original R class stored during rdata conversion.
+    This prevents misclassification of POSIXct columns that legitimately have all
+    midnight timestamps.
+
+    Falls back to heuristic (time component check) for datetime data from other sources
+    (e.g., CSV files, manual series creation).
 
     Args:
         col_data: pandas Series with datetime dtype
@@ -157,6 +171,15 @@ def _infer_datetime_type(col_data: pd.Series) -> str:
     Returns:
         "date" or "POSIXct"
     """
+    # Check if original R class is stored in attrs (from rdata conversion)
+    if hasattr(col_data, "attrs") and "r_class" in col_data.attrs:
+        r_class = col_data.attrs["r_class"]
+        if r_class == "Date":
+            return "date"
+        elif r_class == "POSIXct":
+            return "POSIXct"
+
+    # Fallback: use heuristic for data from other sources (e.g., CSV, manual creation)
     # Get non-null values
     non_null = col_data.dropna()
 
@@ -168,7 +191,9 @@ def _infer_datetime_type(col_data: pd.Series) -> str:
     sample = non_null.head(min(100, len(non_null)))
 
     # Check if all times are exactly midnight (00:00:00)
-    # This indicates it's a Date (date-only) rather than POSIXct
+    # This heuristic suggests it's likely a Date (date-only) rather than POSIXct
+    # Note: This can misclassify POSIXct with all midnight values, but that's
+    # acceptable for non-R data sources where we don't have the original class info
     try:
         # For datetime64, check if time components are all zero
         times = pd.to_datetime(sample)
