@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-02-27
+
 ### Added
 - Branching workflow documentation (CONTRIBUTING.md)
 - Changelog file
@@ -42,7 +44,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - First public release to PyPI
 
-[Unreleased]: https://github.com/Appsilon/TealFlowMCP/compare/v0.1.4...HEAD
+[Unreleased]: https://github.com/Appsilon/TealFlowMCP/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/Appsilon/TealFlowMCP/compare/v0.1.4...v0.2.0
 [0.1.4]: https://github.com/Appsilon/TealFlowMCP/compare/v0.1.3.post2...v0.1.4
 [0.1.3.post2]: https://github.com/Appsilon/TealFlowMCP/compare/v0.1.3.post1...v0.1.3.post2
 [0.1.3.post1]: https://github.com/Appsilon/TealFlowMCP/releases/tag/v0.1.3.post1

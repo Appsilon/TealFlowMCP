@@ -91,7 +91,6 @@ Releases are managed by maintainers:
 2. Update version numbers (see Version Management below)
 3. Update CHANGELOG.md with release notes
 4. After merge to `main`, create and push a git tag
-5. The tag triggers automated release processes
 
 ### Version Management
 
