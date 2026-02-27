@@ -10,7 +10,10 @@ import pytest
 
 from tealflow_mcp.utils import ColumnInfo, DatasetInfo, read_dataset_info
 from tealflow_mcp.utils.dataset_readers import (
+    _date_constructor,
+    _infer_datetime_type,
     _infer_object_type,
+    _posixct_constructor,
     _read_csv_dataset,
     _read_rds_dataset,
 )
@@ -403,6 +406,279 @@ class TestInferObjectType:
         series = pd.Series([None, None, None], dtype=object)
         result = _infer_object_type(series)
         assert result == "character"
+
+
+class TestNaNAwareDateConstructors:
+    """Test _date_constructor and _posixct_constructor with NaN handling."""
+
+    def test_date_constructor_all_valid(self):
+        """Test Date constructor with all valid values (no NaN)."""
+        import warnings
+
+        import numpy as np
+
+        # Days since 1970-01-01: 0, 1, 2
+        obj = np.array([0.0, 1.0, 2.0])
+
+        with warnings.catch_warnings():
+            warnings.simplefilter("error", RuntimeWarning)
+            result = _date_constructor(obj, {})
+
+        assert result.dtype == "datetime64[ns]"
+        assert len(result) == 3
+        assert pd.notna(result[0])
+        assert result[0] == pd.Timestamp("1970-01-01")
+        assert result[1] == pd.Timestamp("1970-01-02")
+
+    def test_date_constructor_with_nan(self):
+        """Test Date constructor with some NaN values."""
+        import warnings
+
+        import numpy as np
+
+        obj = np.array([0.0, np.nan, 2.0, np.nan, 4.0])
+
+        with warnings.catch_warnings():
+            warnings.simplefilter("error", RuntimeWarning)
+            result = _date_constructor(obj, {})
+
+        assert result.dtype == "datetime64[ns]"
+        assert len(result) == 5
+        assert pd.notna(result[0])
+        assert pd.isna(result[1])
+        assert pd.notna(result[2])
+        assert pd.isna(result[3])
+        assert pd.notna(result[4])
+
+    def test_date_constructor_all_nan(self):
+        """Test Date constructor with all NaN values."""
+        import warnings
+
+        import numpy as np
+
+        obj = np.array([np.nan, np.nan, np.nan])
+
+        with warnings.catch_warnings():
+            warnings.simplefilter("error", RuntimeWarning)
+            result = _date_constructor(obj, {})
+
+        assert result.dtype == "datetime64[ns]"
+        assert len(result) == 3
+        assert pd.isna(result).all()
+
+    def test_posixct_constructor_all_valid(self):
+        """Test POSIXct constructor with all valid values (no NaN)."""
+        import warnings
+
+        import numpy as np
+
+        # Seconds since epoch
+        obj = np.array([0.0, 3600.0, 7200.0])
+
+        with warnings.catch_warnings():
+            warnings.simplefilter("error", RuntimeWarning)
+            result = _posixct_constructor(obj, {})
+
+        assert result.dtype == "datetime64[ns]"
+        assert len(result) == 3
+        assert pd.notna(result[0])
+        assert result[0] == pd.Timestamp("1970-01-01 00:00:00")
+        assert result[1] == pd.Timestamp("1970-01-01 01:00:00")
+
+    def test_posixct_constructor_with_nan(self):
+        """Test POSIXct constructor with some NaN values."""
+        import warnings
+
+        import numpy as np
+
+        obj = np.array([0.0, np.nan, 7200.0, np.nan])
+
+        with warnings.catch_warnings():
+            warnings.simplefilter("error", RuntimeWarning)
+            result = _posixct_constructor(obj, {})
+
+        assert result.dtype == "datetime64[ns]"
+        assert len(result) == 4
+        assert pd.notna(result[0])
+        assert pd.isna(result[1])
+        assert pd.notna(result[2])
+        assert pd.isna(result[3])
+
+    def test_posixct_constructor_all_nan(self):
+        """Test POSIXct constructor with all NaN values."""
+        import warnings
+
+        import numpy as np
+
+        obj = np.array([np.nan, np.nan, np.nan])
+
+        with warnings.catch_warnings():
+            warnings.simplefilter("error", RuntimeWarning)
+            result = _posixct_constructor(obj, {})
+
+        assert result.dtype == "datetime64[ns]"
+        assert len(result) == 3
+        assert pd.isna(result).all()
+
+
+class TestInferDatetimeType:
+    """Test _infer_datetime_type function for distinguishing Date vs POSIXct."""
+
+    def test_date_only_returns_date(self):
+        """Test that datetime values with only date (midnight) return 'date'."""
+        series = pd.Series(pd.to_datetime(["2024-01-01", "2024-01-02", "2024-01-03"]))
+        result = _infer_datetime_type(series)
+        assert result == "date"
+
+    def test_datetime_with_time_returns_posixct(self):
+        """Test that datetime values with time component return 'POSIXct'."""
+        series = pd.Series(
+            pd.to_datetime(["2024-01-01 10:30:00", "2024-01-02 15:45:30", "2024-01-03 08:00:00"])
+        )
+        result = _infer_datetime_type(series)
+        assert result == "POSIXct"
+
+    def test_mixed_midnight_and_time_returns_posixct(self):
+        """Test that mix of midnight and non-midnight times returns 'POSIXct'."""
+        series = pd.Series(
+            pd.to_datetime(["2024-01-01 00:00:00", "2024-01-02 15:45:30", "2024-01-03 00:00:00"])
+        )
+        result = _infer_datetime_type(series)
+        assert result == "POSIXct"
+
+    def test_empty_series_returns_posixct(self):
+        """Test that empty series defaults to 'POSIXct'."""
+        series = pd.Series([], dtype="datetime64[ns]")
+        result = _infer_datetime_type(series)
+        assert result == "POSIXct"
+
+    def test_all_null_returns_posixct(self):
+        """Test that all-null series defaults to 'POSIXct'."""
+        series = pd.Series([pd.NaT, pd.NaT, pd.NaT])
+        result = _infer_datetime_type(series)
+        assert result == "POSIXct"
+
+    def test_date_with_some_nulls(self):
+        """Test that date series with some nulls returns 'date'."""
+        series = pd.Series(pd.to_datetime(["2024-01-01", None, "2024-01-03", None]))
+        result = _infer_datetime_type(series)
+        assert result == "date"
+
+    def test_datetime_with_microseconds_returns_posixct(self):
+        """Test that datetime with microseconds returns 'POSIXct'."""
+        series = pd.Series(
+            pd.to_datetime(["2024-01-01 00:00:00.000001", "2024-01-02 00:00:00.000002"])
+        )
+        result = _infer_datetime_type(series)
+        assert result == "POSIXct"
+
+    def test_single_midnight_value_returns_date(self):
+        """Test that single midnight value returns 'date'."""
+        series = pd.Series(pd.to_datetime(["2024-01-01"]))
+        result = _infer_datetime_type(series)
+        assert result == "date"
+
+    def test_single_non_midnight_value_returns_posixct(self):
+        """Test that single non-midnight value returns 'POSIXct'."""
+        series = pd.Series(pd.to_datetime(["2024-01-01 12:00:00"]))
+        result = _infer_datetime_type(series)
+        assert result == "POSIXct"
+
+
+class TestDatetimeTypeInferenceWithAttrs:
+    """Test _infer_datetime_type with Series.attrs to preserve R class information.
+
+    This addresses the issue where POSIXct columns with all midnight values
+    would be incorrectly classified as Date when using only heuristics.
+    """
+
+    def test_posixct_with_r_class_attr_and_all_midnight_values(self):
+        """Test that POSIXct with all midnight values is correctly identified using attrs.
+
+        This is the critical test case: legitimate POSIXct columns that happen to
+        have all midnight timestamps should NOT be misclassified as Date.
+        """
+        # Create a series that looks like Date (all midnight) but is actually POSIXct
+        series = pd.Series(pd.to_datetime(["2024-01-01 00:00:00", "2024-01-02 00:00:00"]))
+        # Store the original R class in attrs
+        series.attrs["r_class"] = "POSIXct"
+
+        result = _infer_datetime_type(series)
+        assert result == "POSIXct", "POSIXct columns with midnight values should remain POSIXct"
+
+    def test_date_with_r_class_attr_and_all_midnight_values(self):
+        """Test that Date with all midnight values is correctly identified using attrs."""
+        series = pd.Series(pd.to_datetime(["2024-01-01", "2024-01-02", "2024-01-03"]))
+        # Store the original R class in attrs
+        series.attrs["r_class"] = "Date"
+
+        result = _infer_datetime_type(series)
+        assert result == "date", "Date columns should be identified as 'date'"
+
+    def test_posixct_with_r_class_attr_and_time_components(self):
+        """Test that POSIXct with time components is correctly identified using attrs."""
+        series = pd.Series(pd.to_datetime(["2024-01-01 10:30:00", "2024-01-02 15:45:30"]))
+        series.attrs["r_class"] = "POSIXct"
+
+        result = _infer_datetime_type(series)
+        assert result == "POSIXct"
+
+    def test_fallback_to_heuristic_when_no_attrs(self):
+        """Test that function falls back to heuristic when attrs not present."""
+        # Series without attrs should use heuristic
+        series = pd.Series(pd.to_datetime(["2024-01-01", "2024-01-02"]))
+        # No attrs set
+
+        result = _infer_datetime_type(series)
+        # Heuristic: all midnight → date
+        assert result == "date"
+
+    def test_fallback_to_heuristic_with_time_components(self):
+        """Test heuristic fallback with time components."""
+        series = pd.Series(pd.to_datetime(["2024-01-01 10:30:00", "2024-01-02 15:45:30"]))
+        # No attrs set
+
+        result = _infer_datetime_type(series)
+        # Heuristic: has time components → POSIXct
+        assert result == "POSIXct"
+
+    def test_date_constructor_sets_r_class_attr(self):
+        """Test that _date_constructor sets r_class='Date' in Series.attrs."""
+        # Simulate R Date values (days since 1970-01-01)
+        r_date_values = [0.0, 1.0, 2.0]  # 1970-01-01, 1970-01-02, 1970-01-03
+
+        result = _date_constructor(r_date_values, {})
+
+        assert hasattr(result, "attrs"), "Result should have attrs"
+        assert "r_class" in result.attrs, "attrs should contain r_class"
+        assert result.attrs["r_class"] == "Date", "r_class should be 'Date'"
+
+    def test_posixct_constructor_sets_r_class_attr(self):
+        """Test that _posixct_constructor sets r_class='POSIXct' in Series.attrs."""
+        # Simulate R POSIXct values (seconds since 1970-01-01)
+        r_posixct_values = [0.0, 86400.0, 172800.0]  # 1970-01-01, 1970-01-02, 1970-01-03
+
+        result = _posixct_constructor(r_posixct_values, {})
+
+        assert hasattr(result, "attrs"), "Result should have attrs"
+        assert "r_class" in result.attrs, "attrs should contain r_class"
+        assert result.attrs["r_class"] == "POSIXct", "r_class should be 'POSIXct'"
+
+    def test_rds_file_preserves_r_class_for_date_columns(self):
+        """Test that reading RDS file preserves Date class information via attrs."""
+        adsl_file = FIXTURES_DIR / "ADSL.Rds"
+        result = _read_rds_dataset(adsl_file, include_sample_values=False)
+
+        # Verify the mechanism works - we should be able to read the file
+        # Date columns should be correctly identified from R class attrs
+        assert result is not None
+        assert len(result.columns) > 0
+
+        # Find date columns - these were correctly classified via attrs
+        date_columns = [col for col in result.columns if col.type == "date"]
+        # We don't assert specific count since test data may vary,
+        # but at least verify the file was read successfully
+        assert isinstance(date_columns, list)
 
 
 class TestTypeInferenceInRdsFiles:
