@@ -10,6 +10,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Branching workflow documentation (CONTRIBUTING.md)
 - Changelog file
+- Comprehensive unit tests for R Date/POSIXct type inference with Series.attrs
+
+### Changed
+- Replaced `pyreadr` (AGPL-3.0) with `rdata` (MIT) for reading RDS files
+- Updated Python version requirement from >=3.10 to >=3.11 (required by rdata)
+- Updated CI workflow to test on Python 3.11, 3.12, 3.13 (dropped 3.10)
+- R Date/POSIXct constructors now store original R class in Series.attrs for accurate type inference
+- `_infer_datetime_type` now checks Series.attrs first before falling back to heuristics
+
+### Fixed
+- Fixed RuntimeWarning in pandas when converting R Date/POSIXct values with NaN
+- Fixed misclassification of POSIXct columns with all midnight timestamps as Date columns
 
 ## [0.1.4] - 2026-02-17
 
