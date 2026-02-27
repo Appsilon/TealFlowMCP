@@ -47,6 +47,7 @@ async def test_syntax_error():
         print(f"Status: {data['status']}")
         print(f"Error Type: {data['error_type']}")
         print(f"Message: {data['message']}")
+        print(f"Full logs excerpt:\n{data.get('logs_excerpt', 'NO LOGS')}")
         assert data["status"] == "error"
         assert data["error_type"] == "syntax_error"
 
