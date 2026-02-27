@@ -177,6 +177,7 @@ def _infer_datetime_type(col_data: pd.Series) -> str:
             and (times.dt.minute == 0).all()
             and (times.dt.second == 0).all()
             and (times.dt.microsecond == 0).all()
+            and (times.dt.nanosecond == 0).all()
         )
         return "date" if all_midnight else "POSIXct"
     except Exception:
