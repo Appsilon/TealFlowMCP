@@ -34,7 +34,9 @@ def _classify_error(stderr_output: str, stdout_output: str) -> tuple[str | None,
         return "missing_package", "Missing R package"
 
     # Check for syntax errors
-    if re.search(r"unexpected|syntax error", combined, re.IGNORECASE):
+    # "unexpected" and "syntax error" are direct R parse errors
+    # "Error sourcing" indicates a parse/syntax error during shiny::runApp (both old and new shiny versions)
+    if re.search(r"unexpected|syntax error|Error sourcing", combined, re.IGNORECASE):
         return "syntax_error", "R syntax error in app.R"
 
     # Check for object not found
