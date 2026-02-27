@@ -38,7 +38,8 @@ async def test_syntax_error():
     print("\n=== Test 2: Syntax Error ===")
     with tempfile.TemporaryDirectory() as tmpdir:
         app_file = Path(tmpdir) / "app.R"
-        app_file.write_text("library(shiny)\nthis is not valid R syntax")
+        # Use actual R syntax error that will be detected
+        app_file.write_text("if (TRUE { print('missing closing paren') }")
 
         params = CheckShinyStartupInput(app_path=tmpdir, timeout_seconds=5)
         result = await tealflow_check_shiny_startup(params)
