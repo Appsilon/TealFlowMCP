@@ -1,5 +1,7 @@
 # TealFlowMCP
 
+[![MCP Toplist](https://mcptoplist.com/badge/glama%2FAppsilon%2FTealFlowMCP.svg)](https://mcptoplist.com/server/glama%2FAppsilon%2FTealFlowMCP)
+
 [![PyPI version](https://badge.fury.io/py/tealflow-mcp.svg)](https://badge.fury.io/py/tealflow-mcp)
 [![Python versions](https://img.shields.io/pypi/pyversions/tealflow-mcp.svg)](https://pypi.org/project/tealflow-mcp/)
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
