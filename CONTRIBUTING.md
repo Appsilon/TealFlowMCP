@@ -230,6 +230,14 @@ uv run python -m pytest tests/ -v
 - Add docstrings to new functions and classes
 - Update CHANGELOG.md with your changes
 
+## Issue Labels
+
+Labels are defined in [`.github/labels.yml`](https://github.com/Appsilon/TealFlowMCP/blob/develop/.github/labels.yml) and synced to GitHub by the `Sync labels` workflow. Change labels in that file, not in the GitHub UI.
+
+- `action: code-change` - the work can be done entirely in a PR; developers and agents can pick it up.
+- `action: human-required` - the work needs a person (a decision, sign-off, outreach, repo settings or a study). When an issue has both labels, its body splits the work into a **Code part** and a **Human part**.
+- `priority: ...`, `phase: ...` and `area: ...` organize the pharmaverse submission plan. See the [tracking epic](https://github.com/Appsilon/TealFlowMCP/issues/65) for the order of work and the rules for agents.
+
 ## Questions or Issues?
 
 - Open an issue on GitHub for bug reports or feature requests
